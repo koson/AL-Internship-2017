@@ -35,9 +35,12 @@
   *
   ******************************************************************************
   */
-/* Includes ------------------------------------------------------------------*/
+
 #include "main.h"
 #include "stm32f4xx_hal.h"
+#define CAN_FIFO_ID                0
+#define CAN_FIFO                   CAN_FIFO0
+#define CAN_FIFO_IN                CAN_IT_FMP0
 
 CAN_HandleTypeDef hcan1;
 volatile uint16_t datarx[6] ;
@@ -48,10 +51,11 @@ uint32_t uwCounter = 0;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN1_Init(void);
+static void  CAN_filter_init(void);
 void CAN_Tx(void);
 int	verif_msg(void);
 void CAN_Rx(void);
-void Error(void);
+//void Error(void);
 
 int main(void)
 {
@@ -61,13 +65,15 @@ int main(void)
 
   MX_GPIO_Init();
   MX_CAN1_Init();
-
+  CAN_filter_init();
 
   while (1)
   {
 	 CAN_Tx();
-	 HAL_Delay(100);
+	// HAL_Delay(100);
+
 	 CAN_Rx();
+
 
   }
 }
@@ -147,10 +153,32 @@ static void MX_CAN1_Init(void)
   hcan1.Init.NART = DISABLE;
   hcan1.Init.RFLM = DISABLE;
   hcan1.Init.TXFP = DISABLE;
+
+
   if (HAL_CAN_Init(&hcan1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
+
+}
+void CAN_filter_init(void)
+{
+	CAN_FilterConfTypeDef  sFilterConfig;
+
+	/*##-2- Configure the CAN Filter ###########################################*/
+	sFilterConfig.FilterNumber = 0;
+	sFilterConfig.FilterFIFOAssignment = CAN_FIFO;
+	sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
+	sFilterConfig.FilterScale = CAN_FILTERSCALE_16BIT;
+	sFilterConfig.FilterIdHigh = 0x0000;
+	sFilterConfig.FilterIdLow = 0x0000;
+	sFilterConfig.FilterMaskIdHigh = 0x0000;
+	sFilterConfig.FilterMaskIdLow = 0x0000;
+
+
+	sFilterConfig.FilterActivation = ENABLE;
+	sFilterConfig.BankNumber = 0;
+	HAL_CAN_ConfigFilter(&hcan1, &sFilterConfig);
 
 }
 static void MX_GPIO_Init(void)
@@ -318,7 +346,7 @@ void CAN_Tx(void)
 	while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
 
 	HAL_CAN_Transmit(&hcan1,10);
-	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 }
 int	verif_msg(void)
 {
@@ -326,12 +354,9 @@ int	verif_msg(void)
 }
 void CAN_Rx(void)
 {
+		if(HAL_CAN_Receive(&hcan1, CAN_FILTER_FIFO0, 10)==HAL_OK)
+		{
 
-	//if (__HAL_CAN_MSG_PENDING(&hcan1, CAN_FILTER_FIFO0))
-	if(HAL_CAN_Receive(&hcan1,CAN_FIFO0,50))
-	{
-
-		HAL_CAN_Receive(&hcan1, CAN_FILTER_FIFO0, 10);
 		datarx[0] = hcan1.pRxMsg->StdId;
 		datarx[1] = hcan1.pRxMsg->DLC;
 		datarx[2] = hcan1.pRxMsg->RTR;
@@ -339,19 +364,21 @@ void CAN_Rx(void)
 		datarx[4] = hcan1.pRxMsg->Data[0];
 		datarx[5] = hcan1.pRxMsg->Data[1];
 		if(verif_msg())
-			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
-   }
-	else {
+			{
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,SET);
+			//	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,RESET);
+			}
 
-		Error();
-	}
+
+		}
+		else
+					{
+					//HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,SET);
+						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,RESET);
+					}
 
 }
-void Error()
-{
-	while(1)
-			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
-}
+
 void _Error_Handler(char * file, int line)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
