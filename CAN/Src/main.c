@@ -44,10 +44,12 @@ volatile uint16_t datarx[6] ;
 uint8_t TransmitMailbox = 0;
 uint32_t uwCounter = 0;
 
+
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN1_Init(void);
 void CAN_Tx(void);
+int	verif_msg(void);
 void CAN_Rx(void);
 void Error(void);
 
@@ -66,6 +68,7 @@ int main(void)
 	 CAN_Tx();
 	 HAL_Delay(100);
 	 CAN_Rx();
+
   }
 }
 
@@ -124,7 +127,14 @@ void SystemClock_Config(void)
 static void MX_CAN1_Init(void)
 {
 
+	HAL_CAN_DeInit(&hcan1);
+	static CanTxMsgTypeDef        TxMessage;
+	static CanRxMsgTypeDef        RxMessage;
+
 	__HAL_RCC_CAN1_CLK_ENABLE();
+	hcan1.pTxMsg = &TxMessage;
+	hcan1.pRxMsg = &RxMessage;
+
   hcan1.Instance = CAN1;
   hcan1.Init.Prescaler = 4;
   hcan1.Init.Mode = CAN_MODE_NORMAL;
@@ -292,29 +302,35 @@ static void MX_GPIO_Init(void)
 }
 void CAN_Tx(void)
 {
-
-	hcan1.pTxMsg->StdId = 0x0F;
-	hcan1.pTxMsg->ExtId= 0;
+	hcan1.pTxMsg->StdId = 0x02;
+	hcan1.pTxMsg->ExtId= 1;
 	hcan1.pTxMsg->RTR = CAN_RTR_DATA;
 	hcan1.pTxMsg->IDE = CAN_ID_STD;
-	hcan1.pTxMsg->DLC = 2;
-	hcan1.pTxMsg->Data[0] = 0x00;
-	hcan1.pTxMsg->Data[0] = 0x01;
-
+	hcan1.pTxMsg->DLC = 3;
+	hcan1.pTxMsg->Data[0] = 0xAB;
+	hcan1.pTxMsg->Data[1] = 0xCD;
+	hcan1.pTxMsg->Data[2] = 0xEF;
 	do
 	{
 		TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
 
-	} while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
+	}
+	while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
+
 	HAL_CAN_Transmit(&hcan1,10);
 	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
-
-
+}
+int	verif_msg(void)
+{
+	return(( datarx[0] == 0x01 && datarx[4] == 0xFF && datarx[5] == 0xFF ));
 }
 void CAN_Rx(void)
 {
-	/*if (__HAL_CAN_MSG_PENDING(&hcan1, CAN_FILTER_FIFO0))
-	{*/
+
+	//if (__HAL_CAN_MSG_PENDING(&hcan1, CAN_FILTER_FIFO0))
+	if(HAL_CAN_Receive(&hcan1,CAN_FIFO0,50))
+	{
+
 		HAL_CAN_Receive(&hcan1, CAN_FILTER_FIFO0, 10);
 		datarx[0] = hcan1.pRxMsg->StdId;
 		datarx[1] = hcan1.pRxMsg->DLC;
@@ -322,17 +338,19 @@ void CAN_Rx(void)
 		datarx[3] = hcan1.pRxMsg->DLC;
 		datarx[4] = hcan1.pRxMsg->Data[0];
 		datarx[5] = hcan1.pRxMsg->Data[1];
-		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
-/*	}
+		if(verif_msg())
+			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+   }
 	else {
 
 		Error();
 	}
-*/
+
 }
 void Error()
 {
-	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+	while(1)
+			HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
 }
 void _Error_Handler(char * file, int line)
 {
