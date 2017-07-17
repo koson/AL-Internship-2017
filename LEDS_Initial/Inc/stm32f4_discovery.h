@@ -75,7 +75,17 @@ typedef enum
   TRN1 = 8,
   TRN2 = 9,
   TRN3 = 10,
-  TRN4 = 11
+  TRN4 = 11,
+  HBM0 = 12,
+  HBM1 = 13,
+  HBM2 = 14,
+  HBM3 = 15,
+  HBM4 = 16,
+  LBM0 = 17,
+  LBM1 = 18,
+  LBM2 = 19,
+  LBM3 = 20,
+  LBM4 = 21
 } Led_TypeDef;
 
 typedef enum 
@@ -87,7 +97,12 @@ typedef enum
 {  
   BUTTON_MODE_GPIO = 0,
   BUTTON_MODE_EXTI = 1
-} ButtonMode_TypeDef;     
+} ButtonMode_TypeDef;
+typedef enum
+{
+  FLAG_OFF = 0,
+  FLAG_ON = 1
+} FLAG_STATE;
 /**
   * @}
   */ 
@@ -106,7 +121,7 @@ typedef enum
 /** @defgroup STM32F4_DISCOVERY_LOW_LEVEL_LED STM32F4 DISCOVERY LOW LEVEL LED
   * @{
   */
-#define LEDn                             12
+#define LEDn                             22
 
 #define LED4_PIN                         GPIO_PIN_12
 #define LED4_GPIO_PORT                   GPIOD
@@ -129,18 +144,18 @@ typedef enum
 #define LED6_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOD_CLK_DISABLE()  
 
 
-#define STP0_PIN							GPIO_PIN_0
-#define STP0_GPIO_PORT						GPIOD
+#define STP0_PIN							GPIO_PIN_12
+#define STP0_GPIO_PORT						GPIOE
 #define STP0_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
 #define STP0_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOD_CLK_DISABLE()
 
-#define STP1_PIN							GPIO_PIN_1
-#define STP1_GPIO_PORT						GPIOD
+#define STP1_PIN							GPIO_PIN_13
+#define STP1_GPIO_PORT						GPIOE
 #define STP1_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
 #define STP1_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOD_CLK_DISABLE()
 
-#define STP2_PIN							GPIO_PIN_2
-#define STP2_GPIO_PORT						GPIOD
+#define STP2_PIN							GPIO_PIN_14
+#define STP2_GPIO_PORT						GPIOE
 #define STP2_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
 #define STP2_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOD_CLK_DISABLE()
 
@@ -166,8 +181,58 @@ typedef enum
 
 #define TRN4_PIN							GPIO_PIN_7
 #define TRN4_GPIO_PORT						GPIOD
-#define TRN4_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
-#define TRN4_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOD_CLK_DISABLE()
+#define TRN4_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOA_CLK_ENABLE()
+#define TRN4_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOA_CLK_DISABLE()
+
+#define HBM0_PIN							GPIO_PIN_8
+#define HBM0_GPIO_PORT						GPIOA
+#define HBM0_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOA_CLK_ENABLE()
+#define HBM0_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOA_CLK_DISABLE()
+
+#define HBM1_PIN							GPIO_PIN_9
+#define HBM1_GPIO_PORT						GPIOA
+#define HBM1_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOA_CLK_ENABLE()
+#define HBM1_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOA_CLK_DISABLE()
+
+#define HBM2_PIN							GPIO_PIN_10
+#define HBM2_GPIO_PORT						GPIOA
+#define HBM2_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOA_CLK_ENABLE()
+#define HBM2_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOA_CLK_DISABLE()
+
+#define HBM3_PIN							GPIO_PIN_13
+#define HBM3_GPIO_PORT						GPIOA
+#define HBM3_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOA_CLK_ENABLE()
+#define HBM3_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOA_CLK_DISABLE()
+
+#define HBM4_PIN							GPIO_PIN_14
+#define HBM4_GPIO_PORT						GPIOA
+#define HBM4_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOA_CLK_ENABLE()
+#define HBM4_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOA_CLK_DISABLE()
+
+#define LBM0_PIN							GPIO_PIN_7
+#define LBM0_GPIO_PORT						GPIOE
+#define LBM0_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOE_CLK_ENABLE()
+#define LBM0_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOE_CLK_DISABLE()
+
+#define LBM1_PIN							GPIO_PIN_8
+#define LBM1_GPIO_PORT						GPIOE
+#define LBM1_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOE_CLK_ENABLE()
+#define LBM1_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOE_CLK_DISABLE()
+
+#define LBM2_PIN							GPIO_PIN_9
+#define LBM2_GPIO_PORT						GPIOE
+#define LBM2_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOE_CLK_ENABLE()
+#define LBM2_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOE_CLK_DISABLE()
+
+#define LBM3_PIN							GPIO_PIN_10
+#define LBM3_GPIO_PORT						GPIOE
+#define LBM3_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOE_CLK_ENABLE()
+#define LBM3_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOE_CLK_DISABLE()
+
+#define LBM4_PIN							GPIO_PIN_11
+#define LBM4_GPIO_PORT						GPIOE
+#define LBM4_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOE_CLK_ENABLE()
+#define LBM4_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOE_CLK_DISABLE()
 
 #define LEDx_GPIO_CLK_ENABLE(__INDEX__) do{if((__INDEX__) == 0) LED4_GPIO_CLK_ENABLE(); else \
                                            if((__INDEX__) == 1) LED3_GPIO_CLK_ENABLE(); else \
@@ -180,7 +245,17 @@ typedef enum
                                            if((__INDEX__) == 8) TRN1_GPIO_CLK_ENABLE(); else \
                                            if((__INDEX__) == 9) TRN2_GPIO_CLK_ENABLE(); else \
                                            if((__INDEX__) == 10) TRN3_GPIO_CLK_ENABLE(); else \
-                                           if((__INDEX__) == 11) TRN4_GPIO_CLK_ENABLE(); \
+                                           if((__INDEX__) == 11) TRN4_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 12) HBM0_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 13) HBM1_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 14) HBM2_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 15) HBM3_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 16) HBM4_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 17) LBM0_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 18) LBM1_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 19) LBM2_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 20) LBM3_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 21) LBM4_GPIO_CLK_ENABLE(); \
                                            }while(0)
 
 #define LEDx_GPIO_CLK_DISABLE(__INDEX__) do{if((__INDEX__) == 0) LED4_GPIO_CLK_DISABLE(); else \
@@ -194,16 +269,26 @@ typedef enum
                                             if((__INDEX__) == 8) TRN1_GPIO_CLK_DISABLE(); else \
                                             if((__INDEX__) == 9) TRN2_GPIO_CLK_DISABLE(); else \
                                             if((__INDEX__) == 10) TRN3_GPIO_CLK_DISABLE(); else \
-                                            if((__INDEX__) == 11) TRN4_GPIO_CLK_DISABLE(); \
+                                            if((__INDEX__) == 11) TRN4_GPIO_CLK_DISABLE(); else \
+                                            if((__INDEX__) == 12) HBM0_GPIO_CLK_DISABLE(); else \
+                                            if((__INDEX__) == 13) HBM1_GPIO_CLK_DISABLE(); else \
+                                            if((__INDEX__) == 14) HBM2_GPIO_CLK_DISABLE()); else \
+                                            if((__INDEX__) == 15) HBM3_GPIO_CLK_DISABLE(); else \
+                                            if((__INDEX__) == 16) HBM4_GPIO_CLK_DISABLE(); \
+                                            if((__INDEX__) == 17) LBM0_GPIO_CLK_ENABLE(); else \
+                                            if((__INDEX__) == 18) LBM1_GPIO_CLK_ENABLE(); else \
+                                            if((__INDEX__) == 19) LBM2_GPIO_CLK_ENABLE(); else \
+                                            if((__INDEX__) == 20) LBM3_GPIO_CLK_ENABLE(); else \
+                                            if((__INDEX__) == 21) LBM4_GPIO_CLK_ENABLE(); \
                                            	}while(0)
 /**
   * @}
-  */ 
-  
+  */
+
 /** @defgroup STM32F4_DISCOVERY_LOW_LEVEL_BUTTON STM32F4 DISCOVERY LOW LEVEL BUTTON
   * @{
-  */  
-#define BUTTONn                          1 
+  */
+#define BUTTONn                          1
 
 /**
  * @brief Wakeup push-button
@@ -212,7 +297,7 @@ typedef enum
 #define KEY_BUTTON_GPIO_PORT          GPIOA
 #define KEY_BUTTON_GPIO_CLK_ENABLE()  __HAL_RCC_GPIOA_CLK_ENABLE()
 #define KEY_BUTTON_GPIO_CLK_DISABLE() __HAL_RCC_GPIOA_CLK_DISABLE()
-#define KEY_BUTTON_EXTI_IRQn          EXTI0_IRQn 
+#define KEY_BUTTON_EXTI_IRQn          EXTI0_IRQn
 
 #define BUTTONx_GPIO_CLK_ENABLE(__INDEX__)    do{if((__INDEX__) == 0) KEY_BUTTON_GPIO_CLK_ENABLE(); \
                                                 }while(0)
@@ -221,11 +306,11 @@ typedef enum
                                                  }while(0)
 /**
   * @}
-  */ 
-  
+  */
+
 /** @defgroup STM32F4_DISCOVERY_LOW_LEVEL_BUS STM32F4 DISCOVERY LOW LEVEL BUS
   * @{
-  */  
+  */
 
 /*############################### SPI1 #######################################*/
 #define DISCOVERY_SPIx                              SPI1
@@ -242,7 +327,7 @@ typedef enum
    on accurate values, they just guarantee that the application will not remain
    stuck if the SPI communication is corrupted.
    You may modify these timeout values depending on CPU frequency and application
-   conditions (interrupts routines ...). */   
+   conditions (interrupts routines ...). */
 #define SPIx_TIMEOUT_MAX                            0x1000 /*<! The value of the maximal timeout for BUS waiting loops */
 
 
@@ -264,7 +349,7 @@ typedef enum
 #define DISCOVERY_I2Cx_FORCE_RESET()              __HAL_RCC_I2C1_FORCE_RESET()
 #define DISCOVERY_I2Cx_RELEASE_RESET()            __HAL_RCC_I2C1_RELEASE_RESET()
 
-/* I2C interrupt requests */                  
+/* I2C interrupt requests */
 #define DISCOVERY_I2Cx_EV_IRQn                    I2C1_EV_IRQn
 #define DISCOVERY_I2Cx_ER_IRQn                    I2C1_ER_IRQn
 
@@ -272,14 +357,14 @@ typedef enum
    on accurate values, they just guarantee that the application will not remain
    stuck if the SPI communication is corrupted.
    You may modify these timeout values depending on CPU frequency and application
-   conditions (interrupts routines ...). */   
+   conditions (interrupts routines ...). */
 #define I2Cx_TIMEOUT_MAX    0x1000 /*<! The value of the maximal timeout for BUS waiting loops */
 
 
 /*############################# ACCELEROMETER ################################*/
 /* Read/Write command */
-#define READWRITE_CMD                     ((uint8_t)0x80) 
-/* Multiple byte read/write command */ 
+#define READWRITE_CMD                     ((uint8_t)0x80)
+/* Multiple byte read/write command */
 #define MULTIPLEBYTE_CMD                  ((uint8_t)0x40)
 /* Dummy Byte Send by the SPI Master device in order to generate the Clock to the Slave device */
 #define DUMMY_BYTE                        ((uint8_t)0x00)
@@ -306,16 +391,16 @@ uint32_t BSP_PB_GetState(Button_TypeDef Button);
 
 /**
   * @}
-  */ 
-
-/**
-  * @}
-  */ 
+  */
 
 /**
   * @}
   */
-  
+
+/**
+  * @}
+  */
+
 #ifdef __cplusplus
 }
 #endif

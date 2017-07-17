@@ -100,7 +100,17 @@ GPIO_TypeDef* GPIO_PORT[LEDn] = {LED4_GPIO_PORT,
 								 TRN1_GPIO_PORT,
 								 TRN2_GPIO_PORT,
 								 TRN3_GPIO_PORT,
-								 TRN4_GPIO_PORT
+								 TRN4_GPIO_PORT,
+								 HBM0_GPIO_PORT,
+								 HBM1_GPIO_PORT,
+								 HBM2_GPIO_PORT,
+								 HBM3_GPIO_PORT,
+								 HBM4_GPIO_PORT,
+								 LBM0_GPIO_PORT,
+								 LBM1_GPIO_PORT,
+								 LBM2_GPIO_PORT,
+								 LBM3_GPIO_PORT,
+								 LBM4_GPIO_PORT
 };
 const uint16_t GPIO_PIN[LEDn] = {LED4_PIN, 
                                  LED3_PIN, 
@@ -113,11 +123,21 @@ const uint16_t GPIO_PIN[LEDn] = {LED4_PIN,
 								 TRN1_PIN,
 								 TRN2_PIN,
 								 TRN3_PIN,
-								 TRN4_PIN
+								 TRN4_PIN,
+								 HBM0_PIN,
+								 HBM1_PIN,
+								 HBM2_PIN,
+								 HBM3_PIN,
+								 HBM4_PIN,
+								 LBM0_PIN,
+								 LBM1_PIN,
+								 LBM2_PIN,
+								 LBM3_PIN,
+								 LBM4_PIN
 };
 
-GPIO_TypeDef* BUTTON_PORT[BUTTONn] = {KEY_BUTTON_GPIO_PORT}; 
-const uint16_t BUTTON_PIN[BUTTONn] = {KEY_BUTTON_PIN}; 
+GPIO_TypeDef* BUTTON_PORT[BUTTONn] = {KEY_BUTTON_GPIO_PORT};
+const uint16_t BUTTON_PIN[BUTTONn] = {KEY_BUTTON_PIN};
 const uint8_t BUTTON_IRQn[BUTTONn] = {KEY_BUTTON_EXTI_IRQn};
 
 
@@ -228,10 +248,10 @@ void BSP_LED_Toggle(Led_TypeDef Led)
 void BSP_PB_Init(Button_TypeDef Button, ButtonMode_TypeDef Mode)
 {
   GPIO_InitTypeDef GPIO_InitStruct;
-  
+
   /* Enable the BUTTON Clock */
   BUTTONx_GPIO_CLK_ENABLE(Button);
-  
+
   if (Mode == BUTTON_MODE_GPIO)
   {
     /* Configure Button pin as input */
@@ -239,19 +259,19 @@ void BSP_PB_Init(Button_TypeDef Button, ButtonMode_TypeDef Mode)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-    
+
     HAL_GPIO_Init(BUTTON_PORT[Button], &GPIO_InitStruct);
   }
-  
+
   if (Mode == BUTTON_MODE_EXTI)
   {
     /* Configure Button pin as input with External interrupt */
     GPIO_InitStruct.Pin = BUTTON_PIN[Button];
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING; 
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
     HAL_GPIO_Init(BUTTON_PORT[Button], &GPIO_InitStruct);
-    
+
     /* Enable and set Button EXTI Interrupt to the lowest priority */
     HAL_NVIC_SetPriority((IRQn_Type)(BUTTON_IRQn[Button]), 0x0F, 0);
     HAL_NVIC_EnableIRQ((IRQn_Type)(BUTTON_IRQn[Button]));
@@ -261,7 +281,7 @@ void BSP_PB_Init(Button_TypeDef Button, ButtonMode_TypeDef Mode)
 /**
   * @brief  Returns the selected Button state.
   * @param  Button: Specifies the Button to be checked.
-  *   This parameter should be: BUTTON_KEY  
+  *   This parameter should be: BUTTON_KEY
   * @retval The Button GPIO pin value.
   */
 uint32_t BSP_PB_GetState(Button_TypeDef Button)

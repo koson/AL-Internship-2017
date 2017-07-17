@@ -34,12 +34,15 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
+#include "stm32f4_discovery.h"
+#include "main.h"
 
 /* USER CODE BEGIN 0 */
-
+static uint8_t led_phase=0;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern TIM_HandleTypeDef htim4;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -92,6 +95,89 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f4xx.s).                    */
 /******************************************************************************/
+
+/**
+* @brief This function handles TIM4 global interrupt.
+*/
+void TIM4_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM4_IRQn 0 */
+
+
+  /* USER CODE END TIM4_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim4);
+  dlr_off();
+
+  switch(led_phase)
+  {
+  case 0:
+  {
+	  BSP_LED_On(TRN0);
+	  BSP_LED_On(TRN1);
+
+  	  led_phase++;
+  }break;
+  case 1:
+  {
+	  BSP_LED_On(TRN2);
+  	  led_phase++;
+  }break;
+  case 2:
+  {
+	  BSP_LED_On(TRN3);
+  	  led_phase++;
+  }break;
+  case 3:
+  {
+	  BSP_LED_On(TRN4);
+  	  led_phase++;
+  }break;
+  case 4:
+  {
+	  led_phase++;
+  }break;
+  case 5:
+  {
+	  led_phase++;
+  }break;
+  case 6:
+   {
+ 	  led_phase++;
+   }break;
+
+  case 7:
+  {
+	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,RESET);
+	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,RESET);
+	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_5,RESET);
+	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_6,RESET);
+	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_7,RESET);
+
+ 	  led_phase++;
+
+  }break;
+  case 8:
+   {
+ 	  led_phase++;
+   }break;
+
+  case 9:
+  {
+	  if(getTI_ON()==FLAG_OFF)
+	  {
+			 HAL_TIM_Base_Stop_IT(&htim4);
+
+	  }
+	  led_phase=0;
+
+  }break;
+  }
+
+
+  /* USER CODE BEGIN TIM4_IRQn 1 */
+
+  /* USER CODE END TIM4_IRQn 1 */
+}
 
 /* USER CODE BEGIN 1 */
 

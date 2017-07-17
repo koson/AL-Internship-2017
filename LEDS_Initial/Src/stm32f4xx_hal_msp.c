@@ -100,6 +100,21 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 
   /* USER CODE END TIM3_MspInit 1 */
   }
+  else
+	  if(htim_base->Instance==TIM4)
+	   {
+	   /* USER CODE BEGIN TIM4_MspInit 0 */
+
+	   /* USER CODE END TIM4_MspInit 0 */
+	     /* Peripheral clock enable */
+	     __HAL_RCC_TIM4_CLK_ENABLE();
+	     /* TIM4 interrupt Init */
+	     HAL_NVIC_SetPriority(TIM4_IRQn, 0, 0);
+	     HAL_NVIC_EnableIRQ(TIM4_IRQn);
+	   /* USER CODE BEGIN TIM4_MspInit 1 */
+
+	   /* USER CODE END TIM4_MspInit 1 */
+	   }
 
 }
 
@@ -107,6 +122,8 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
 {
 
   GPIO_InitTypeDef GPIO_InitStruct;
+  GPIO_InitTypeDef GPIO_InitStructB;
+
   if(htim->Instance==TIM2)
   {
   /* USER CODE BEGIN TIM2_MspPostInit 0 */
@@ -145,6 +162,12 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    GPIO_InitStructB.Pin = GPIO_PIN_0|GPIO_PIN_1;
+       GPIO_InitStructB.Mode = GPIO_MODE_AF_PP;
+       GPIO_InitStructB.Pull = GPIO_NOPULL;
+       GPIO_InitStructB.Speed = GPIO_SPEED_FREQ_LOW;
+       GPIO_InitStructB.Alternate = GPIO_AF2_TIM3;
+       HAL_GPIO_Init(GPIOB, &GPIO_InitStructB);
   /* USER CODE BEGIN TIM3_MspPostInit 1 */
 
   /* USER CODE END TIM3_MspPostInit 1 */

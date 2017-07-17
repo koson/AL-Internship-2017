@@ -39,6 +39,7 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4_discovery.h"
+#define TIM_PERIOD 200
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -46,7 +47,11 @@
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim4;
+
 int pwm;
+FLAG_STATE TI_ON=FLAG_OFF;
+FLAG_STATE DLR_ON=FLAG_OFF;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -56,14 +61,30 @@ int pwm;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_TIM3_Init(void);                                    
+static void MX_TIM3_Init(void);
+static void MX_TIM4_Init(void);
+static void pwm_init(void);
+
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void back_light_on(void);
 void back_light_off(void);
 void back_light_toggle(void);
-void turn_indicator(void);
+
+void high_beam_on(void);
+void high_beam_off(void);
+
+void low_beam_on(void);
+void low_beam_off(void);
+
+void turn_indicator_on(void);
+void turn_indicator_off(void);
+FLAG_STATE getTI_ON(void);
+
 void pwm_on_off();
-                                
+void dlr_on();
+void dlr_off();
+void dlr_dimming(uint32_t pwm);
+
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -101,24 +122,8 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
-
-  BSP_LED_Init(STP0);
-  BSP_LED_Init(STP1);
-  BSP_LED_Init(STP2);
-  BSP_LED_Init(TRN0);
-  BSP_LED_Init(TRN1);
-  BSP_LED_Init(TRN2);
-  BSP_LED_Init(TRN3);
-  BSP_LED_Init(TRN4);
-
-  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
-
-
-  back_light_on();
+  MX_TIM4_Init();
+  pwm_init();
 
   /* USER CODE BEGIN 2 */
 
@@ -126,17 +131,60 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+
   while (1)
   {
-	  pwm_on_off();
-	  turn_indicator();
+	  HAL_Delay(3000);
+	  turn_indicator_on();
+	  HAL_Delay(6000);
+	  turn_indicator_off();
+	  low_beam_off();
 
   }
   /* USER CODE END 3 */
 
 }
+
+void high_beam_on(void)
+{
+	BSP_LED_On(HBM0);
+	BSP_LED_On(HBM1);
+	BSP_LED_On(HBM2);
+	BSP_LED_On(HBM3);
+	BSP_LED_On(HBM4);
+
+}
+
+void high_beam_off(void)
+{
+	BSP_LED_Off(HBM0);
+	BSP_LED_Off(HBM1);
+	BSP_LED_Off(HBM2);
+	BSP_LED_Off(HBM3);
+	BSP_LED_Off(HBM4);
+}
+void low_beam_on(void)
+{
+	BSP_LED_On(LBM0);
+	BSP_LED_On(LBM1);
+	BSP_LED_On(LBM2);
+	BSP_LED_On(LBM3);
+	BSP_LED_On(LBM4);
+
+}
+
+void low_beam_off(void)
+{
+	BSP_LED_Off(LBM0);
+	BSP_LED_Off(LBM1);
+	BSP_LED_Off(LBM2);
+	BSP_LED_Off(LBM3);
+	BSP_LED_Off(LBM4);
+}
 void back_light_on()
 {
+
 	  BSP_LED_On(STP0);
 	  BSP_LED_On(STP1);
 	  BSP_LED_On(STP2);
@@ -154,24 +202,60 @@ void back_light_toggle()
 	  BSP_LED_Toggle(STP1);
 	  BSP_LED_Toggle(STP2);
 }
-void turn_indicator()
+void turn_indicator_on()
 {
-	 BSP_LED_On(TRN0);
-	 BSP_LED_On(TRN1);
-	 HAL_Delay(100);
-	 BSP_LED_On(TRN2);
-	 HAL_Delay(100);
-	 BSP_LED_On(TRN3);
-	 HAL_Delay(100);
-	 BSP_LED_On(TRN4);
-	 HAL_Delay(500);
-	 BSP_LED_Off(TRN0);
-	 BSP_LED_Off(TRN1);
-	 BSP_LED_Off(TRN2);
-	 BSP_LED_Off(TRN3);
-	 BSP_LED_Off(TRN4);
-	 HAL_Delay(500);
+	  HAL_TIM_Base_Start_IT(&htim4);
+	  TI_ON=FLAG_ON;
 
+}
+void turn_indicator_off()
+{
+	 TI_ON=FLAG_OFF;
+}
+FLAG_STATE getTI_ON()
+{
+	return TI_ON;
+}
+void pwm_init()
+{
+
+	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);
+	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_2);
+	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_3);
+	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_4);
+	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
+	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
+}
+void dlr_on()
+{
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,TIM_PERIOD);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,TIM_PERIOD);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,TIM_PERIOD);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,TIM_PERIOD);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,TIM_PERIOD);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,TIM_PERIOD);
+}
+void dlr_off()
+{
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,0);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,0);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,0);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,0);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,0);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,0);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,0);
+}
+void dlr_dimming(uint32_t div)
+{
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,TIM_PERIOD/div);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,TIM_PERIOD/div);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD/div);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,TIM_PERIOD/div);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,TIM_PERIOD/div);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,TIM_PERIOD/div);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,TIM_PERIOD/div);
 }
 void pwm_on_off()
 {
@@ -361,7 +445,15 @@ static void MX_TIM3_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+   {
+     _Error_Handler(__FILE__, __LINE__);
+   }
 
+   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+   {
+     _Error_Handler(__FILE__, __LINE__);
+   }
   HAL_TIM_MspPostInit(&htim3);
 
 }
@@ -376,24 +468,27 @@ static void MX_TIM3_Init(void)
 static void MX_GPIO_Init(void)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct;
+  BSP_LED_Init(HBM0);
+  BSP_LED_Init(HBM1);
+  BSP_LED_Init(HBM2);
+  BSP_LED_Init(HBM3);
+  BSP_LED_Init(HBM4);
 
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
+  BSP_LED_Init(LBM0);
+  BSP_LED_Init(LBM1);
+  BSP_LED_Init(LBM2);
+  BSP_LED_Init(LBM3);
+  BSP_LED_Init(LBM4);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3 
-                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, GPIO_PIN_RESET);
+  BSP_LED_Init(STP0);
+  BSP_LED_Init(STP1);
+  BSP_LED_Init(STP2);
 
-  /*Configure GPIO pins : PD0 PD1 PD2 PD3 
-                           PD4 PD5 PD6 PD7 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3 
-                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+  BSP_LED_Init(TRN0);
+  BSP_LED_Init(TRN1);
+  BSP_LED_Init(TRN2);
+  BSP_LED_Init(TRN3);
+  BSP_LED_Init(TRN4);
 
 }
 
@@ -435,6 +530,36 @@ void assert_failed(uint8_t* file, uint32_t line)
 }
 
 #endif
+static void MX_TIM4_Init(void)
+{
+
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 8000;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 50;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
 
 /**
   * @}
