@@ -45,11 +45,10 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 
+void SVC_Handler(void);
+void PendSV_Handler(void);
 void SysTick_Handler(void);
-void CAN1_TX_IRQHandler(void);
-void CAN1_RX0_IRQHandler(void);
-void CAN1_RX1_IRQHandler(void);
-void CAN1_SCE_IRQHandler(void);
+void TIM4_IRQHandler(void);
 
 #ifdef __cplusplus
 }

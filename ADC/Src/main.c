@@ -39,16 +39,32 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "signals.h"
+#include "stm32f4_discovery.h"
 
 #define CAN_FIFO_ID                0
 #define CAN_FIFO                   CAN_FIFO0
 #define CAN_FIFO_IN                CAN_IT_FMP0
 #define KEY_PRESSED     0x01
 #define KEY_NOT_PRESSED 0x00
+#define TIM_PERIOD 200
+/* USER CODE BEGIN Includes */
 
+/* USER CODE END Includes */
+int pwm;
+FLAG_STATE TI_ON=FLAG_OFF;
+FLAG_STATE DLR_ON=FLAG_OFF;
+
+/* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+
 CAN_HandleTypeDef hcan1;
 
+TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim4;
+
+/* USER CODE BEGIN PV */
+/* Private variables ---------------------------------------------------------*/
 uint32_t ADC_Val; //0 - > 4092
 uint32_t Id;
 volatile uint16_t datarx[6] ;
@@ -57,10 +73,17 @@ uint8_t TransmitMailbox = 0;
 static CanTxMsgTypeDef        TxMessage;
 static CanRxMsgTypeDef        RxMessage;
 
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_CAN1_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_CAN1_Init(void);
+static void MX_TIM2_Init(void);
+static void MX_TIM3_Init(void);
+static void MX_TIM4_Init(void);
+
 static void  CAN_filter_init(void);
 
 uint32_t level(void);
@@ -69,28 +92,94 @@ void CAN_Tx(uint32_t ID);
 void CAN_Rx(void);
 void verif_msg(volatile uint16_t);
 
+static void pwm_init(void);
+
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+void back_light_on(void);
+void back_light_off(void);
+void back_light_toggle(void);
+
+void high_beam_on(void);
+void high_beam_off(void);
+
+void low_beam_on(void);
+void low_beam_off(void);
+
+void turn_indicator_on(void);
+void turn_indicator_off(void);
+FLAG_STATE getTI_ON(void);
+
+void pwm_on_off();
+void dlr_on();
+void dlr_off();
+void dlr_dimming(uint32_t pwm);
+
+                                
+
+/* USER CODE BEGIN PFP */
+/* Private function prototypes -----------------------------------------------*/
+
+/* USER CODE END PFP */
+
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
 
 int main(void)
 {
 
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+
+  /* MCU Configuration----------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
   SystemClock_Config();
 
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_CAN1_Init();
   MX_ADC1_Init();
+  MX_CAN1_Init();
+  MX_TIM2_Init();
+  MX_TIM3_Init();
+  MX_TIM4_Init();
+  pwm_init();
   CAN_filter_init();
+  /* USER CODE BEGIN 2 */
+	// turn_indicator_on();
+  /* USER CODE END 2 */
 
-  while(1)
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+ /* turn_indicator_on();
+  dlr_on();
+  back_light_on();
+  high_beam_on();
+  low_beam_on();*/
+  while (1)
   {
-	  CAN_Tx_Brake(level());
-	  CAN_Tx(HIB);
-	  CAN_Tx(LOB);
-	  CAN_Tx(TRN);
-  }
-}
+  /* USER CODE END WHILE */
+	 CAN_Tx_Brake(level());
+	 CAN_Rx();
 
+  /* USER CODE BEGIN 3 */
+
+  }
+  /* USER CODE END 3 */
+
+}
 
 /** System Clock Configuration
 */
@@ -108,11 +197,12 @@ void SystemClock_Config(void)
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 4;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 8;
   RCC_OscInitStruct.PLL.PLLN = 144;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
@@ -128,7 +218,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
   {
@@ -181,6 +271,7 @@ static void MX_ADC1_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
+
 }
 
 /* CAN1 init function */
@@ -206,8 +297,6 @@ static void MX_CAN1_Init(void)
   hcan1.Init.NART = DISABLE;
   hcan1.Init.RFLM = DISABLE;
   hcan1.Init.TXFP = DISABLE;
-
-
   if (HAL_CAN_Init(&hcan1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -215,7 +304,245 @@ static void MX_CAN1_Init(void)
 
 }
 
-/* CAN1 filter */
+/* TIM2 init function */
+static void MX_TIM2_Init(void)
+{
+
+  TIM_MasterConfigTypeDef sMasterConfig;
+  TIM_OC_InitTypeDef sConfigOC;
+
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 24;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 200;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  HAL_TIM_MspPostInit(&htim2);
+
+}
+
+/* TIM3 init function */
+static void MX_TIM3_Init(void)
+{
+
+  TIM_MasterConfigTypeDef sMasterConfig;
+  TIM_OC_InitTypeDef sConfigOC;
+
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 24;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 200;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  HAL_TIM_MspPostInit(&htim3);
+
+}
+
+/* TIM4 init function */
+static void MX_TIM4_Init(void)
+{
+
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 16000;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 200;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/** Configure pins as 
+        * Analog 
+        * Input 
+        * Output
+        * EVENT_OUT
+        * EXTI
+*/
+static void MX_GPIO_Init(void)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct;
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10 
+                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_13 
+                          |GPIO_PIN_14, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6 
+                          |GPIO_PIN_7, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PE7 PE8 PE9 PE10 
+                           PE11 PE12 PE13 PE14 */
+  GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10 
+                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PA8 PA9 PA10 PA13 
+                           PA14 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_13 
+                          |GPIO_PIN_14;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PD3 PD4 PD5 PD6 
+                           PD7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6 
+                          |GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*ADC Channel 11 -> PC1 */
+    GPIO_InitStruct.Pin = GPIO_PIN_1;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL ;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*CAN1 TX pin*/
+    GPIO_InitStruct.Pin = CAN1_TX_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Alternate =  GPIO_AF9_CAN1;
+    HAL_GPIO_Init(CAN1_TX_GPIO_Port, &GPIO_InitStruct);
+
+    /*CAN1 RX pin*/
+    GPIO_InitStruct.Pin = CAN1_RX_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Alternate =  GPIO_AF9_CAN1;
+    HAL_GPIO_Init(CAN1_RX_GPIO_Port, &GPIO_InitStruct);
+
+    BSP_LED_Init(LED3);
+    BSP_LED_Init(LED4);
+    BSP_LED_Init(LED5);
+    BSP_LED_Init(LED6);
+
+      BSP_LED_Init(HBM0);
+      BSP_LED_Init(HBM1);
+      BSP_LED_Init(HBM2);
+      BSP_LED_Init(HBM3);
+      BSP_LED_Init(HBM4);
+
+      BSP_LED_Init(LBM0);
+      BSP_LED_Init(LBM1);
+      BSP_LED_Init(LBM2);
+      BSP_LED_Init(LBM3);
+      BSP_LED_Init(LBM4);
+
+      BSP_LED_Init(STP0);
+      BSP_LED_Init(STP1);
+      BSP_LED_Init(STP2);
+
+      BSP_LED_Init(TRN0);
+      BSP_LED_Init(TRN1);
+      BSP_LED_Init(TRN2);
+      BSP_LED_Init(TRN3);
+      BSP_LED_Init(TRN4);
+}
+
 void CAN_filter_init(void)
 {
 	CAN_FilterConfTypeDef  sFilterConfig;
@@ -234,184 +561,6 @@ void CAN_filter_init(void)
 	sFilterConfig.FilterActivation = ENABLE;
 	sFilterConfig.BankNumber = 0;
 	HAL_CAN_ConfigFilter(&hcan1, &sFilterConfig);
-
-}
-
-/** Configure pins as 
-        * Analog 
-        * Input 
-        * Output
-        * EVENT_OUT
-        * EXTI
-     PC3   ------> I2S2_SD
-     PA4   ------> I2S3_WS
-     PA5   ------> SPI1_SCK
-     PA6   ------> SPI1_MISO
-     PA7   ------> SPI1_MOSI
-     PB10   ------> I2S2_CK
-     PC7   ------> I2S3_MCK
-     PA9   ------> USB_OTG_FS_VBUS
-     PA10   ------> USB_OTG_FS_ID
-     PA11   ------> USB_OTG_FS_DM
-     PA12   ------> USB_OTG_FS_DP
-     PC10   ------> I2S3_CK
-     PC12   ------> I2S3_SD
-     PB6   ------> I2C1_SCL
-     PB9   ------> I2C1_SDA
-*/
-static void MX_GPIO_Init(void)
-{
-
-  GPIO_InitTypeDef GPIO_InitStruct;
-
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOE_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(CS_I2C_SPI_GPIO_Port, CS_I2C_SPI_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(OTG_FS_PowerSwitchOn_GPIO_Port, OTG_FS_PowerSwitchOn_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, LD4_Pin|LD3_Pin|LD5_Pin|LD6_Pin 
-                          |Audio_RST_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin : CS_I2C_SPI_Pin */
-  GPIO_InitStruct.Pin = CS_I2C_SPI_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(CS_I2C_SPI_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : OTG_FS_PowerSwitchOn_Pin */
-  GPIO_InitStruct.Pin = OTG_FS_PowerSwitchOn_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(OTG_FS_PowerSwitchOn_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PDM_OUT_Pin */
-  GPIO_InitStruct.Pin = PDM_OUT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
-  HAL_GPIO_Init(PDM_OUT_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : B1_Pin */
-  GPIO_InitStruct.Pin = B1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_EVT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : I2S3_WS_Pin */
-  GPIO_InitStruct.Pin = I2S3_WS_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
-  HAL_GPIO_Init(I2S3_WS_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : SPI1_SCK_Pin SPI1_MISO_Pin SPI1_MOSI_Pin */
-  GPIO_InitStruct.Pin = SPI1_SCK_Pin|SPI1_MISO_Pin|SPI1_MOSI_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : BOOT1_Pin */
-  GPIO_InitStruct.Pin = BOOT1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BOOT1_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : CLK_IN_Pin */
-  GPIO_InitStruct.Pin = CLK_IN_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
-  HAL_GPIO_Init(CLK_IN_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : LD4_Pin LD3_Pin LD5_Pin LD6_Pin 
-                           Audio_RST_Pin */
-  GPIO_InitStruct.Pin = LD4_Pin|LD3_Pin|LD5_Pin|LD6_Pin 
-                          |Audio_RST_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : I2S3_MCK_Pin I2S3_SCK_Pin I2S3_SD_Pin */
-  GPIO_InitStruct.Pin = I2S3_MCK_Pin|I2S3_SCK_Pin|I2S3_SD_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : VBUS_FS_Pin */
-  GPIO_InitStruct.Pin = VBUS_FS_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(VBUS_FS_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : OTG_FS_ID_Pin OTG_FS_DM_Pin OTG_FS_DP_Pin */
-  GPIO_InitStruct.Pin = OTG_FS_ID_Pin|OTG_FS_DM_Pin|OTG_FS_DP_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : OTG_FS_OverCurrent_Pin */
-  GPIO_InitStruct.Pin = OTG_FS_OverCurrent_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(OTG_FS_OverCurrent_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : Audio_SCL_Pin Audio_SDA_Pin */
-  GPIO_InitStruct.Pin = Audio_SCL_Pin|Audio_SDA_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : MEMS_INT2_Pin */
-  GPIO_InitStruct.Pin = MEMS_INT2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_EVT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(MEMS_INT2_GPIO_Port, &GPIO_InitStruct);
-
-   /*ADC Channel 11 -> PC1 */
-   GPIO_InitStruct.Pin = GPIO_PIN_1;
-   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-   GPIO_InitStruct.Pull = GPIO_NOPULL ;
-   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-   /*CAN1 TX pin*/
-   GPIO_InitStruct.Pin = CAN1_TX_Pin;
-   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-   GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-   GPIO_InitStruct.Pull = GPIO_PULLUP;
-   GPIO_InitStruct.Alternate =  GPIO_AF9_CAN1;
-   HAL_GPIO_Init(CAN1_TX_GPIO_Port, &GPIO_InitStruct);
-
-   /*CAN1 RX pin*/
-   GPIO_InitStruct.Pin = CAN1_RX_Pin;
-   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-   GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-   GPIO_InitStruct.Pull = GPIO_PULLUP;
-   GPIO_InitStruct.Alternate =  GPIO_AF9_CAN1;
-   HAL_GPIO_Init(CAN1_RX_GPIO_Port, &GPIO_InitStruct);
 
 }
 
@@ -456,22 +605,19 @@ void verif_msg(volatile uint16_t data)
 	switch (data)
 	{
 		case 0x10:
-					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,SET);
+					high_beam_on();
 					break;
 		case 0x11:
-					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,SET);
-					break;
-		case 0x12:
-					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14,SET);
+					low_beam_on();
 					break;
 		case 0x13:
-					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,SET);
+					turn_indicator_on();
 					break;
 		default :
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,RESET);
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,RESET);
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14,RESET);
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,RESET);
+			high_beam_off();
+			low_beam_off();
+			turn_indicator_off();
+			dlr_on();
 	}
 }
 
@@ -493,10 +639,10 @@ void CAN_Rx(void)
 		else
 		{
 
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,RESET);
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,RESET);
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14,RESET);
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,RESET);
+			high_beam_off();
+			low_beam_off();
+			turn_indicator_off();
+			dlr_on();
 
 		}
 }
@@ -505,60 +651,216 @@ uint32_t level(void)
 {
 	HAL_ADC_Start(&hadc1);
 	ADC_Val = HAL_ADC_GetValue(&hadc1);
-	if( 100 < ADC_Val && ADC_Val < 1000 )
+	if( 100 < ADC_Val && ADC_Val < 1500 )
 	{
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,SET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,RESET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14,RESET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,RESET);
+						BSP_LED_On(STP0);
+						BSP_LED_Off(STP1);
+						BSP_LED_Off(STP2);
 				return(1);
 	}
-	else if( 1000 < ADC_Val && ADC_Val < 2000)
+	else if( 1500 < ADC_Val && ADC_Val < 3000)
 	{
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,SET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,SET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14,RESET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,RESET);
+						BSP_LED_On(STP0);
+						BSP_LED_On(STP1);
+						BSP_LED_Off(STP2);
 				return(2);
-	}
-	else if( 2000 < ADC_Val && ADC_Val < 3000)
-	{
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,SET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,SET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14,SET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,RESET);
-				return(3);
 	}
 	else if( 3000 < ADC_Val && ADC_Val < 5000)
 	{
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,SET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,SET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14,SET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,SET);
-				return(4);
+						BSP_LED_On(STP0);
+						BSP_LED_On(STP1);
+						BSP_LED_On(STP2);
+				return(3);
 	}
 	else
 	{
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,RESET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,RESET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14,RESET);
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,RESET);
+				BSP_LED_Off(STP0);
+				BSP_LED_Off(STP1);
+				BSP_LED_Off(STP2);
 				return(0);
 	}
 
 }
 
-void _Error_Handler(char * file, int line)
+void high_beam_on(void)
 {
-  while(1)
-  {
-	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,SET);
-  }
-}
-#ifdef USE_FULL_ASSERT
-void assert_failed(uint8_t* file, uint32_t line)
-{
+	BSP_LED_On(HBM0);
+	BSP_LED_On(HBM1);
+	BSP_LED_On(HBM2);
+	BSP_LED_On(HBM3);
+	BSP_LED_On(HBM4);
 
 }
+
+void high_beam_off(void)
+{
+	BSP_LED_Off(HBM0);
+	BSP_LED_Off(HBM1);
+	BSP_LED_Off(HBM2);
+	BSP_LED_Off(HBM3);
+	BSP_LED_Off(HBM4);
+}
+void low_beam_on(void)
+{
+	BSP_LED_On(LBM0);
+	BSP_LED_On(LBM1);
+	BSP_LED_On(LBM2);
+	BSP_LED_On(LBM3);
+	BSP_LED_On(LBM4);
+
+}
+
+void low_beam_off(void)
+{
+	BSP_LED_Off(LBM0);
+	BSP_LED_Off(LBM1);
+	BSP_LED_Off(LBM2);
+	BSP_LED_Off(LBM3);
+	BSP_LED_Off(LBM4);
+}
+void back_light_on()
+{
+
+	  BSP_LED_On(STP0);
+	  BSP_LED_On(STP1);
+	  BSP_LED_On(STP2);
+
+}
+void back_light_off()
+{
+	  BSP_LED_Off(STP0);
+	  BSP_LED_Off(STP1);
+	  BSP_LED_Off(STP2);
+}
+void back_light_toggle()
+{
+	  BSP_LED_Toggle(STP0);
+	  BSP_LED_Toggle(STP1);
+	  BSP_LED_Toggle(STP2);
+}
+void turn_indicator_on()
+{
+	  HAL_TIM_Base_Start_IT(&htim4);
+	  TI_ON=FLAG_ON;
+
+}
+void turn_indicator_off()
+{
+	 TI_ON=FLAG_OFF;
+}
+FLAG_STATE getTI_ON()
+{
+	return TI_ON;
+}
+void pwm_init()
+{
+
+	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);
+	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_2);
+	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_3);
+	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_4);
+	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
+	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
+}
+void dlr_on()
+{
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,TIM_PERIOD);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,TIM_PERIOD);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,TIM_PERIOD);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,TIM_PERIOD);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,TIM_PERIOD);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,TIM_PERIOD);
+}
+void dlr_off()
+{
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,0);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,0);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,0);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,0);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,0);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,0);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,0);
+}
+void dlr_dimming(uint32_t div)
+{
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,TIM_PERIOD/div);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,TIM_PERIOD/div);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD/div);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,TIM_PERIOD/div);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,TIM_PERIOD/div);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,TIM_PERIOD/div);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,TIM_PERIOD/div);
+}
+void pwm_on_off()
+{
+
+	  for(pwm=0;pwm<200;pwm+=50)
+	  {
+		 __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,pwm);
+		 __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,pwm);
+		 __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,pwm);
+		 __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,pwm);
+		 __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,pwm);
+	  }
+	  HAL_Delay(100);
+	  for(pwm=200;pwm>0;pwm--)
+	  {
+		  __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,pwm);
+		  __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,pwm);
+		  __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,pwm);
+		  __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,pwm);
+		  __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,pwm);
+
+		  HAL_Delay(10);
+	  }
+}
+/* USER CODE BEGIN 4 */
+
+/* USER CODE END 4 */
+
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @param  None
+  * @retval None
+  */
+void _Error_Handler(char * file, int line)
+{
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+  while(1) 
+  {
+  }
+  /* USER CODE END Error_Handler_Debug */ 
+}
+
+#ifdef USE_FULL_ASSERT
+
+/**
+   * @brief Reports the name of the source file and the source line number
+   * where the assert_param error has occurred.
+   * @param file: pointer to the source file name
+   * @param line: assert_param error line source number
+   * @retval None
+   */
+void assert_failed(uint8_t* file, uint32_t line)
+{
+  /* USER CODE BEGIN 6 */
+  /* User can add his own implementation to report the file name and line number,
+    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
+
+}
+
 #endif
+
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+*/ 
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
