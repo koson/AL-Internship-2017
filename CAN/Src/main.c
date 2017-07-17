@@ -38,24 +38,36 @@
 
 #include "main.h"
 #include "stm32f4xx_hal.h"
+
 #define CAN_FIFO_ID                0
 #define CAN_FIFO                   CAN_FIFO0
 #define CAN_FIFO_IN                CAN_IT_FMP0
+#define KEY_PRESSED     0x01
+#define KEY_NOT_PRESSED 0x00
+
+#define msg_HIB 0x10
+#define msg_LOB 0x11
+#define msg_BRK 0x12
+#define msg_TRN 0x13
+
 
 CAN_HandleTypeDef hcan1;
 volatile uint16_t datarx[6] ;
 uint8_t TransmitMailbox = 0;
-uint32_t uwCounter = 0;
 
+__IO uint8_t UserButtonPressed = 0x00;
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN1_Init(void);
 static void  CAN_filter_init(void);
+
 void CAN_Tx(void);
-int	verif_msg(void);
 void CAN_Rx(void);
-//void Error(void);
+void Error(void);
+void verif_msg(volatile uint16_t);
+
+
 
 int main(void)
 {
@@ -69,12 +81,9 @@ int main(void)
 
   while (1)
   {
-	 CAN_Tx();
+	 //CAN_Tx();
 	// HAL_Delay(100);
-
-	 CAN_Rx();
-
-
+	  CAN_Rx();
   }
 }
 
@@ -338,6 +347,7 @@ void CAN_Tx(void)
 	hcan1.pTxMsg->Data[0] = 0xAB;
 	hcan1.pTxMsg->Data[1] = 0xCD;
 	hcan1.pTxMsg->Data[2] = 0xEF;
+	TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
 	do
 	{
 		TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
@@ -345,15 +355,36 @@ void CAN_Tx(void)
 	}
 	while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
 
-	HAL_CAN_Transmit(&hcan1,10);
-	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
+	//HAL_CAN_Transmit(&hcan1,10);
+	//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
 }
-int	verif_msg(void)
+
+void verif_msg(volatile uint16_t data)
 {
-	return(( datarx[0] == 0x01 && datarx[4] == 0xFF && datarx[5] == 0xFF ));
+	switch (data)
+	{
+		case 0x10:
+					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,SET);
+					break;
+		case 0x11:
+					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,SET);
+					break;
+		case 0x12:
+					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14,SET);
+					break;
+		case 0x13:
+					HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,SET);
+					break;
+		default :
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,RESET);
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,RESET);
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14,RESET);
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,RESET);
+	}
 }
 void CAN_Rx(void)
 {
+
 		if(HAL_CAN_Receive(&hcan1, CAN_FILTER_FIFO0, 10)==HAL_OK)
 		{
 
@@ -363,12 +394,28 @@ void CAN_Rx(void)
 		datarx[3] = hcan1.pRxMsg->DLC;
 		datarx[4] = hcan1.pRxMsg->Data[0];
 		datarx[5] = hcan1.pRxMsg->Data[1];
-		if(verif_msg())
+
+		verif_msg( hcan1.pRxMsg->StdId);
+		}
+		else
+		{
+
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,RESET);
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,RESET);
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14,RESET);
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15,RESET);
+
+		}
+		/*if(verif_msg())
 			{
 			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,SET);
 			//	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,RESET);
 			}
-
+		else
+		{
+						//HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,SET);
+							HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,RESET);
+		}
 
 		}
 		else
@@ -376,16 +423,25 @@ void CAN_Rx(void)
 					//HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13,SET);
 						HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12,RESET);
 					}
-
+*/
 }
 
+void Error(void)
+{
+	while(1)
+	{
+		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
+		HAL_Delay(100);
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, RESET);
+	}
+}
 void _Error_Handler(char * file, int line)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   while(1) 
   {
-	  HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
+
   }
   /* USER CODE END Error_Handler_Debug */ 
 }
