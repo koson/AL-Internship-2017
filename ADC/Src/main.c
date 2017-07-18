@@ -55,8 +55,8 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 
-FLAG_STATE TI_ON=FLAG_OFF;
-FLAG_STATE DLR_ON=FLAG_OFF;
+FLAG_STATE FLAG_TI=FLAG_OFF;
+FLAG_STATE FLAG_DLR=FLAG_ON;
 
 uint32_t ADC_Val; //0 - > 4092
 uint32_t Id;
@@ -104,7 +104,8 @@ void low_beam_off(void);
 
 void turn_indicator_on(void);
 void turn_indicator_off(void);
-FLAG_STATE getTI_ON(void);
+FLAG_STATE getFLAG_TI(void);
+FLAG_STATE getFLAG_DLR(void);
 
 void pwm_on_off();
 
@@ -611,9 +612,7 @@ uint32_t level(void)
 	}
 	else
 	{
-				BSP_LED_Off(STP0);
-				BSP_LED_Off(STP1);
-				BSP_LED_Off(STP2);
+		back_light_off();
 				return(0);
 	}
 
@@ -675,16 +674,24 @@ void back_light_toggle()
 void turn_indicator_on()
 {
 	  HAL_TIM_Base_Start_IT(&htim4);
-	  TI_ON=FLAG_ON;
+	  FLAG_TI=FLAG_ON;
+	  if(FLAG_DLR==FLAG_ON)
+	  {
+		  dlr_off();
+		  FLAG_DLR=FLAG_ON;
 
+	  }
 }
 void turn_indicator_off()
 {
-	 TI_ON=FLAG_OFF;
+	 FLAG_TI=FLAG_OFF;
 }
-FLAG_STATE getTI_ON()
+FLAG_STATE getFLAG_TI()
 {
-	return TI_ON;
+	return FLAG_TI;
+}FLAG_STATE getFLAG_DLR()
+{
+	return FLAG_DLR;
 }
 void pwm_init()
 {
@@ -699,6 +706,7 @@ void pwm_init()
 }
 void dlr_on()
 {
+	FLAG_DLR=FLAG_ON;
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,TIM_PERIOD);
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,TIM_PERIOD);
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD);
@@ -709,6 +717,7 @@ void dlr_on()
 }
 void dlr_off()
 {
+	FLAG_DLR=FLAG_OFF;
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,0);
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,0);
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,0);

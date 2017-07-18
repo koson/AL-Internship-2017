@@ -94,7 +94,6 @@ void TIM4_IRQHandler(void)
 
   /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim4);
-  dlr_off();
 
   switch(led_phase)
   {
@@ -151,10 +150,11 @@ void TIM4_IRQHandler(void)
 
   case 9:
   {
-	  if(getTI_ON()==FLAG_OFF)
+	  if(getFLAG_TI()==FLAG_OFF)
 	  {
 			 HAL_TIM_Base_Stop_IT(&htim4);
-
+			 if(getFLAG_DLR()==FLAG_ON)
+			 		 dlr_on();
 	  }
 	  led_phase=0;
 
