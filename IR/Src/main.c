@@ -39,6 +39,7 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_it.h"
+#include "IR.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -50,6 +51,10 @@ TIM_HandleTypeDef htim4;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 uint32_t uwPrescalerValue;
+uint16_t message = 0;
+extern int counter;
+IRMessage receivedMessage;
+IRMessage messageToBeSent;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,11 +102,12 @@ int main(void)
 
    HAL_TIM_Base_Start_IT(&htim4);
    /*decoding*/
+   messageToBeSent = cryticalBrake;
    while (1)
    {
 
 	   ///Transmiter:
-		   __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_4,2500);
+		   __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_4, code(messageToBeSent));
 		   if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
 
 				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
@@ -110,7 +116,9 @@ int main(void)
 				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
 		   }
 
-
+		   	  if(counter % 16 == 0) {
+		   		receivedMessage = decode(message);
+		   	  }
    }
 }
 static void MX_GPIO_Init(void)
@@ -192,7 +200,7 @@ static void MX_TIM4_Init(void)
   htim4.Instance = TIM4;
   htim4.Init.Prescaler = uwPrescalerValue;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 1250 -1;
+  htim4.Init.Period = 625 -1;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
   {

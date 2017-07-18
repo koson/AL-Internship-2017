@@ -22,7 +22,7 @@ typedef enum IRMsg {idle,
 
 
 
-IRMessage decode(uint8_t message);
+IRMessage decode(uint16_t message);
 int code(IRMessage msg);
 
 

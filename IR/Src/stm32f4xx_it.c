@@ -39,7 +39,7 @@
 /* USER CODE BEGIN 0 */
 
 int counter = 0;
-uint8_t message = 0;
+extern uint16_t message;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
