@@ -20,4 +20,11 @@
 
 #define BRK	   0x12
 
+#define	IR_BRAKE      0x30
+#define IR_OBSTACLE   0x31
+#define IR_IDLE       0x32
+#define IR_LEAVING    0x33
+#define IR_STOP       0x34
+#define IR_FAILED     0x35
+
 #endif /* SIGNALS_H_ */
