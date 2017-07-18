@@ -67,6 +67,7 @@ static void MX_GPIO_Init(void);
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void transmit(uint16_t CANId);
 
 
 /* USER CODE BEGIN PFP */
@@ -107,7 +108,7 @@ int main(void)
    {
 
 	   ///Transmiter:
-		   __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_4, code(messageToBeSent));
+	   transmit(51);
 		   if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
 
 				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
@@ -120,6 +121,9 @@ int main(void)
 		   		receivedMessage = decode(message);
 		   	  }
    }
+}
+void transmit(uint16_t CANId) {
+	   __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_4, code(CANDecode(CANId)));
 }
 static void MX_GPIO_Init(void)
 {

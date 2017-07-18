@@ -7,6 +7,27 @@
 #include "IR.h"
 int noOfOnes;
 IRMessage toReturn;
+extern IRMessage messageToBeSent;
+
+IRMessage CANDecode(uint16_t id) {
+	switch(id) {
+	case 48: messageToBeSent = cryticalBrake;
+			break;
+	case 49: messageToBeSent = obstacleOnTheRoad;
+			break;
+	case 50: messageToBeSent = idle;
+			break;
+	case 51: messageToBeSent = goingToLeaveTheRoad;
+			break;
+	case 52: messageToBeSent = goingToStop;
+			break;
+	case 53: messageToBeSent = failed;
+			break;
+	default: messageToBeSent = idle;
+			break;
+	}
+	return messageToBeSent;
+}
 
 IRMessage decode(uint16_t message) {
 	noOfOnes = 0;
