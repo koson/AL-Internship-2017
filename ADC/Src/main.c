@@ -35,7 +35,7 @@
   *
   ******************************************************************************
   */
-/* Includes ------------------------------------------------------------------*/
+
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "signals.h"
@@ -44,38 +44,32 @@
 #define CAN_FIFO_ID                0
 #define CAN_FIFO                   CAN_FIFO0
 #define CAN_FIFO_IN                CAN_IT_FMP0
-#define KEY_PRESSED     0x01
-#define KEY_NOT_PRESSED 0x00
 #define TIM_PERIOD 200
-/* USER CODE BEGIN Includes */
 
-/* USER CODE END Includes */
-int pwm;
-FLAG_STATE TI_ON=FLAG_OFF;
-FLAG_STATE DLR_ON=FLAG_OFF;
-
-/* Private variables ---------------------------------------------------------*/
+/**********************\
+|*     handlers        |
+\**********************/
 ADC_HandleTypeDef hadc1;
-
 CAN_HandleTypeDef hcan1;
-
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 
-/* USER CODE BEGIN PV */
-/* Private variables ---------------------------------------------------------*/
+FLAG_STATE TI_ON=FLAG_OFF;
+FLAG_STATE DLR_ON=FLAG_OFF;
+
 uint32_t ADC_Val; //0 - > 4092
 uint32_t Id;
 volatile uint16_t datarx[6] ;
 uint8_t TransmitMailbox = 0;
+int pwm;
 
 static CanTxMsgTypeDef        TxMessage;
 static CanRxMsgTypeDef        RxMessage;
 
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
+/**********************\
+|*       config        |
+\**********************/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
@@ -83,8 +77,11 @@ static void MX_CAN1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
+static void CAN_filter_init(void);
 
-static void  CAN_filter_init(void);
+/**********************\
+|*   can funcitons     |
+\**********************/
 
 uint32_t level(void);
 void CAN_Tx_Brake(uint8_t);
@@ -93,8 +90,8 @@ void CAN_Rx(void);
 void verif_msg(volatile uint16_t);
 
 static void pwm_init(void);
-
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 void back_light_on(void);
 void back_light_off(void);
 void back_light_toggle(void);
@@ -110,45 +107,16 @@ void turn_indicator_off(void);
 FLAG_STATE getTI_ON(void);
 
 void pwm_on_off();
+
 void dlr_on();
 void dlr_off();
 void dlr_dimming(uint32_t pwm);
 
-                                
-
-/* USER CODE BEGIN PFP */
-/* Private function prototypes -----------------------------------------------*/
-
-/* USER CODE END PFP */
-
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
 int main(void)
 {
 
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration----------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADC1_Init();
   MX_CAN1_Init();
@@ -157,32 +125,14 @@ int main(void)
   MX_TIM4_Init();
   pwm_init();
   CAN_filter_init();
-  /* USER CODE BEGIN 2 */
-	// turn_indicator_on();
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
- /* turn_indicator_on();
-  dlr_on();
-  back_light_on();
-  high_beam_on();
-  low_beam_on();*/
   while (1)
   {
-  /* USER CODE END WHILE */
 	 CAN_Tx_Brake(level());
 	 CAN_Rx();
-
-  /* USER CODE BEGIN 3 */
-
   }
-  /* USER CODE END 3 */
-
 }
 
-/** System Clock Configuration
-*/
+
 void SystemClock_Config(void)
 {
 
@@ -236,8 +186,6 @@ void SystemClock_Config(void)
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
-
-/* ADC1 init function */
 static void MX_ADC1_Init(void)
 {
 
@@ -273,8 +221,6 @@ static void MX_ADC1_Init(void)
   }
 
 }
-
-/* CAN1 init function */
 static void MX_CAN1_Init(void)
 {
 
@@ -303,8 +249,6 @@ static void MX_CAN1_Init(void)
   }
 
 }
-
-/* TIM2 init function */
 static void MX_TIM2_Init(void)
 {
 
@@ -350,8 +294,6 @@ static void MX_TIM2_Init(void)
   HAL_TIM_MspPostInit(&htim2);
 
 }
-
-/* TIM3 init function */
 static void MX_TIM3_Init(void)
 {
 
@@ -434,14 +376,6 @@ static void MX_TIM4_Init(void)
   }
 
 }
-
-/** Configure pins as 
-        * Analog 
-        * Input 
-        * Output
-        * EVENT_OUT
-        * EXTI
-*/
 static void MX_GPIO_Init(void)
 {
 
@@ -542,7 +476,6 @@ static void MX_GPIO_Init(void)
       BSP_LED_Init(TRN3);
       BSP_LED_Init(TRN4);
 }
-
 void CAN_filter_init(void)
 {
 	CAN_FilterConfTypeDef  sFilterConfig;
@@ -563,7 +496,6 @@ void CAN_filter_init(void)
 	HAL_CAN_ConfigFilter(&hcan1, &sFilterConfig);
 
 }
-
 void CAN_Tx_Brake(uint8_t Data)
 {
 	hcan1.pTxMsg->StdId = BRK;
@@ -581,7 +513,6 @@ void CAN_Tx_Brake(uint8_t Data)
 	}
 	while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
 }
-
 void CAN_Tx(uint32_t ID)
 {
 		hcan1.pTxMsg->StdId = ID;
@@ -599,7 +530,6 @@ void CAN_Tx(uint32_t ID)
 		}
 		while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
 }
-
 void verif_msg(volatile uint16_t data)
 {
 	switch (data)
@@ -613,14 +543,31 @@ void verif_msg(volatile uint16_t data)
 		case 0x13:
 					turn_indicator_on();
 					break;
+		case 0x14:
+					dlr_on();
+					break;
+
+
+		case 0x20:
+					high_beam_off();
+					break;
+		case 0x21:
+					low_beam_off();
+					break;
+		case 0x23:
+					turn_indicator_off();
+					break;
+		case 0x24:
+					dlr_off();
+					break;
+
 		default :
 			high_beam_off();
 			low_beam_off();
 			turn_indicator_off();
-			dlr_on();
+			dlr_off();
 	}
 }
-
 void CAN_Rx(void)
 {
 
@@ -634,19 +581,9 @@ void CAN_Rx(void)
 		datarx[4] = hcan1.pRxMsg->Data[0];
 		datarx[5] = hcan1.pRxMsg->Data[1];
 
-		verif_msg( hcan1.pRxMsg->StdId);
-		}
-		else
-		{
-
-			high_beam_off();
-			low_beam_off();
-			turn_indicator_off();
-			dlr_on();
-
+		verif_msg(hcan1.pRxMsg->StdId);
 		}
 }
-
 uint32_t level(void)
 {
 	HAL_ADC_Start(&hadc1);
@@ -681,7 +618,6 @@ uint32_t level(void)
 	}
 
 }
-
 void high_beam_on(void)
 {
 	BSP_LED_On(HBM0);
@@ -691,7 +627,6 @@ void high_beam_on(void)
 	BSP_LED_On(HBM4);
 
 }
-
 void high_beam_off(void)
 {
 	BSP_LED_Off(HBM0);
@@ -709,7 +644,6 @@ void low_beam_on(void)
 	BSP_LED_On(LBM4);
 
 }
-
 void low_beam_off(void)
 {
 	BSP_LED_Off(LBM0);
@@ -816,51 +750,15 @@ void pwm_on_off()
 		  HAL_Delay(10);
 	  }
 }
-/* USER CODE BEGIN 4 */
-
-/* USER CODE END 4 */
-
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  None
-  * @retval None
-  */
 void _Error_Handler(char * file, int line)
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
   while(1) 
   {
   }
-  /* USER CODE END Error_Handler_Debug */ 
 }
-
 #ifdef USE_FULL_ASSERT
-
-/**
-   * @brief Reports the name of the source file and the source line number
-   * where the assert_param error has occurred.
-   * @param file: pointer to the source file name
-   * @param line: assert_param error line source number
-   * @retval None
-   */
 void assert_failed(uint8_t* file, uint32_t line)
 {
-  /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
-
 }
-
 #endif
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-*/ 
-
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
