@@ -37,12 +37,13 @@
 #include "stm32f4xx_it.h"
 
 /* USER CODE BEGIN 0 */
-
+int counter = 0;
+extern uint16_t message;
 /* USER CODE END 0 */
 static uint8_t led_phase=0;
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim4;
-
+extern TIM_HandleTypeDef htim5;
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -166,6 +167,45 @@ void TIM4_IRQHandler(void)
 
   /* USER CODE END TIM4_IRQn 1 */
 }
+void TIM5_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM4_IRQn 0 */
+
+
+  /* USER CODE END TIM4_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim5);
+
+
+
+
+//if(counter < 12) {
+	counter++;
+	message = message << 1;
+	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
+		message = message | 1;
+	}
+//}
+
+			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
+
+				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+		   } else {
+
+				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+		   }
+
+
+
+
+
+
+
+
+  /* USER CODE BEGIN TIM4_IRQn 1 */
+
+  /* USER CODE END TIM4_IRQn 1 */
+}
+
 /******************************************************************************/
 /* STM32F4xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */

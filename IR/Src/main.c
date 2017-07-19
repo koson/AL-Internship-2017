@@ -47,7 +47,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim2;
-TIM_HandleTypeDef htim4;
+TIM_HandleTypeDef htim9;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 uint32_t uwPrescalerValue;
@@ -59,7 +59,7 @@ IRMessage messageToBeSent;
 
 /* Private function prototypes -----------------------------------------------*/
 static void MX_TIM2_Init(void);
-static void MX_TIM4_Init(void);
+static void MX_TIM9_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 static void MX_GPIO_Init(void);
@@ -92,7 +92,7 @@ int main(void)
   /* Initialize all configured peripherals */
    MX_GPIO_Init();
    MX_TIM2_Init();
-   MX_TIM4_Init();
+   MX_TIM9_Init();
    /* USER CODE BEGIN 2 */
    HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
    /* USER CODE END 2 */
@@ -191,13 +191,13 @@ static void MX_TIM2_Init(void)
 
 }
 
-static void MX_TIM4_Init(void)
+static void MX_TIM9_Init(void)
 {
 
   TIM_ClockConfigTypeDef sClockSourceConfig;
   TIM_MasterConfigTypeDef sMasterConfig;
 
-  htim4.Instance = TIM4;
+  htim4.Instance = TIM9;
   htim4.Init.Prescaler = uwPrescalerValue;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim4.Init.Period = 625 -1;
@@ -208,14 +208,14 @@ static void MX_TIM4_Init(void)
   }
 
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  if (HAL_TIM_ConfigClockSource(&htim9, &sClockSourceConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim9, &sMasterConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }

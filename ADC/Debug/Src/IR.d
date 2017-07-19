@@ -1,5 +1,5 @@
-Src/main.o: ../Src/main.c \
- D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/main.h \
+Src/IR.o: ../Src/IR.c \
+ D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/IR.h \
  D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/stm32f4xx_hal_conf.h \
  D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/main.h \
@@ -29,12 +29,9 @@ Src/main.o: ../Src/main.c \
  D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
  D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
- D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
- D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/signals.h \
- D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/stm32f4_discovery.h \
- D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/IR.h
+ D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 
-D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/main.h:
+D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/IR.h:
 
 D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 
@@ -95,9 +92,3 @@ D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/I
 D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:
 
 D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
-
-D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/signals.h:
-
-D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/stm32f4_discovery.h:
-
-D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/IR.h:

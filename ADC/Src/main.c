@@ -40,6 +40,7 @@
 #include "stm32f4xx_hal.h"
 #include "signals.h"
 #include "stm32f4_discovery.h"
+#include "IR.h"
 
 #define CAN_FIFO_ID                0
 #define CAN_FIFO                   CAN_FIFO0
@@ -54,6 +55,13 @@ CAN_HandleTypeDef hcan1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
+TIM_HandleTypeDef htim5;
+
+uint32_t uwPrescalerValue;
+uint16_t message = 0;
+extern int counter;
+IRMessage receivedMessage;
+IRMessage messageToBeSent;
 
 FLAG_STATE FLAG_TI=FLAG_OFF;
 FLAG_STATE FLAG_DLR=FLAG_ON;
@@ -77,6 +85,7 @@ static void MX_CAN1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_TIM5_Init(void);
 static void CAN_filter_init(void);
 
 /**********************\
@@ -113,6 +122,9 @@ void dlr_on();
 void dlr_off();
 void dlr_dimming(uint32_t pwm);
 
+uint32_t CANdecode(IRMessage);
+
+
 int main(void)
 {
 
@@ -124,12 +136,28 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
+  MX_TIM5_Init();
   pwm_init();
   CAN_filter_init();
+  HAL_TIM_Base_Start_IT(&htim5);
   while (1)
   {
 	 CAN_Tx_Brake(level());
 	 CAN_Rx();
+	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
+
+				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+		   } else {
+
+				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
+		   }
+
+		   	  if(counter % 16 == 0) {
+		   		receivedMessage = decode(message);
+		   		if(receivedMessage == obstacleOnTheRoad)
+		   			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
+		   		CAN_Tx(CANdecode(receivedMessage));
+		   	  }
   }
 }
 
@@ -377,6 +405,59 @@ static void MX_TIM4_Init(void)
   }
 
 }
+/*
+static void MX_TIM9_Init(void)
+{
+
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim9.Instance = TIM9;
+  htim9.Init.Prescaler = uwPrescalerValue;
+  htim9.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim9.Init.Period = 625 -1;
+  htim9.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim9) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim9, &sClockSourceConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim9, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}*/
+static void MX_TIM5_Init(void)
+{
+
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+  uwPrescalerValue=(uint32_t) ((SystemCoreClock /2) / 10000) - 1;
+  htim5.Instance = TIM5;
+  htim5.Init.Prescaler = uwPrescalerValue;
+  htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim5.Init.Period = 625 -1;
+  htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim5) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim5, &sClockSourceConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
 static void MX_GPIO_Init(void)
 {
 
@@ -476,6 +557,13 @@ static void MX_GPIO_Init(void)
       BSP_LED_Init(TRN2);
       BSP_LED_Init(TRN3);
       BSP_LED_Init(TRN4);
+
+      GPIO_InitStruct.Pin = GPIO_PIN_3;
+      GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+      GPIO_InitStruct.Pull = GPIO_NOPULL;
+      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+
 }
 void CAN_filter_init(void)
 {
@@ -758,6 +846,22 @@ void pwm_on_off()
 
 		  HAL_Delay(10);
 	  }
+}
+
+uint32_t CANdecode(IRMessage msg)
+{
+	if(msg == cryticalBrake)
+		return  0x30;
+	else if(msg == obstacleOnTheRoad)
+		return  0x31;
+	else if(msg == failed)
+		return  0x35;
+	else if(msg == goingToLeaveTheRoad)
+		return  0x33;
+	else if(msg == goingToStop)
+		return  0x34;
+	else
+		return  0x32;// IDLE
 }
 void _Error_Handler(char * file, int line)
 {
