@@ -176,28 +176,19 @@ void TIM5_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim5);
 
 
-
-
-//if(counter < 12) {
 	counter++;
 	message = message << 1;
 	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
 		message = message | 1;
 	}
-//}
 
-			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
+	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
 
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-		   } else {
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+   } else {
 
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-		   }
-
-
-
-
-
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+   }
 
 
 

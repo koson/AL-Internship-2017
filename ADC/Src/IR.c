@@ -8,7 +8,7 @@
 int noOfOnes;
 IRMessage toReturn;
 
-IRMessage decode(uint16_t message) {
+IRMessage IRdecode(uint16_t message) {
 	noOfOnes = 0;
 	toReturn = failed;
 	for(int i = 0; i < 16; i++) {
@@ -56,7 +56,7 @@ IRMessage decode(uint16_t message) {
 	return toReturn;
 }
 
-int code(IRMessage msg) {
+int getDutyCycle(IRMessage msg) {
 	int toReturn = -1;
 
 	switch(msg) {

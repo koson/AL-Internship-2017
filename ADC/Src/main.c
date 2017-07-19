@@ -146,18 +146,18 @@ int main(void)
 	 CAN_Rx();
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
 
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-		   } else {
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+	 } else {
 
-				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-		   }
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
+	 }
 
-		   	  if(counter % 16 == 0) {
-		   		receivedMessage = decode(message);
-		   		if(receivedMessage == obstacleOnTheRoad)
-		   			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
-		   		CAN_Tx(CANdecode(receivedMessage));
-		   	  }
+	if(counter % 16 == 0) {
+		receivedMessage = IRdecode(message);
+		if(receivedMessage == obstacleOnTheRoad)
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
+		CAN_Tx(CANdecode(receivedMessage));
+	}
   }
 }
 
@@ -405,37 +405,7 @@ static void MX_TIM4_Init(void)
   }
 
 }
-/*
-static void MX_TIM9_Init(void)
-{
 
-  TIM_ClockConfigTypeDef sClockSourceConfig;
-  TIM_MasterConfigTypeDef sMasterConfig;
-
-  htim9.Instance = TIM9;
-  htim9.Init.Prescaler = uwPrescalerValue;
-  htim9.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim9.Init.Period = 625 -1;
-  htim9.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  if (HAL_TIM_Base_Init(&htim9) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim9, &sClockSourceConfig) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim9, &sMasterConfig) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}*/
 static void MX_TIM5_Init(void)
 {
 
@@ -444,7 +414,7 @@ static void MX_TIM5_Init(void)
   htim5.Instance = TIM5;
   htim5.Init.Prescaler = uwPrescalerValue;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim5.Init.Period = 625 -1;
+  htim5.Init.Period = IRPeriod/16 -1;
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim5) != HAL_OK)
   {
@@ -851,17 +821,17 @@ void pwm_on_off()
 uint32_t CANdecode(IRMessage msg)
 {
 	if(msg == cryticalBrake)
-		return  0x30;
+		return  IR_BRAKE;
 	else if(msg == obstacleOnTheRoad)
-		return  0x31;
+		return  IR_OBSTACLE;
 	else if(msg == failed)
-		return  0x35;
+		return  IR_FAILED;
 	else if(msg == goingToLeaveTheRoad)
-		return  0x33;
+		return  IR_LEAVING;
 	else if(msg == goingToStop)
-		return  0x34;
+		return  IR_STOP;
 	else
-		return  0x32;// IDLE
+		return  IR_IDLE;
 }
 void _Error_Handler(char * file, int line)
 {
