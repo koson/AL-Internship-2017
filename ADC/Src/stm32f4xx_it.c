@@ -44,6 +44,8 @@ static uint8_t led_phase=0;
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
+extern FLAG_STATE FLAG_TI;
+extern FLAG_STATE FLAG_DLR;
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -151,10 +153,10 @@ void TIM4_IRQHandler(void)
 
   case 9:
   {
-	  if(getFLAG_TI()==FLAG_OFF)
+	  if(FLAG_TI==FLAG_OFF)
 	  {
 			 HAL_TIM_Base_Stop_IT(&htim4);
-			 if(getFLAG_DLR()==FLAG_ON)
+			 if(FLAG_DLR==FLAG_ON)
 			 		 dlr_on();
 	  }
 	  led_phase=0;

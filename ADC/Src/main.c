@@ -52,6 +52,7 @@
 \**********************/
 ADC_HandleTypeDef hadc1;
 CAN_HandleTypeDef hcan1;
+//Tim2&Tim3 used for pwm generation for DLR leds
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
@@ -89,7 +90,7 @@ static void MX_TIM5_Init(void);
 static void CAN_filter_init(void);
 
 /**********************\
-|*   can funcitons     |
+|*   can functions     |
 \**********************/
 
 uint32_t level(void);
@@ -113,13 +114,10 @@ void low_beam_off(void);
 
 void turn_indicator_on(void);
 void turn_indicator_off(void);
-FLAG_STATE getFLAG_TI(void);
-FLAG_STATE getFLAG_DLR(void);
 
-void pwm_on_off();
-
-void dlr_on();
-void dlr_off();
+void dlr_on(void);
+void dlr_on_turn_indicator(void);
+void dlr_off(void);
 void dlr_dimming(uint32_t pwm);
 
 uint32_t CANdecode(IRMessage);
@@ -735,21 +733,13 @@ void turn_indicator_on()
 	  FLAG_TI=FLAG_ON;
 	  if(FLAG_DLR==FLAG_ON)
 	  {
-		  dlr_off();
+		  dlr_on_turn_indicator();
 		  FLAG_DLR=FLAG_ON;
-
 	  }
 }
 void turn_indicator_off()
 {
 	 FLAG_TI=FLAG_OFF;
-}
-FLAG_STATE getFLAG_TI()
-{
-	return FLAG_TI;
-}FLAG_STATE getFLAG_DLR()
-{
-	return FLAG_DLR;
 }
 void pwm_init()
 {
@@ -773,6 +763,17 @@ void dlr_on()
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,TIM_PERIOD);
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,TIM_PERIOD);
 }
+void dlr_on_turn_indicator()
+{
+	FLAG_DLR=FLAG_ON;
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD/4);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,TIM_PERIOD/4);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,0);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,0);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,0);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,0);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,0);
+}
 void dlr_off()
 {
 	FLAG_DLR=FLAG_OFF;
@@ -793,29 +794,6 @@ void dlr_dimming(uint32_t div)
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,TIM_PERIOD/div);
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,TIM_PERIOD/div);
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,TIM_PERIOD/div);
-}
-void pwm_on_off()
-{
-
-	  for(pwm=0;pwm<200;pwm+=50)
-	  {
-		 __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,pwm);
-		 __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,pwm);
-		 __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,pwm);
-		 __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,pwm);
-		 __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,pwm);
-	  }
-	  HAL_Delay(100);
-	  for(pwm=200;pwm>0;pwm--)
-	  {
-		  __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,pwm);
-		  __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,pwm);
-		  __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,pwm);
-		  __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,pwm);
-		  __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,pwm);
-
-		  HAL_Delay(10);
-	  }
 }
 
 uint32_t CANdecode(IRMessage msg)
