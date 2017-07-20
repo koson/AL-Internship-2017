@@ -118,6 +118,7 @@ int main(void)
   while (1)
   {
 	 CAN_Rx();
+
   }
 }
 void InitializeIrCounter() {
@@ -444,11 +445,10 @@ void verif_msg(volatile uint16_t id)
 						break;
 		default : messageToBeSent = IR_IDLE;
 						break;
-
-		}
-		for(int i = 0; i < 2; i++) {
+	}
+		for(int i = 0 ; i < 2; i++)
 			transmit(messageToBeSent);
-		}
+
 }
 void CAN_Rx(void)
 {

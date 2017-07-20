@@ -163,14 +163,8 @@ int main(void)
 	if(counter % 16 == 0)
 	{
 		receivedMessage = IRdecode(message);
-		CAN_Tx(CANdecode(receivedMessage));
-		//the failed case
-		if(receivedMessage == failed) {
-			synchronized = 0;
-			old_value = 1;
-			counter = 0;
-		}
 	}
+	CAN_Tx(CANdecode(receivedMessage));
   }
 }
 
