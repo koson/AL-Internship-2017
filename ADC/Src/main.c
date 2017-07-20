@@ -61,6 +61,8 @@ TIM_HandleTypeDef htim5;
 uint32_t uwPrescalerValue;
 uint16_t message = 0;
 extern int counter;
+extern int synchronized;
+extern int old_value;
 IRMessage receivedMessage;
 IRMessage messageToBeSent;
 
@@ -161,6 +163,13 @@ int main(void)
 		if(receivedMessage == obstacleOnTheRoad)
 			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
 		CAN_Tx(CANdecode(receivedMessage));
+
+		//the failed case
+		if(receivedMessage == failed) {
+			synchronized = 0;
+			old_value = 1;
+			counter = 0;
+		}
 	}
   }
 }
