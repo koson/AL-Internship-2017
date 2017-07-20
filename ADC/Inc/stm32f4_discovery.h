@@ -88,6 +88,12 @@ typedef enum
   FLAG_OFF = 0,
   FLAG_ON = 1
 } FLAG_STATE;
+typedef enum
+{
+  UNDEFINED_PRESS =0,
+  SHORT_PRESS = 1,
+  LONG_PRESS= 2
+} BUTTON_PRESS_Type;
 /**
   * @}
   */ 
