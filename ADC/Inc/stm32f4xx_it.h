@@ -49,7 +49,7 @@ void SVC_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
 void TIM4_IRQHandler(void);
-void TIM9_IRQHandler(void);
+void TIM5_IRQHandler(void);
 
 #ifdef __cplusplus
 }
