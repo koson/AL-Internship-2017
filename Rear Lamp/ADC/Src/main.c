@@ -117,14 +117,14 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
   while (1)
   {
-	  CAN_Tx(0x21);
+
 	// CAN_Tx_Brake(level());
-	 //CAN_Rx();
+	 CAN_Rx();
 
 	// InitializeIrCounter();
  	// sendIrMessage(IR_BRAKE);
 	 //transmit(IR_BRAKE);
-	 sendIrMessage();
+	// sendIrMessage();
 
   }
 }
@@ -438,9 +438,27 @@ void CAN_Tx(uint32_t ID)
 		}
 		while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
 }
-void verif_msg(volatile uint16_t data)
+void verif_msg(volatile uint16_t id)
 {
+	switch(id) {
+		case 0x30: messageToBeSent = IR_BRAKE;
+						break;
+		case 0x31: messageToBeSent = IR_OBSTACLE;
+						break;
+		case 0x33: messageToBeSent = IR_LEAVING;
+						break;
+		case 0x34: messageToBeSent = IR_STOP;
+						break;
+		case 0x35: messageToBeSent = IR_FAILED;
+						break;
+		default : messageToBeSent = IR_IDLE;
+						break;
 
+		}
+
+		for(int i = 0; i < 2; i++) {
+			transmit(messageToBeSent);
+		}
 }
 void CAN_Rx(void)
 {
