@@ -57,6 +57,7 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim5;
+TIM_HandleTypeDef htim7;
 
 uint32_t uwPrescalerValue;
 uint16_t message = 0;
@@ -87,6 +88,8 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
+static void MX_TIM7_Init(void);
+
 static void CAN_filter_init(void);
 
 /**********************\
@@ -122,7 +125,7 @@ void dlr_off(void);
 void dlr_dimming(uint32_t pwm);
 
 void button_init(void);
-GPIO_PinState button_pressed();
+GPIO_PinState read_button();
 
 uint32_t CANdecode(IRMessage);
 
@@ -139,9 +142,11 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM5_Init();
+  MX_TIM7_Init();
   pwm_init();
   CAN_filter_init();
   HAL_TIM_Base_Start_IT(&htim5);
+  HAL_TIM_Base_Start_IT(&htim7);
   while (1)
   {
 	 CAN_Tx_Brake(level());
@@ -432,6 +437,28 @@ static void MX_TIM5_Init(void)
   }
 
 }
+static void MX_TIM7_Init(void)
+{
+
+	 TIM_MasterConfigTypeDef sMasterConfig;
+
+	  htim7.Instance = TIM7;
+	  htim7.Init.Prescaler =8000;
+	  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+	  htim7.Init.Period = 50;
+	  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+	  {
+	    _Error_Handler(__FILE__, __LINE__);
+	  }
+
+	  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+	  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+	  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+	  {
+	    _Error_Handler(__FILE__, __LINE__);
+	  }
+
+}
 static void MX_GPIO_Init(void)
 {
 
@@ -512,7 +539,11 @@ void button_init()
 	  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 }
-GPIO_PinState button_pressed()
+GPIO_PinState read_button_HB()
+{
+	return HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_6);
+}
+GPIO_PinState read_button_LB()
 {
 	return HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_6);
 }

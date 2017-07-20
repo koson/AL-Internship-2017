@@ -45,9 +45,15 @@ int old_value = 1;
 
 /* USER CODE END 0 */
 static uint8_t led_phase=0;
+BUTTON_PRESS_Type press;
+uint16_t time_elapsed_HB = 0;
+
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
+extern TIM_HandleTypeDef htim7;
+extern void dlr_on();
+extern void high_beam_on();
 extern FLAG_STATE FLAG_TI;
 extern FLAG_STATE FLAG_DLR;
 /******************************************************************************/
@@ -101,7 +107,6 @@ void TIM4_IRQHandler(void)
 
   /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim4);
-
   switch(led_phase)
   {
   case 0:
@@ -141,11 +146,11 @@ void TIM4_IRQHandler(void)
 
   case 7:
   {
-	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,RESET);
-	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_4,RESET);
-	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_5,RESET);
-	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_6,RESET);
-	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_7,RESET);
+	  BSP_LED_Off(TRN0);
+	  BSP_LED_Off(TRN1);
+	  BSP_LED_Off(TRN2);
+	  BSP_LED_Off(TRN3);
+	  BSP_LED_Off(TRN4);
 
  	  led_phase++;
 
@@ -208,7 +213,46 @@ void TIM5_IRQHandler(void)
 
   /* USER CODE END TIM4_IRQn 1 */
 }
+void TIM7_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM6_IRQn 0 */
 
+  /* USER CODE END TIM6_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim7);
+  if(read_button_HB()==GPIO_PIN_SET)
+  {
+	  time_elapsed_HB++;
+  }
+	  if(time_elapsed_HB>=10 && time_elapsed_HB<50)
+	  {
+		  if(read_button_HB()==GPIO_PIN_RESET)
+		  {
+			  press=SHORT_PRESS;
+			  time_elapsed_HB=0;
+		  }
+	  }
+	  else
+	  {
+		  if(time_elapsed_HB>=50)
+		  {
+			  press=LONG_PRESS;
+			  high_beam_on();
+			  if(read_button_HB()==GPIO_PIN_RESET)
+			  {
+				  high_beam_off();
+				  time_elapsed_HB=0;
+			  }
+
+		  }
+		  else
+			  press=UNDEFINED_PRESS;
+	  }
+	  if(press==SHORT_PRESS)
+		  high_beam_toggle();
+
+
+
+}
 /******************************************************************************/
 /* STM32F4xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
