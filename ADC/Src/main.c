@@ -108,6 +108,7 @@ void back_light_toggle(void);
 
 void high_beam_on(void);
 void high_beam_off(void);
+void high_beam_toggle(void);
 
 void low_beam_on(void);
 void low_beam_off(void);
@@ -119,6 +120,9 @@ void dlr_on(void);
 void dlr_on_turn_indicator(void);
 void dlr_off(void);
 void dlr_dimming(uint32_t pwm);
+
+void button_init(void);
+GPIO_PinState button_pressed();
 
 uint32_t CANdecode(IRMessage);
 
@@ -142,15 +146,17 @@ int main(void)
   {
 	 CAN_Tx_Brake(level());
 	 CAN_Rx();
-	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
-
+	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1)
+	 {
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-	 } else {
-
+	 }
+	 else
+	 {
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
 	 }
 
-	if(counter % 16 == 0) {
+	if(counter % 16 == 0)
+	{
 		receivedMessage = IRdecode(message);
 		if(receivedMessage == obstacleOnTheRoad)
 			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
@@ -433,49 +439,9 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10 
-                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_13 
-                          |GPIO_PIN_14, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6 
-                          |GPIO_PIN_7, GPIO_PIN_RESET);
-
-  /*Configure GPIO pins : PE7 PE8 PE9 PE10 
-                           PE11 PE12 PE13 PE14 */
-  GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10 
-                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PA8 PA9 PA10 PA13 
-                           PA14 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_13 
-                          |GPIO_PIN_14;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PD3 PD4 PD5 PD6 
-                           PD7 */
-  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6 
-                          |GPIO_PIN_7;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /*ADC Channel 11 -> PC1 */
     GPIO_InitStruct.Pin = GPIO_PIN_1;
@@ -504,34 +470,51 @@ static void MX_GPIO_Init(void)
     BSP_LED_Init(LED5);
     BSP_LED_Init(LED6);
 
-      BSP_LED_Init(HBM0);
-      BSP_LED_Init(HBM1);
-      BSP_LED_Init(HBM2);
-      BSP_LED_Init(HBM3);
-      BSP_LED_Init(HBM4);
+    BSP_LED_Init(HBM0);
+    BSP_LED_Init(HBM1);
+    BSP_LED_Init(HBM2);
+    BSP_LED_Init(HBM3);
+    BSP_LED_Init(HBM4);
 
-      BSP_LED_Init(LBM0);
-      BSP_LED_Init(LBM1);
-      BSP_LED_Init(LBM2);
-      BSP_LED_Init(LBM3);
-      BSP_LED_Init(LBM4);
+    BSP_LED_Init(LBM0);
+    BSP_LED_Init(LBM1);
+    BSP_LED_Init(LBM2);
+    BSP_LED_Init(LBM3);
+    BSP_LED_Init(LBM4);
 
-      BSP_LED_Init(STP0);
-      BSP_LED_Init(STP1);
-      BSP_LED_Init(STP2);
+    BSP_LED_Init(STP0);
+    BSP_LED_Init(STP1);
+    BSP_LED_Init(STP2);
 
-      BSP_LED_Init(TRN0);
-      BSP_LED_Init(TRN1);
-      BSP_LED_Init(TRN2);
-      BSP_LED_Init(TRN3);
-      BSP_LED_Init(TRN4);
+    BSP_LED_Init(TRN0);
+    BSP_LED_Init(TRN1);
+    BSP_LED_Init(TRN2);
+    BSP_LED_Init(TRN3);
+    BSP_LED_Init(TRN4);
 
-      GPIO_InitStruct.Pin = GPIO_PIN_3;
-      GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-      GPIO_InitStruct.Pull = GPIO_NOPULL;
-      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_3;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+    button_init();
 
+}
+void button_init()
+{
+	  GPIO_InitTypeDef GPIO_InitStruct;
+
+	 /*Configure GPIO pin Output Level */
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
+	  GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6;
+	  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	  GPIO_InitStruct.Pull = GPIO_NOPULL;
+	  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+}
+GPIO_PinState button_pressed()
+{
+	return HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_6);
 }
 void CAN_filter_init(void)
 {
@@ -647,23 +630,23 @@ uint32_t level(void)
 	ADC_Val = HAL_ADC_GetValue(&hadc1);
 	if( 100 < ADC_Val && ADC_Val < 1500 )
 	{
-						BSP_LED_On(STP0);
-						BSP_LED_Off(STP1);
-						BSP_LED_Off(STP2);
+			BSP_LED_On(STP0);
+			BSP_LED_Off(STP1);
+			BSP_LED_Off(STP2);
 				return(1);
 	}
 	else if( 1500 < ADC_Val && ADC_Val < 3000)
 	{
-						BSP_LED_On(STP0);
-						BSP_LED_On(STP1);
-						BSP_LED_Off(STP2);
+			BSP_LED_On(STP0);
+			BSP_LED_On(STP1);
+			BSP_LED_Off(STP2);
 				return(2);
 	}
 	else if( 3000 < ADC_Val && ADC_Val < 5000)
 	{
-						BSP_LED_On(STP0);
-						BSP_LED_On(STP1);
-						BSP_LED_On(STP2);
+			BSP_LED_On(STP0);
+			BSP_LED_On(STP1);
+			BSP_LED_On(STP2);
 				return(3);
 	}
 	else
@@ -690,6 +673,14 @@ void high_beam_off(void)
 	BSP_LED_Off(HBM3);
 	BSP_LED_Off(HBM4);
 }
+void high_beam_toggle(void)
+{
+	BSP_LED_Toggle(HBM0);
+	BSP_LED_Toggle(HBM1);
+	BSP_LED_Toggle(HBM2);
+	BSP_LED_Toggle(HBM3);
+	BSP_LED_Toggle(HBM4);
+}
 void low_beam_on(void)
 {
 	BSP_LED_On(LBM0);
@@ -710,22 +701,22 @@ void low_beam_off(void)
 void back_light_on()
 {
 
-	  BSP_LED_On(STP0);
-	  BSP_LED_On(STP1);
-	  BSP_LED_On(STP2);
+	BSP_LED_On(STP0);
+	BSP_LED_On(STP1);
+	BSP_LED_On(STP2);
 
 }
 void back_light_off()
 {
-	  BSP_LED_Off(STP0);
-	  BSP_LED_Off(STP1);
-	  BSP_LED_Off(STP2);
+	BSP_LED_Off(STP0);
+	BSP_LED_Off(STP1);
+	BSP_LED_Off(STP2);
 }
 void back_light_toggle()
 {
-	  BSP_LED_Toggle(STP0);
-	  BSP_LED_Toggle(STP1);
-	  BSP_LED_Toggle(STP2);
+	BSP_LED_Toggle(STP0);
+	BSP_LED_Toggle(STP1);
+	BSP_LED_Toggle(STP2);
 }
 void turn_indicator_on()
 {

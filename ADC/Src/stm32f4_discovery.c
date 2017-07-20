@@ -38,34 +38,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4_discovery.h"
 
-/** @defgroup BSP BSP
-  * @{
-  */ 
-
-/** @defgroup STM32F4_DISCOVERY STM32F4 DISCOVERY
-  * @{
-  */   
-    
-/** @defgroup STM32F4_DISCOVERY_LOW_LEVEL STM32F4 DISCOVERY LOW LEVEL
-  * @brief This file provides set of firmware functions to manage Leds and push-button
-  *        available on STM32F4-Discovery Kit from STMicroelectronics.
-  * @{
-  */ 
-
-/** @defgroup STM32F4_DISCOVERY_LOW_LEVEL_Private_TypesDefinitions STM32F4 DISCOVERY LOW LEVEL Private TypesDefinitions
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-/** @defgroup STM32F4_DISCOVERY_LOW_LEVEL_Private_Defines STM32F4 DISCOVERY LOW LEVEL Private Defines
-  * @{
-  */
-  
-  /**
-  * @brief STM32F4 DISCO BSP Driver version number V2.1.2
-  */
 #define __STM32F4_DISCO_BSP_VERSION_MAIN   (0x02) /*!< [31:24] main version */
 #define __STM32F4_DISCO_BSP_VERSION_SUB1   (0x01) /*!< [23:16] sub1 version */
 #define __STM32F4_DISCO_BSP_VERSION_SUB2   (0x02) /*!< [15:8]  sub2 version */
@@ -74,21 +46,6 @@
                                              |(__STM32F4_DISCO_BSP_VERSION_SUB1 << 16)\
                                              |(__STM32F4_DISCO_BSP_VERSION_SUB2 << 8 )\
                                              |(__STM32F4_DISCO_BSP_VERSION_RC)) 
-/**
-  * @}
-  */ 
-
-
-/** @defgroup STM32F4_DISCOVERY_LOW_LEVEL_Private_Macros STM32F4 DISCOVERY LOW LEVEL Private Macros
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-/** @defgroup STM32F4_DISCOVERY_LOW_LEVEL_Private_Variables STM32F4 DISCOVERY LOW LEVEL Private Variables
-  * @{
-  */ 
 GPIO_TypeDef* GPIO_PORT[LEDn] = {LED4_GPIO_PORT, 
                                  LED3_GPIO_PORT, 
                                  LED5_GPIO_PORT,
@@ -164,6 +121,7 @@ uint32_t BSP_GetVersion(void)
   *     @arg LED3
   *     @arg LED5
   *     @arg LED6
+  *     @arg TRN0
   */
 void BSP_LED_Init(Led_TypeDef Led)
 {

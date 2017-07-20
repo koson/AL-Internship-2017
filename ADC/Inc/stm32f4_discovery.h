@@ -46,22 +46,7 @@
                                               
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-   
-/** @addtogroup BSP
-  * @{
-  */ 
 
-/** @addtogroup STM32F4_DISCOVERY
-  * @{
-  */ 
-      
-/** @addtogroup STM32F4_DISCOVERY_LOW_LEVEL
-  * @{
-  */ 
-
-/** @defgroup STM32F4_DISCOVERY_LOW_LEVEL_Exported_Types STM32F4 DISCOVERY LOW LEVEL_Exported_Types
-  * @{
-  */
 typedef enum 
 {
   LED4 = 0,
@@ -184,30 +169,30 @@ typedef enum
 #define TRN4_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOA_CLK_ENABLE()
 #define TRN4_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOA_CLK_DISABLE()
 
-#define HBM0_PIN							GPIO_PIN_8
-#define HBM0_GPIO_PORT						GPIOA
-#define HBM0_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOA_CLK_ENABLE()
-#define HBM0_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOA_CLK_DISABLE()
+#define HBM0_PIN							GPIO_PIN_0
+#define HBM0_GPIO_PORT						GPIOE
+#define HBM0_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOE_CLK_ENABLE()
+#define HBM0_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOE_CLK_DISABLE()
 
-#define HBM1_PIN							GPIO_PIN_9
-#define HBM1_GPIO_PORT						GPIOA
-#define HBM1_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOA_CLK_ENABLE()
-#define HBM1_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOA_CLK_DISABLE()
+#define HBM1_PIN							GPIO_PIN_1
+#define HBM1_GPIO_PORT						GPIOE
+#define HBM1_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOE_CLK_ENABLE()
+#define HBM1_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOE_CLK_DISABLE()
 
-#define HBM2_PIN							GPIO_PIN_10
-#define HBM2_GPIO_PORT						GPIOA
-#define HBM2_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOA_CLK_ENABLE()
-#define HBM2_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOA_CLK_DISABLE()
+#define HBM2_PIN							GPIO_PIN_2
+#define HBM2_GPIO_PORT						GPIOE
+#define HBM2_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOE_CLK_ENABLE()
+#define HBM2_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOE_CLK_DISABLE()
 
-#define HBM3_PIN							GPIO_PIN_13
-#define HBM3_GPIO_PORT						GPIOA
-#define HBM3_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOA_CLK_ENABLE()
-#define HBM3_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOA_CLK_DISABLE()
+#define HBM3_PIN							GPIO_PIN_3
+#define HBM3_GPIO_PORT						GPIOE
+#define HBM3_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOE_CLK_ENABLE()
+#define HBM3_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOE_CLK_DISABLE()
 
-#define HBM4_PIN							GPIO_PIN_14
-#define HBM4_GPIO_PORT						GPIOA
-#define HBM4_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOA_CLK_ENABLE()
-#define HBM4_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOA_CLK_DISABLE()
+#define HBM4_PIN							GPIO_PIN_4
+#define HBM4_GPIO_PORT						GPIOE
+#define HBM4_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOE_CLK_ENABLE()
+#define HBM4_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOE_CLK_DISABLE()
 
 #define LBM0_PIN							GPIO_PIN_7
 #define LBM0_GPIO_PORT						GPIOE
