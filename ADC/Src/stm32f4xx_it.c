@@ -39,6 +39,10 @@
 /* USER CODE BEGIN 0 */
 int counter = 0;
 extern uint16_t message;
+
+int synchronized = 0;
+int old_value = 1;
+
 /* USER CODE END 0 */
 static uint8_t led_phase=0;
 /* External variables --------------------------------------------------------*/
@@ -178,20 +182,26 @@ void TIM5_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim5);
 
 
-	counter++;
-	message = message << 1;
-	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
-		message = message | 1;
-	}
+  	  if(synchronized == 1 || (old_value == 0 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1)) {
+  		synchronized = 1;
+  		counter++;
+  			message = message << 1;
+  			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
+  				message = message | 1;
+  			}
 
-	if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
+  			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
 
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-   } else {
+  				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+  		   } else {
 
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-   }
-
+  				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+  		   }
+  	  }
+  	  else {
+  		  old_value = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3);
+  		  counter = 0;
+  	  }
 
 
   /* USER CODE BEGIN TIM4_IRQn 1 */
