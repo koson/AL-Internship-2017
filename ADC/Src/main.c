@@ -146,8 +146,6 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim5);
   while (1)
   {
-	 CAN_Tx_Brake(level());
-	 CAN_Rx();
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1)
 	 {
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
@@ -160,10 +158,7 @@ int main(void)
 	if(counter % 16 == 0)
 	{
 		receivedMessage = IRdecode(message);
-		if(receivedMessage == obstacleOnTheRoad)
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
 		CAN_Tx(CANdecode(receivedMessage));
-
 		//the failed case
 		if(receivedMessage == failed) {
 			synchronized = 0;
@@ -418,7 +413,6 @@ static void MX_TIM4_Init(void)
   }
 
 }
-
 static void MX_TIM5_Init(void)
 {
 
@@ -795,7 +789,6 @@ void dlr_dimming(uint32_t div)
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,TIM_PERIOD/div);
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,TIM_PERIOD/div);
 }
-
 uint32_t CANdecode(IRMessage msg)
 {
 	if(msg == cryticalBrake)

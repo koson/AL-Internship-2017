@@ -117,15 +117,7 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
   while (1)
   {
-
-	// CAN_Tx_Brake(level());
 	 CAN_Rx();
-
-	// InitializeIrCounter();
- 	// sendIrMessage(IR_BRAKE);
-	 //transmit(IR_BRAKE);
-	// sendIrMessage();
-
   }
 }
 void InitializeIrCounter() {
@@ -281,7 +273,6 @@ static void MX_CAN1_Init(void)
   }
 
 }
-
 static void MX_GPIO_Init(void)
 {
 
@@ -455,7 +446,6 @@ void verif_msg(volatile uint16_t id)
 						break;
 
 		}
-
 		for(int i = 0; i < 2; i++) {
 			transmit(messageToBeSent);
 		}
