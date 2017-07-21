@@ -107,7 +107,6 @@ static void CAN_filter_init(void);
 |*   can functions     |
 \**********************/
 
-uint32_t level(void);
 void CAN_Tx_Brake(uint8_t);
 void CAN_Tx(uint32_t ID);
 void CAN_Rx(void);
@@ -504,10 +503,6 @@ void led_init()
 	BSP_LED_Init(LBM3);
 	BSP_LED_Init(LBM4);
 
-	BSP_LED_Init(STP0);
-	BSP_LED_Init(STP1);
-	BSP_LED_Init(STP2);
-
 	BSP_LED_Init(TRN0);
 	BSP_LED_Init(TRN1);
 	BSP_LED_Init(TRN2);
@@ -633,38 +628,6 @@ void verif_msg(volatile uint16_t ID)
 	}
 }
 
-uint32_t level(void)
-{
-	HAL_ADC_Start(&hadc1);
-	ADC_Val = HAL_ADC_GetValue(&hadc1);
-	if( 100 < ADC_Val && ADC_Val < 1500 )
-	{
-			BSP_LED_On(STP0);
-			BSP_LED_Off(STP1);
-			BSP_LED_Off(STP2);
-				return(1);
-	}
-	else if( 1500 < ADC_Val && ADC_Val < 3000)
-	{
-			BSP_LED_On(STP0);
-			BSP_LED_On(STP1);
-			BSP_LED_Off(STP2);
-				return(2);
-	}
-	else if( 3000 < ADC_Val && ADC_Val < 5000)
-	{
-			BSP_LED_On(STP0);
-			BSP_LED_On(STP1);
-			BSP_LED_On(STP2);
-				return(3);
-	}
-	else
-	{
-		back_light_off();
-				return(0);
-	}
-
-}
 
 void pwm_init()
 {
