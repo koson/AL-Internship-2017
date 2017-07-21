@@ -53,6 +53,7 @@
 ADC_HandleTypeDef hadc1;
 CAN_HandleTypeDef hcan1;
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim5;
 
 uint32_t uwPrescalerValue;
 uint16_t message = 0;
@@ -66,6 +67,7 @@ volatile uint16_t datarx[6] ;
 uint8_t TransmitMailbox = 0;
 int pwm;
 int transmiterCounter = 0;
+int transmit_counter = 0;
 
 static CanTxMsgTypeDef        TxMessage;
 static CanRxMsgTypeDef        RxMessage;
@@ -80,10 +82,10 @@ static void MX_CAN1_Init(void);
 static void CAN_filter_init(void);
 //For rear lamp IR
 static void MX_TIM2_Init(void);
+static void MX_TIM5_Init(void);
+
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void transmit(uint16_t CANId);
-void InitializeIrCounter();
-void sendIrMessage(/*uint16_t CANId*/);
 
 /**********************\
 |*   can functions     |
@@ -114,42 +116,16 @@ int main(void)
   CAN_filter_init();
 
   MX_TIM2_Init();
+  MX_TIM5_Init();
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
+  HAL_TIM_Base_Start_IT(&htim5);
   while (1)
   {
+
 	 CAN_Rx();
+	 CAN_Tx_Brake(level());
 
   }
-}
-void InitializeIrCounter() {
-	transmiterCounter = 0;
-}
-
-void sendIrMessage(/*uint16_t CANId*/) {
-	/*if(transmiterCounter < 100) {
-		transmiterCounter++;
-		transmit(CANId);
-	}
-	else {
-		transmit(IR_IDLE);
-	}*/
-	switch(level()) {
-	case 0: messageToBeSent = IR_IDLE;
-			break;
-	case 1: messageToBeSent = IR_BRAKE;
-		break;
-	case 2: messageToBeSent = IR_OBSTACLE;
-		break;
-	case 3: messageToBeSent = IR_LEAVING;
-		break;
-	/// case 4: transmit(Ir_STOP);
-				//break;
-	}
-
-	for(int i = 0; i < 2; i++) {
-		transmit(messageToBeSent);
-	}
-
 }
 
 void transmit(uint16_t CANId) {
@@ -376,6 +352,29 @@ static void MX_TIM2_Init(void)
 
 }
 
+static void MX_TIM5_Init(void)
+{
+
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+  uwPrescalerValue=(uint32_t) ((SystemCoreClock /2) / 10000) - 1;
+  htim5.Instance = TIM5;
+  htim5.Init.Prescaler = uwPrescalerValue;
+  htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim5.Init.Period = IRPeriod/16 -1;
+  htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim5) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim5, &sClockSourceConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
 void CAN_filter_init(void)
 {
 	CAN_FilterConfTypeDef  sFilterConfig;
@@ -432,22 +431,25 @@ void CAN_Tx(uint32_t ID)
 }
 void verif_msg(volatile uint16_t id)
 {
-	switch(id) {
-		case 0x30: messageToBeSent = IR_BRAKE;
-						break;
-		case 0x31: messageToBeSent = IR_OBSTACLE;
-						break;
-		case 0x33: messageToBeSent = IR_LEAVING;
-						break;
-		case 0x34: messageToBeSent = IR_STOP;
-						break;
-		case 0x35: messageToBeSent = IR_FAILED;
-						break;
-		default : messageToBeSent = IR_IDLE;
-						break;
+	if(transmit_counter % 16 == 0) {
+		switch(id) {
+				case 0x30: messageToBeSent = IR_BRAKE;
+								break;
+				case 0x31: messageToBeSent = IR_OBSTACLE;
+								break;
+				case 0x33: messageToBeSent = IR_LEAVING;
+								break;
+				case 0x34: messageToBeSent = IR_STOP;
+								break;
+				case 0x35: messageToBeSent = IR_FAILED;
+								break;
+				default : messageToBeSent = IR_IDLE;
+								break;
+			}
 	}
-		for(int i = 0 ; i < 2; i++)
-			transmit(messageToBeSent);
+
+	for(int i = 0 ; i < 2; i++)
+		transmit(messageToBeSent);
 
 }
 void CAN_Rx(void)
