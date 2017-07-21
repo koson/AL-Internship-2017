@@ -72,6 +72,9 @@ IRMessage messageToBeSent;
 
 FLAG_STATE FLAG_TI=FLAG_OFF;
 FLAG_STATE FLAG_DLR=FLAG_OFF;
+
+FLAG_MODE USE_BUTTONS=MANUAL;
+
 uint16_t TIM_PERIOD=200;
 
 uint32_t ADC_Val; //0 - > 4092
@@ -136,16 +139,6 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim7);
   while (1)
   {
-	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1)
-	 {
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-	 }
-	 else
-	 {
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-	 }
-
-
 	 if(counter % 16 == 0 && counter < 20) {
 		 receivedFirstMessage = IRdecode(message);
 	 }
@@ -164,6 +157,7 @@ int main(void)
 	 }
 
 	CAN_Tx(CANdecode(receivedMessage));
+	CAN_Rx();
   }
 }
 
@@ -379,8 +373,6 @@ static void MX_TIM3_Init(void)
   HAL_TIM_MspPostInit(&htim3);
 
 }
-
-/* TIM4 init function */
 static void MX_TIM4_Init(void)
 {
 
@@ -540,7 +532,6 @@ void button_init()
 	  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 }
-
 void CAN_filter_init(void)
 {
 	CAN_FilterConfTypeDef  sFilterConfig;
@@ -595,9 +586,29 @@ void CAN_Tx(uint32_t ID)
 		}
 		while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
 }
-void verif_msg(volatile uint16_t data)
+void CAN_Rx(void)
 {
-	switch (data)
+
+		if(HAL_CAN_Receive(&hcan1, CAN_FILTER_FIFO0, 10)==HAL_OK)
+		{
+				datarx[0] = hcan1.pRxMsg->StdId;
+				datarx[1] = hcan1.pRxMsg->DLC;
+				datarx[2] = hcan1.pRxMsg->RTR;
+				datarx[3] = hcan1.pRxMsg->DLC;
+				datarx[4] = hcan1.pRxMsg->Data[0];
+				datarx[5] = hcan1.pRxMsg->Data[1];
+		verif_msg(hcan1.pRxMsg->StdId);
+		}
+}
+void verif_msg(volatile uint16_t ID)
+{
+	if (ID == 0x50)
+		USE_BUTTONS = AUTO;
+	else if(ID == 0x51)
+		USE_BUTTONS = MANUAL;
+
+	if(USE_BUTTONS == AUTO)
+	switch (ID)
 	{
 		case 0x10:
 					high_beam_on();
@@ -626,29 +637,10 @@ void verif_msg(volatile uint16_t data)
 					dlr_off();
 					break;
 
-		default :
-			high_beam_off();
-			low_beam_off();
-			turn_indicator_off();
-			dlr_off();
+
 	}
 }
-void CAN_Rx(void)
-{
 
-		if(HAL_CAN_Receive(&hcan1, CAN_FILTER_FIFO0, 10)==HAL_OK)
-		{
-
-		datarx[0] = hcan1.pRxMsg->StdId;
-		datarx[1] = hcan1.pRxMsg->DLC;
-		datarx[2] = hcan1.pRxMsg->RTR;
-		datarx[3] = hcan1.pRxMsg->DLC;
-		datarx[4] = hcan1.pRxMsg->Data[0];
-		datarx[5] = hcan1.pRxMsg->Data[1];
-
-		verif_msg(hcan1.pRxMsg->StdId);
-		}
-}
 uint32_t level(void)
 {
 	HAL_ADC_Start(&hadc1);

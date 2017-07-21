@@ -40,7 +40,7 @@
 /* USER CODE BEGIN 0 */
 int counter = 0;
 extern uint16_t message;
-
+extern FLAG_MODE USE_BUTTONS;
 int synchronized = 0;
 int old_value = 1;
 
@@ -223,97 +223,100 @@ void TIM7_IRQHandler(void)
 
   /* USER CODE END TIM6_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
-  if(read_button_HB()==GPIO_PIN_SET)
+  if (USE_BUTTONS == MANUAL)
   {
-	  time_elapsed_HB++;
-  }
-	  if(time_elapsed_HB>=10 && time_elapsed_HB<50)
+	  if(read_button_HB()==GPIO_PIN_SET)
 	  {
-		  if(read_button_HB()==GPIO_PIN_RESET)
-		  {
-			  press_HB=SHORT_PRESS;
-			  time_elapsed_HB=0;
-		  }
+		  time_elapsed_HB++;
 	  }
-	  else
-	  {
-		  if(time_elapsed_HB>=50)
+		  if(time_elapsed_HB>=10 && time_elapsed_HB<50)
 		  {
-			  press_HB=LONG_PRESS;
-			  high_beam_on();
 			  if(read_button_HB()==GPIO_PIN_RESET)
 			  {
-				  high_beam_off();
+				  press_HB=SHORT_PRESS;
 				  time_elapsed_HB=0;
 			  }
-
-		  }
-		  else
-			  press_HB=UNDEFINED_PRESS;
-	  }
-	  if(press_HB==SHORT_PRESS)
-		  high_beam_toggle();
-
-
-	  if(read_button_LB()==GPIO_PIN_SET)
-	  {
-	  	time_elapsed_LB++;
-	  }
-	  	  if(time_elapsed_LB>=10)
-	  	  {
-	  		  if(read_button_LB()==GPIO_PIN_RESET)
-	  		  {
-	  			  press_LB=SHORT_PRESS;
-	  			  time_elapsed_LB=0;
-	  		  }
-	  	  }
-	  	  else
-	  	  {
-	  			  press_LB=UNDEFINED_PRESS;
-	  	  }
-	  	  if(press_LB==SHORT_PRESS)
-	  		  low_beam_toggle();
-
-	  if(read_button_TI()==GPIO_PIN_SET)
-	  {
-		time_elapsed_TI++;
-	  }
-		  if(time_elapsed_TI>=10)
-		  {
-			  if(read_button_TI()==GPIO_PIN_RESET)
-			  {
-				  press_TI=SHORT_PRESS;
-				  time_elapsed_TI=0;
-			  }
 		  }
 		  else
 		  {
-				  press_TI=UNDEFINED_PRESS;
-		  }
-		  if(press_TI==SHORT_PRESS)
-		  {
-			  turn_indicator_toggle();
-		  }
-
-
-		  if(read_button_DLR()==GPIO_PIN_SET)
-		  {
-			time_elapsed_DLR++;
-		  }
-			  if(time_elapsed_DLR>=10)
+			  if(time_elapsed_HB>=50)
 			  {
-				  if(read_button_DLR()==GPIO_PIN_RESET)
+				  press_HB=LONG_PRESS;
+				  high_beam_on();
+				  if(read_button_HB()==GPIO_PIN_RESET)
 				  {
-					  press_DLR=SHORT_PRESS;
-					  time_elapsed_DLR=0;
+					  high_beam_off();
+					  time_elapsed_HB=0;
+				  }
+
+			  }
+			  else
+				  press_HB=UNDEFINED_PRESS;
+		  }
+		  if(press_HB==SHORT_PRESS)
+			  high_beam_toggle();
+
+
+		  if(read_button_LB()==GPIO_PIN_SET)
+		  {
+			time_elapsed_LB++;
+		  }
+			  if(time_elapsed_LB>=10)
+			  {
+				  if(read_button_LB()==GPIO_PIN_RESET)
+				  {
+					  press_LB=SHORT_PRESS;
+					  time_elapsed_LB=0;
 				  }
 			  }
 			  else
 			  {
-					  press_DLR=UNDEFINED_PRESS;
+					  press_LB=UNDEFINED_PRESS;
 			  }
-			  if(press_DLR==SHORT_PRESS)
-				  dlr_toggle();
+			  if(press_LB==SHORT_PRESS)
+				  low_beam_toggle();
+
+		  if(read_button_TI()==GPIO_PIN_SET)
+		  {
+			time_elapsed_TI++;
+		  }
+			  if(time_elapsed_TI>=10)
+			  {
+				  if(read_button_TI()==GPIO_PIN_RESET)
+				  {
+					  press_TI=SHORT_PRESS;
+					  time_elapsed_TI=0;
+				  }
+			  }
+			  else
+			  {
+					  press_TI=UNDEFINED_PRESS;
+			  }
+			  if(press_TI==SHORT_PRESS)
+			  {
+				  turn_indicator_toggle();
+			  }
+
+
+			  if(read_button_DLR()==GPIO_PIN_SET)
+			  {
+				time_elapsed_DLR++;
+			  }
+				  if(time_elapsed_DLR>=10)
+				  {
+					  if(read_button_DLR()==GPIO_PIN_RESET)
+					  {
+						  press_DLR=SHORT_PRESS;
+						  time_elapsed_DLR=0;
+					  }
+				  }
+				  else
+				  {
+						  press_DLR=UNDEFINED_PRESS;
+				  }
+				  if(press_DLR==SHORT_PRESS)
+					  dlr_toggle();
+  }
 
 }
 /******************************************************************************/
