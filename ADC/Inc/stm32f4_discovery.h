@@ -91,6 +91,11 @@ typedef enum
   SHORT_PRESS = 1,
   LONG_PRESS= 2
 } BUTTON_PRESS_Type;
+typedef enum
+{
+	AUTO = 0,
+	MANUAL = 1
+} FLAG_MODE;
 /**
   * @}
   */ 

@@ -321,7 +321,7 @@ static void MX_TIM2_Init(void)
   TIM_MasterConfigTypeDef sMasterConfig;
   TIM_OC_InitTypeDef sConfigOC;
   /* Compute the prescaler value to have TIM3 counter clock equal to 10 KHz */
-   uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 10000) - 1;
+   uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 1000) - 1;
 
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = uwPrescalerValue;
@@ -431,25 +431,25 @@ void CAN_Tx(uint32_t ID)
 }
 void verif_msg(volatile uint16_t id)
 {
-	if(transmit_counter % 16 == 0) {
-		switch(id) {
-				case 0x30: messageToBeSent = IR_BRAKE;
-								break;
-				case 0x31: messageToBeSent = IR_OBSTACLE;
-								break;
-				case 0x33: messageToBeSent = IR_LEAVING;
-								break;
-				case 0x34: messageToBeSent = IR_STOP;
-								break;
-				case 0x35: messageToBeSent = IR_FAILED;
-								break;
-				default : messageToBeSent = IR_IDLE;
-								break;
-			}
-	}
 
-	for(int i = 0 ; i < 2; i++)
+	switch(id) {
+			case 0x30: messageToBeSent = IR_BRAKE;
+							break;
+			case 0x31: messageToBeSent = IR_OBSTACLE;
+							break;
+			case 0x33: messageToBeSent = IR_LEAVING;
+							break;
+			case 0x34: messageToBeSent = IR_STOP;
+							break;
+			case 0x35: messageToBeSent = IR_FAILED;
+							break;
+			default : messageToBeSent = IR_IDLE;
+							break;
+		}
+
+	for(int i = 0 ; i < 2; i++) {
 		transmit(messageToBeSent);
+	}
 
 }
 void CAN_Rx(void)

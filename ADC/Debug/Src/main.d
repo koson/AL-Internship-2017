@@ -32,7 +32,9 @@ Src/main.o: ../Src/main.c \
  D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/signals.h \
  D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/stm32f4_discovery.h \
- D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/IR.h
+ D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/IR.h \
+ D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/leds.h \
+ D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/buttons.h
 
 D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/main.h:
 
@@ -102,6 +104,6 @@ D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/stm32f4_discovery.h:
 
 D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/IR.h:
 
-D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc/leds.h:
+D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/leds.h:
 
-D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc/buttons.h:
+D:/users/F27280C/Downloads/AL-Internship-2017/ADC/Inc/buttons.h:

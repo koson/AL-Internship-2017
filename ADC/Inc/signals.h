@@ -27,4 +27,7 @@
 #define IR_STOP       0x34
 #define IR_FAILED     0x35
 
+#define MODE_AUTO 	  0x50
+#define MODE_MANUAL   0x51
+
 #endif /* SIGNALS_H_ */
