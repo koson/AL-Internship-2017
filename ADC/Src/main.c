@@ -62,8 +62,7 @@ TIM_HandleTypeDef htim7;
 uint32_t uwPrescalerValue;
 uint16_t message = 0;
 extern int counter;
-extern int synchronized;
-extern int old_value;
+
 IRMessage receivedMessage;
 IRMessage messageToBeSent;
 
@@ -625,39 +624,6 @@ void CAN_Rx(void)
 		verif_msg(hcan1.pRxMsg->StdId);
 		}
 }
-uint32_t level(void)
-{
-	HAL_ADC_Start(&hadc1);
-	ADC_Val = HAL_ADC_GetValue(&hadc1);
-	if( 100 < ADC_Val && ADC_Val < 1500 )
-	{
-			BSP_LED_On(STP0);
-			BSP_LED_Off(STP1);
-			BSP_LED_Off(STP2);
-				return(1);
-	}
-	else if( 1500 < ADC_Val && ADC_Val < 3000)
-	{
-			BSP_LED_On(STP0);
-			BSP_LED_On(STP1);
-			BSP_LED_Off(STP2);
-				return(2);
-	}
-	else if( 3000 < ADC_Val && ADC_Val < 5000)
-	{
-			BSP_LED_On(STP0);
-			BSP_LED_On(STP1);
-			BSP_LED_On(STP2);
-				return(3);
-	}
-	else
-	{
-		back_light_off();
-				return(0);
-	}
-
-}
-
 void pwm_init()
 {
 

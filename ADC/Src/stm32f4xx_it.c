@@ -326,19 +326,7 @@ void TIM7_IRQHandler(void)
 	{
 	  dlr_toggle();
 	}
-	 /* USER CODE END TIM6_IRQn 0 */
+	 /* USER CODE END TIM7_IRQn 0 */
 }
-/******************************************************************************/
-/* STM32F4xx Peripheral Interrupt Handlers                                    */
-/* Add here the Interrupt Handlers for the used peripherals.                  */
-/* For the available peripheral interrupt handler names,                      */
-/* please refer to the startup file (startup_stm32f4xx.s).                    */
-/******************************************************************************/
 
-/**
-* @brief This function handles TIM4 global interrupt.
-*/
-/* USER CODE BEGIN 1 */
-
-/* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
