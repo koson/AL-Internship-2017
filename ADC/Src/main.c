@@ -65,6 +65,9 @@ extern int counter;
 extern int synchronized;
 extern int old_value;
 IRMessage receivedMessage;
+IRMessage receivedFirstMessage;
+IRMessage receivedSecondMessage;
+IRMessage receivedThirdMessage;
 IRMessage messageToBeSent;
 
 FLAG_STATE FLAG_TI=FLAG_OFF;
@@ -160,10 +163,24 @@ int main(void)
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
 	 }
 
-	if(counter % 16 == 0)
-	{
-		receivedMessage = IRdecode(message);
-	}
+
+	 if(counter % 16 == 0 && counter < 20) {
+		 receivedFirstMessage = IRdecode(message);
+	 }
+	 if(counter % 32 == 0 && counter < 40) {
+		 receivedSecondMessage = IRdecode(message);
+	 }
+	 if(counter % 48 == 0) {
+		 receivedThirdMessage = IRdecode(message);
+		 if(receivedFirstMessage == receivedSecondMessage && receivedFirstMessage == receivedThirdMessage) {
+			 receivedMessage = receivedFirstMessage;
+		 } else if(receivedSecondMessage == receivedThirdMessage) {
+			 receivedMessage = receivedSecondMessage;
+		 } else {
+			 receivedMessage = receivedThirdMessage;
+		 }
+	 }
+
 	CAN_Tx(CANdecode(receivedMessage));
   }
 }
@@ -416,7 +433,7 @@ static void MX_TIM5_Init(void)
 {
 
   TIM_ClockConfigTypeDef sClockSourceConfig;
-  uwPrescalerValue=(uint32_t) ((SystemCoreClock /2) / 10000) - 1;
+  uwPrescalerValue=(uint32_t) ((SystemCoreClock /2) / 1000) - 1;
   htim5.Instance = TIM5;
   htim5.Init.Prescaler = uwPrescalerValue;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;

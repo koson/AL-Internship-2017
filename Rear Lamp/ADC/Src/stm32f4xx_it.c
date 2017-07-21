@@ -35,20 +35,25 @@
 #include "stm32f4xx.h"
 #include "stm32f4_discovery.h"
 #include "stm32f4xx_it.h"
+#include "IR.h"
 
 /* USER CODE BEGIN 0 */
 /* USER CODE END 0 */
 /* External variables --------------------------------------------------------*/
 
 extern TIM_HandleTypeDef htim5;
-extern transmit_counter;
+extern int transmit_counter;
+extern IRMessage messageToBeSent;
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
 
 /**
 * @brief This function handles System service call via SWI instruction.
+*
 */
+void transmit(uint16_t CANId);
+
 void SVC_Handler(void)
 {
   /* USER CODE BEGIN SVCall_IRQn 0 */
@@ -94,6 +99,7 @@ void TIM5_IRQHandler(void)
 
   /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim5);
+
   transmit_counter++;
 
 
@@ -103,6 +109,7 @@ void TIM5_IRQHandler(void)
 
   /* USER CODE END TIM4_IRQn 1 */
 }
+
 /******************************************************************************/
 /* STM32F4xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
