@@ -104,12 +104,13 @@ void SysTick_Handler(void)
 
   /* USER CODE END SysTick_IRQn 1 */
 }
+/*@brief This function handles Timer 4 interrupt,
+ * it is used for turn indicator signal
+ * */
 void TIM4_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */
 
-
-  /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim4);
   switch(led_phase)
   {
@@ -177,10 +178,7 @@ void TIM4_IRQHandler(void)
   }break;
   }
 
-
-  /* USER CODE BEGIN TIM4_IRQn 1 */
-
-  /* USER CODE END TIM4_IRQn 1 */
+  /* USER CODE END TIM4_IRQn 0 */
 }
 void TIM5_IRQHandler(void)
 {
@@ -217,104 +215,118 @@ void TIM5_IRQHandler(void)
 
   /* USER CODE END TIM4_IRQn 1 */
 }
+/*
+ * Timer 7 used for button interrupts
+ * */
 void TIM7_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM6_IRQn 0 */
+  /* USER CODE BEGIN TIM7_IRQn 0 */
 
-  /* USER CODE END TIM6_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim7);
-  if(read_button_HB()==GPIO_PIN_SET)
-  {
+
+	HAL_TIM_IRQHandler(&htim7);
+	/*
+	 * High beam button
+	 * */
+	if(read_button_HB()==GPIO_PIN_SET)
+	{
 	  time_elapsed_HB++;
-  }
-	  if(time_elapsed_HB>=10 && time_elapsed_HB<50)
+	}
+	if(time_elapsed_HB>=10 && time_elapsed_HB<50)
+	{
+	  if(read_button_HB()==GPIO_PIN_RESET)
 	  {
+		  press_HB=SHORT_PRESS;
+		  time_elapsed_HB=0;
+	  }
+	}
+	else
+	{
+	  if(time_elapsed_HB>=50)
+	  {
+		  press_HB=LONG_PRESS;
+		  high_beam_on();
 		  if(read_button_HB()==GPIO_PIN_RESET)
 		  {
-			  press_HB=SHORT_PRESS;
+			  high_beam_off();
 			  time_elapsed_HB=0;
+		  }
+
+	  }
+	  else
+		  press_HB=UNDEFINED_PRESS;
+	}
+	if(press_HB==SHORT_PRESS)
+	  high_beam_toggle();
+
+	/*
+	 * Low beam lights button
+	 * */
+	if(read_button_LB()==GPIO_PIN_SET)
+	{
+	time_elapsed_LB++;
+	}
+	  if(time_elapsed_LB>=10)
+	  {
+		  if(read_button_LB()==GPIO_PIN_RESET)
+		  {
+			  press_LB=SHORT_PRESS;
+			  time_elapsed_LB=0;
 		  }
 	  }
 	  else
 	  {
-		  if(time_elapsed_HB>=50)
-		  {
-			  press_HB=LONG_PRESS;
-			  high_beam_on();
-			  if(read_button_HB()==GPIO_PIN_RESET)
-			  {
-				  high_beam_off();
-				  time_elapsed_HB=0;
-			  }
-
-		  }
-		  else
-			  press_HB=UNDEFINED_PRESS;
+			  press_LB=UNDEFINED_PRESS;
 	  }
-	  if(press_HB==SHORT_PRESS)
-		  high_beam_toggle();
-
-
-	  if(read_button_LB()==GPIO_PIN_SET)
+	  if(press_LB==SHORT_PRESS)
+		  low_beam_toggle();
+	/*
+	 * Turn indicator button
+	 * */
+	if(read_button_TI()==GPIO_PIN_SET)
+	{
+	time_elapsed_TI++;
+	}
+	if(time_elapsed_TI>=10)
+	{
+	  if(read_button_TI()==GPIO_PIN_RESET)
 	  {
-	  	time_elapsed_LB++;
+		  press_TI=SHORT_PRESS;
+		  time_elapsed_TI=0;
 	  }
-	  	  if(time_elapsed_LB>=10)
-	  	  {
-	  		  if(read_button_LB()==GPIO_PIN_RESET)
-	  		  {
-	  			  press_LB=SHORT_PRESS;
-	  			  time_elapsed_LB=0;
-	  		  }
-	  	  }
-	  	  else
-	  	  {
-	  			  press_LB=UNDEFINED_PRESS;
-	  	  }
-	  	  if(press_LB==SHORT_PRESS)
-	  		  low_beam_toggle();
+	}
+	else
+	{
+	  press_TI=UNDEFINED_PRESS;
+	}
+	if(press_TI==SHORT_PRESS)
+	{
+	  turn_indicator_toggle();
+	}
 
-	  if(read_button_TI()==GPIO_PIN_SET)
+	/*
+	* Day light running
+	* */
+	if(read_button_DLR()==GPIO_PIN_SET)
+	{
+	time_elapsed_DLR++;
+	}
+	if(time_elapsed_DLR>=10)
+	{
+	  if(read_button_DLR()==GPIO_PIN_RESET)
 	  {
-		time_elapsed_TI++;
+		  press_DLR=SHORT_PRESS;
+		  time_elapsed_DLR=0;
 	  }
-		  if(time_elapsed_TI>=10)
-		  {
-			  if(read_button_TI()==GPIO_PIN_RESET)
-			  {
-				  press_TI=SHORT_PRESS;
-				  time_elapsed_TI=0;
-			  }
-		  }
-		  else
-		  {
-				  press_TI=UNDEFINED_PRESS;
-		  }
-		  if(press_TI==SHORT_PRESS)
-		  {
-			  turn_indicator_toggle();
-		  }
-
-
-		  if(read_button_DLR()==GPIO_PIN_SET)
-		  {
-			time_elapsed_DLR++;
-		  }
-			  if(time_elapsed_DLR>=10)
-			  {
-				  if(read_button_DLR()==GPIO_PIN_RESET)
-				  {
-					  press_DLR=SHORT_PRESS;
-					  time_elapsed_DLR=0;
-				  }
-			  }
-			  else
-			  {
-					  press_DLR=UNDEFINED_PRESS;
-			  }
-			  if(press_DLR==SHORT_PRESS)
-				  dlr_toggle();
-
+	}
+	else
+	{
+	  press_DLR=UNDEFINED_PRESS;
+	}
+	if(press_DLR==SHORT_PRESS)
+	{
+	  dlr_toggle();
+	}
+	 /* USER CODE END TIM6_IRQn 0 */
 }
 /******************************************************************************/
 /* STM32F4xx Peripheral Interrupt Handlers                                    */

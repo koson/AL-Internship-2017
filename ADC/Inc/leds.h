@@ -8,11 +8,6 @@
 #ifndef LEDS_H_
 #define LEDS_H_
 
-
-void back_light_on(void);
-void back_light_off(void);
-void back_light_toggle(void);
-
 void high_beam_on(void);
 void high_beam_off(void);
 void high_beam_toggle(void);

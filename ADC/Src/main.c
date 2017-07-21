@@ -241,30 +241,26 @@ static void MX_ADC1_Init(void)
 }
 static void MX_CAN1_Init(void)
 {
-
 	HAL_CAN_DeInit(&hcan1);
-
-
 	__HAL_RCC_CAN1_CLK_ENABLE();
 	hcan1.pTxMsg = &TxMessage;
 	hcan1.pRxMsg = &RxMessage;
-
-  hcan1.Instance = CAN1;
-  hcan1.Init.Prescaler = 4;
-  hcan1.Init.Mode = CAN_MODE_NORMAL;
-  hcan1.Init.SJW = CAN_SJW_1TQ;
-  hcan1.Init.BS1 = CAN_BS1_12TQ;
-  hcan1.Init.BS2 = CAN_BS2_5TQ;
-  hcan1.Init.TTCM = DISABLE;
-  hcan1.Init.ABOM = DISABLE;
-  hcan1.Init.AWUM = DISABLE;
-  hcan1.Init.NART = DISABLE;
-  hcan1.Init.RFLM = DISABLE;
-  hcan1.Init.TXFP = DISABLE;
-  if (HAL_CAN_Init(&hcan1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
+	hcan1.Instance = CAN1;
+	hcan1.Init.Prescaler = 4;
+	hcan1.Init.Mode = CAN_MODE_NORMAL;
+	hcan1.Init.SJW = CAN_SJW_1TQ;
+	hcan1.Init.BS1 = CAN_BS1_12TQ;
+	hcan1.Init.BS2 = CAN_BS2_5TQ;
+	hcan1.Init.TTCM = DISABLE;
+	hcan1.Init.ABOM = DISABLE;
+	hcan1.Init.AWUM = DISABLE;
+	hcan1.Init.NART = DISABLE;
+	hcan1.Init.RFLM = DISABLE;
+	hcan1.Init.TXFP = DISABLE;
+	if (HAL_CAN_Init(&hcan1) != HAL_OK)
+	{
+	_Error_Handler(__FILE__, __LINE__);
+	}
 
 }
 static void MX_TIM2_Init(void)
@@ -421,21 +417,21 @@ static void MX_TIM7_Init(void)
 
 	 TIM_MasterConfigTypeDef sMasterConfig;
 
-	  htim7.Instance = TIM7;
-	  htim7.Init.Prescaler =8000;
-	  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-	  htim7.Init.Period = 50;
-	  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
+	htim7.Instance = TIM7;
+	htim7.Init.Prescaler =8000;
+	htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim7.Init.Period = 50;
+	if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+	{
+	_Error_Handler(__FILE__, __LINE__);
+	}
 
-	  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-	  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
+	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+	{
+	_Error_Handler(__FILE__, __LINE__);
+	}
 
 }
 static void MX_GPIO_Init(void)
@@ -483,45 +479,45 @@ static void MX_GPIO_Init(void)
 }
 void led_init()
 {
-	    BSP_LED_Init(LED3);
-	    BSP_LED_Init(LED4);
-	    BSP_LED_Init(LED5);
-	    BSP_LED_Init(LED6);
+	BSP_LED_Init(LED3);
+	BSP_LED_Init(LED4);
+	BSP_LED_Init(LED5);
+	BSP_LED_Init(LED6);
 
-	    BSP_LED_Init(HBM0);
-	    BSP_LED_Init(HBM1);
-	    BSP_LED_Init(HBM2);
-	    BSP_LED_Init(HBM3);
-	    BSP_LED_Init(HBM4);
+	BSP_LED_Init(HBM0);
+	BSP_LED_Init(HBM1);
+	BSP_LED_Init(HBM2);
+	BSP_LED_Init(HBM3);
+	BSP_LED_Init(HBM4);
 
-	    BSP_LED_Init(LBM0);
-	    BSP_LED_Init(LBM1);
-	    BSP_LED_Init(LBM2);
-	    BSP_LED_Init(LBM3);
-	    BSP_LED_Init(LBM4);
+	BSP_LED_Init(LBM0);
+	BSP_LED_Init(LBM1);
+	BSP_LED_Init(LBM2);
+	BSP_LED_Init(LBM3);
+	BSP_LED_Init(LBM4);
 
-	    BSP_LED_Init(STP0);
-	    BSP_LED_Init(STP1);
-	    BSP_LED_Init(STP2);
+	BSP_LED_Init(STP0);
+	BSP_LED_Init(STP1);
+	BSP_LED_Init(STP2);
 
-	    BSP_LED_Init(TRN0);
-	    BSP_LED_Init(TRN1);
-	    BSP_LED_Init(TRN2);
-	    BSP_LED_Init(TRN3);
-	    BSP_LED_Init(TRN4);
+	BSP_LED_Init(TRN0);
+	BSP_LED_Init(TRN1);
+	BSP_LED_Init(TRN2);
+	BSP_LED_Init(TRN3);
+	BSP_LED_Init(TRN4);
 
 }
 void button_init()
 {
-	  GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitTypeDef GPIO_InitStruct;
 
-	 /*Configure GPIO pin Output Level */
-	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
-	  GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6;
-	  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	  GPIO_InitStruct.Pull = GPIO_NOPULL;
-	  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+	/*Configure GPIO pin Output Level */
+	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
+	GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 }
 
 void CAN_filter_init(void)
@@ -538,7 +534,6 @@ void CAN_filter_init(void)
 	sFilterConfig.FilterMaskIdHigh = 0x0000;
 	sFilterConfig.FilterMaskIdLow = 0x0000;
 
-
 	sFilterConfig.FilterActivation = ENABLE;
 	sFilterConfig.BankNumber = 0;
 	HAL_CAN_ConfigFilter(&hcan1, &sFilterConfig);
@@ -552,6 +547,21 @@ void CAN_Tx_Brake(uint8_t Data)
 	hcan1.pTxMsg->IDE = CAN_ID_STD;
 	hcan1.pTxMsg->DLC = 1;
 	hcan1.pTxMsg->Data[0] = Data;
+	TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
+	do
+	{
+		TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
+	}
+	while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
+}
+void CAN_Tx(uint32_t ID)
+{
+	hcan1.pTxMsg->StdId = ID;
+	hcan1.pTxMsg->ExtId= 1;
+	hcan1.pTxMsg->RTR = CAN_RTR_DATA;
+	hcan1.pTxMsg->IDE = CAN_ID_STD;
+	hcan1.pTxMsg->DLC = 1;
+	hcan1.pTxMsg->Data[0] = 0x00;
 
 	TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
 	do
@@ -560,23 +570,6 @@ void CAN_Tx_Brake(uint8_t Data)
 
 	}
 	while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
-}
-void CAN_Tx(uint32_t ID)
-{
-		hcan1.pTxMsg->StdId = ID;
-		hcan1.pTxMsg->ExtId= 1;
-		hcan1.pTxMsg->RTR = CAN_RTR_DATA;
-		hcan1.pTxMsg->IDE = CAN_ID_STD;
-		hcan1.pTxMsg->DLC = 1;
-		hcan1.pTxMsg->Data[0] = 0x00;
-
-	TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
-		do
-		{
-			TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
-
-		}
-		while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
 }
 void verif_msg(volatile uint16_t data)
 {
@@ -668,13 +661,13 @@ uint32_t level(void)
 void pwm_init()
 {
 
-	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);
-	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_2);
-	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_3);
-	  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_4);
-	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
-	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
-	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_4);
+	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
 }
 
 uint32_t CANdecode(IRMessage msg)
