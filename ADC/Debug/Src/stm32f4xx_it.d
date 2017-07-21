@@ -30,7 +30,9 @@ Src/stm32f4xx_it.o: ../Src/stm32f4xx_it.c \
  D:/users/F27284C/Project/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  D:/users/F27284C/Project/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc/stm32f4_discovery.h \
- D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc/stm32f4xx_it.h
+ D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc/stm32f4xx_it.h \
+ D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc/leds.h \
+ D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc/buttons.h
 
 D:/users/F27284C/Project/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 
@@ -95,3 +97,7 @@ D:/users/F27284C/Project/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc
 D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc/stm32f4_discovery.h:
 
 D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc/stm32f4xx_it.h:
+
+D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc/leds.h:
+
+D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc/buttons.h:

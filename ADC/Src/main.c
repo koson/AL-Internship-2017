@@ -41,11 +41,11 @@
 #include "signals.h"
 #include "stm32f4_discovery.h"
 #include "IR.h"
-
+#include "leds.h"
+#include "buttons.h"
 #define CAN_FIFO_ID                0
 #define CAN_FIFO                   CAN_FIFO0
 #define CAN_FIFO_IN                CAN_IT_FMP0
-#define TIM_PERIOD 200
 
 /**********************\
 |*     handlers        |
@@ -66,7 +66,8 @@ IRMessage receivedMessage;
 IRMessage messageToBeSent;
 
 FLAG_STATE FLAG_TI=FLAG_OFF;
-FLAG_STATE FLAG_DLR=FLAG_ON;
+FLAG_STATE FLAG_DLR=FLAG_OFF;
+uint16_t TIM_PERIOD=200;
 
 uint32_t ADC_Val; //0 - > 4092
 uint32_t Id;
@@ -89,6 +90,9 @@ static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
 static void MX_TIM7_Init(void);
+static void led_init(void);
+static void button_init(void);
+static void pwm_init(void);
 
 static void CAN_filter_init(void);
 
@@ -102,30 +106,8 @@ void CAN_Tx(uint32_t ID);
 void CAN_Rx(void);
 void verif_msg(volatile uint16_t);
 
-static void pwm_init(void);
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
-void back_light_on(void);
-void back_light_off(void);
-void back_light_toggle(void);
-
-void high_beam_on(void);
-void high_beam_off(void);
-void high_beam_toggle(void);
-
-void low_beam_on(void);
-void low_beam_off(void);
-
-void turn_indicator_on(void);
-void turn_indicator_off(void);
-
-void dlr_on(void);
-void dlr_on_turn_indicator(void);
-void dlr_off(void);
-void dlr_dimming(uint32_t pwm);
-
-void button_init(void);
-GPIO_PinState read_button();
 
 uint32_t CANdecode(IRMessage);
 
@@ -492,39 +474,44 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Alternate =  GPIO_AF9_CAN1;
     HAL_GPIO_Init(CAN1_RX_GPIO_Port, &GPIO_InitStruct);
 
-    BSP_LED_Init(LED3);
-    BSP_LED_Init(LED4);
-    BSP_LED_Init(LED5);
-    BSP_LED_Init(LED6);
-
-    BSP_LED_Init(HBM0);
-    BSP_LED_Init(HBM1);
-    BSP_LED_Init(HBM2);
-    BSP_LED_Init(HBM3);
-    BSP_LED_Init(HBM4);
-
-    BSP_LED_Init(LBM0);
-    BSP_LED_Init(LBM1);
-    BSP_LED_Init(LBM2);
-    BSP_LED_Init(LBM3);
-    BSP_LED_Init(LBM4);
-
-    BSP_LED_Init(STP0);
-    BSP_LED_Init(STP1);
-    BSP_LED_Init(STP2);
-
-    BSP_LED_Init(TRN0);
-    BSP_LED_Init(TRN1);
-    BSP_LED_Init(TRN2);
-    BSP_LED_Init(TRN3);
-    BSP_LED_Init(TRN4);
 
     GPIO_InitStruct.Pin = GPIO_PIN_3;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+    led_init();
     button_init();
+
+}
+void led_init()
+{
+	    BSP_LED_Init(LED3);
+	    BSP_LED_Init(LED4);
+	    BSP_LED_Init(LED5);
+	    BSP_LED_Init(LED6);
+
+	    BSP_LED_Init(HBM0);
+	    BSP_LED_Init(HBM1);
+	    BSP_LED_Init(HBM2);
+	    BSP_LED_Init(HBM3);
+	    BSP_LED_Init(HBM4);
+
+	    BSP_LED_Init(LBM0);
+	    BSP_LED_Init(LBM1);
+	    BSP_LED_Init(LBM2);
+	    BSP_LED_Init(LBM3);
+	    BSP_LED_Init(LBM4);
+
+	    BSP_LED_Init(STP0);
+	    BSP_LED_Init(STP1);
+	    BSP_LED_Init(STP2);
+
+	    BSP_LED_Init(TRN0);
+	    BSP_LED_Init(TRN1);
+	    BSP_LED_Init(TRN2);
+	    BSP_LED_Init(TRN3);
+	    BSP_LED_Init(TRN4);
 
 }
 void button_init()
@@ -539,14 +526,7 @@ void button_init()
 	  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 }
-GPIO_PinState read_button_HB()
-{
-	return HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_6);
-}
-GPIO_PinState read_button_LB()
-{
-	return HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_6);
-}
+
 void CAN_filter_init(void)
 {
 	CAN_FilterConfTypeDef  sFilterConfig;
@@ -687,82 +667,7 @@ uint32_t level(void)
 	}
 
 }
-void high_beam_on(void)
-{
-	BSP_LED_On(HBM0);
-	BSP_LED_On(HBM1);
-	BSP_LED_On(HBM2);
-	BSP_LED_On(HBM3);
-	BSP_LED_On(HBM4);
 
-}
-void high_beam_off(void)
-{
-	BSP_LED_Off(HBM0);
-	BSP_LED_Off(HBM1);
-	BSP_LED_Off(HBM2);
-	BSP_LED_Off(HBM3);
-	BSP_LED_Off(HBM4);
-}
-void high_beam_toggle(void)
-{
-	BSP_LED_Toggle(HBM0);
-	BSP_LED_Toggle(HBM1);
-	BSP_LED_Toggle(HBM2);
-	BSP_LED_Toggle(HBM3);
-	BSP_LED_Toggle(HBM4);
-}
-void low_beam_on(void)
-{
-	BSP_LED_On(LBM0);
-	BSP_LED_On(LBM1);
-	BSP_LED_On(LBM2);
-	BSP_LED_On(LBM3);
-	BSP_LED_On(LBM4);
-
-}
-void low_beam_off(void)
-{
-	BSP_LED_Off(LBM0);
-	BSP_LED_Off(LBM1);
-	BSP_LED_Off(LBM2);
-	BSP_LED_Off(LBM3);
-	BSP_LED_Off(LBM4);
-}
-void back_light_on()
-{
-
-	BSP_LED_On(STP0);
-	BSP_LED_On(STP1);
-	BSP_LED_On(STP2);
-
-}
-void back_light_off()
-{
-	BSP_LED_Off(STP0);
-	BSP_LED_Off(STP1);
-	BSP_LED_Off(STP2);
-}
-void back_light_toggle()
-{
-	BSP_LED_Toggle(STP0);
-	BSP_LED_Toggle(STP1);
-	BSP_LED_Toggle(STP2);
-}
-void turn_indicator_on()
-{
-	  HAL_TIM_Base_Start_IT(&htim4);
-	  FLAG_TI=FLAG_ON;
-	  if(FLAG_DLR==FLAG_ON)
-	  {
-		  dlr_on_turn_indicator();
-		  FLAG_DLR=FLAG_ON;
-	  }
-}
-void turn_indicator_off()
-{
-	 FLAG_TI=FLAG_OFF;
-}
 void pwm_init()
 {
 
@@ -774,49 +679,7 @@ void pwm_init()
 	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
 	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
 }
-void dlr_on()
-{
-	FLAG_DLR=FLAG_ON;
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,TIM_PERIOD);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,TIM_PERIOD);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,TIM_PERIOD);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,TIM_PERIOD);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,TIM_PERIOD);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,TIM_PERIOD);
-}
-void dlr_on_turn_indicator()
-{
-	FLAG_DLR=FLAG_ON;
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD/4);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,TIM_PERIOD/4);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,0);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,0);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,0);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,0);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,0);
-}
-void dlr_off()
-{
-	FLAG_DLR=FLAG_OFF;
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,0);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,0);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,0);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,0);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,0);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,0);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,0);
-}
-void dlr_dimming(uint32_t div)
-{
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,TIM_PERIOD/div);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,TIM_PERIOD/div);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD/div);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,TIM_PERIOD/div);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,TIM_PERIOD/div);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,TIM_PERIOD/div);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,TIM_PERIOD/div);
-}
+
 
 uint32_t CANdecode(IRMessage msg)
 {
