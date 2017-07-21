@@ -5,6 +5,8 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../Src/IR.c \
+../Src/buttons.c \
+../Src/leds.c \
 ../Src/main.c \
 ../Src/stm32f4_discovery.c \
 ../Src/stm32f4xx_hal_msp.c \
@@ -13,6 +15,8 @@ C_SRCS += \
 
 OBJS += \
 ./Src/IR.o \
+./Src/buttons.o \
+./Src/leds.o \
 ./Src/main.o \
 ./Src/stm32f4_discovery.o \
 ./Src/stm32f4xx_hal_msp.o \
@@ -21,6 +25,8 @@ OBJS += \
 
 C_DEPS += \
 ./Src/IR.d \
+./Src/buttons.d \
+./Src/leds.d \
 ./Src/main.d \
 ./Src/stm32f4_discovery.d \
 ./Src/stm32f4xx_hal_msp.d \
