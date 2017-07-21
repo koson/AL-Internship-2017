@@ -62,6 +62,8 @@ TIM_HandleTypeDef htim7;
 uint32_t uwPrescalerValue;
 uint16_t message = 0;
 extern int counter;
+extern int synchronized;
+extern int old_value;
 IRMessage receivedMessage;
 IRMessage messageToBeSent;
 
@@ -131,8 +133,6 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim7);
   while (1)
   {
-	 CAN_Tx_Brake(level());
-	 CAN_Rx();
 	 if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1)
 	 {
 		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
@@ -145,10 +145,8 @@ int main(void)
 	if(counter % 16 == 0)
 	{
 		receivedMessage = IRdecode(message);
-		if(receivedMessage == obstacleOnTheRoad)
-			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
-		CAN_Tx(CANdecode(receivedMessage));
 	}
+	CAN_Tx(CANdecode(receivedMessage));
   }
 }
 
@@ -396,7 +394,6 @@ static void MX_TIM4_Init(void)
   }
 
 }
-
 static void MX_TIM5_Init(void)
 {
 
@@ -679,7 +676,6 @@ void pwm_init()
 	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
 	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
 }
-
 
 uint32_t CANdecode(IRMessage msg)
 {
