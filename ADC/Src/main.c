@@ -43,6 +43,8 @@
 #include "IR.h"
 #include "leds.h"
 #include "buttons.h"
+#include "distanceSensor.h"
+
 #define CAN_FIFO_ID                0
 #define CAN_FIFO                   CAN_FIFO0
 #define CAN_FIFO_IN                CAN_IT_FMP0
@@ -68,6 +70,9 @@ IRMessage receivedFirstMessage;
 IRMessage receivedSecondMessage;
 IRMessage receivedThirdMessage;
 IRMessage messageToBeSent;
+
+uint32_t distance;
+uint8_t US = 0;
 
 FLAG_STATE FLAG_TI=FLAG_OFF;
 FLAG_STATE FLAG_DLR=FLAG_OFF;
@@ -103,6 +108,7 @@ static void pwm_init(void);
 
 static void CAN_filter_init(void);
 
+
 /**********************\
 |*   can functions     |
 \**********************/
@@ -116,7 +122,10 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 
 uint32_t CANdecode(IRMessage);
-
+/*****************************\
+|*   Ultrasonic functoins     |
+\*****************************/
+void ultraSonicRead();
 
 int main(void)
 {
@@ -137,25 +146,34 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim7);
   while (1)
   {
-	 if(counter % 16 == 0 && counter < 20) {
-		 receivedFirstMessage = IRdecode(message);
-	 }
-	 if(counter % 32 == 0 && counter < 40) {
-		 receivedSecondMessage = IRdecode(message);
-	 }
-	 if(counter % 48 == 0) {
-		 receivedThirdMessage = IRdecode(message);
-		 if(receivedFirstMessage == receivedSecondMessage && receivedFirstMessage == receivedThirdMessage) {
-			 receivedMessage = receivedFirstMessage;
-		 } else if(receivedSecondMessage == receivedThirdMessage) {
-			 receivedMessage = receivedSecondMessage;
-		 } else {
-			 receivedMessage = receivedThirdMessage;
+	  if(counter % 16 == 0 && counter < 20) {
+			 receivedFirstMessage = IRdecode(message);
 		 }
-	 }
+		 if(counter % 32 == 0 && counter < 40) {
+			 receivedSecondMessage = IRdecode(message);
+		 }
+		 if(counter % 48 == 0) {
+			 receivedThirdMessage = IRdecode(message);
+			 if(receivedFirstMessage == receivedSecondMessage && receivedFirstMessage == receivedThirdMessage) {
+				 receivedMessage = receivedFirstMessage;
+			 } else if(receivedSecondMessage == receivedThirdMessage) {
+				 receivedMessage = receivedSecondMessage;
+			 } else {
+				 receivedMessage = receivedThirdMessage;
+			 }
+		 }
 
-	CAN_Tx(CANdecode(receivedMessage));
-	CAN_Rx();
+	  distance = Read_Distance();
+	  if(distance <= 10000 &&  receivedMessage == cryticalBrake) {
+		  CAN_Tx(IR_OBSTACLE);
+		  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_SET);
+	  }
+	  else {
+		  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
+		  	CAN_Tx(CANdecode(receivedMessage));
+	  }
+	  CAN_Rx();
+
   }
 }
 
@@ -213,6 +231,45 @@ void SystemClock_Config(void)
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
+
+
+void ultraSonicRead() {
+
+		  if(distance > 500 && distance < 5000) {
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_SET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
+		  }
+		  else if (distance >= 5000 && distance <10000) {
+
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_SET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
+		  }
+		  else if (distance >= 10000 && distance < 18000) {
+
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_SET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
+		  }
+		  else if (distance >= 18000 && distance < 30000) {
+
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_SET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
+		  } else {
+
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
+			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
+		  }
+}
+
 static void MX_ADC1_Init(void)
 {
 
@@ -450,6 +507,22 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PD10 */
+  GPIO_InitStruct.Pin = GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PD11 */
+  GPIO_InitStruct.Pin = GPIO_PIN_11;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
 
   /*ADC Channel 11 -> PC1 */
