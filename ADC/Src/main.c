@@ -59,6 +59,7 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim5;
+TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 
 uint32_t uwPrescalerValue;
@@ -101,6 +102,7 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
+static void MX_TIM6_Init();
 static void MX_TIM7_Init(void);
 static void led_init(void);
 static void button_init(void);
@@ -139,11 +141,13 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM5_Init();
+  //MX_TIM6_Init();
   MX_TIM7_Init();
   pwm_init();
   CAN_filter_init();
   HAL_TIM_Base_Start_IT(&htim5);
   HAL_TIM_Base_Start_IT(&htim7);
+ // HAL_TIM_Base_Start_IT(&htim6);
   while (1)
   {
 	  if(counter % 16 == 0 && counter < 20) {
@@ -162,9 +166,11 @@ int main(void)
 				 receivedMessage = receivedThirdMessage;
 			 }
 		 }
-
-	  distance = Read_Distance();
-	  if(distance <= 10000 &&  receivedMessage == cryticalBrake) {
+ /***********************************
+	 // distance = Read_Distance();
+	We use the TIM5 interrupt for reading distance too
+ /***********************************/
+	  if(distance <= 10 /*&&  receivedMessage == cryticalBrake*/) {
 		  CAN_Tx(IR_OBSTACLE);
 		  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_SET);
 	  }
@@ -173,6 +179,7 @@ int main(void)
 		  	CAN_Tx(CANdecode(receivedMessage));
 	  }
 	  CAN_Rx();
+	  //ultraSonicRead();
 
   }
 }
@@ -235,27 +242,27 @@ void SystemClock_Config(void)
 
 void ultraSonicRead() {
 
-		  if(distance > 500 && distance < 5000) {
+		  if(distance > 2 && distance < 50) {
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_SET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
 		  }
-		  else if (distance >= 5000 && distance <10000) {
+		  else if (distance >= 50 && distance < 70) {
 
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_SET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
 		  }
-		  else if (distance >= 10000 && distance < 18000) {
+		  else if (distance >= 70 && distance < 100) {
 
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_SET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
 		  }
-		  else if (distance >= 18000 && distance < 30000) {
+		  else if (distance >= 100 && distance < 200) {
 
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_SET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
@@ -475,6 +482,22 @@ static void MX_TIM5_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
+}
+static void MX_TIM6_Init()
+{
+	TIM_ClockConfigTypeDef sClockSourceConfig;
+	htim6.Instance = TIM6;
+	htim6.Init.Prescaler = uwPrescalerValue;
+	htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim6.Init.Period = IRPeriod/16 -1;
+	htim6.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	if(HAL_TIM_Base_Init(&htim6) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
+	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+	if ( HAL_TIM_ConfigClockSource(&htim6, & sClockSourceConfig) != HAL_OK) {
+		_Error_Handler(__FILE__, __LINE__);
+	}
 }
 static void MX_TIM7_Init(void)
 {

@@ -41,8 +41,10 @@
 int counter = 0;
 extern uint16_t message;
 extern FLAG_MODE USE_BUTTONS;
+extern uint32_t distance;
 int synchronized = 0;
 int old_value = 1;
+uint8_t pulse_set = 0;
 
 /* USER CODE END 0 */
 static uint8_t led_phase=0;
@@ -57,6 +59,7 @@ uint16_t time_elapsed_DLR = 0;
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
+extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim7;
 extern FLAG_STATE FLAG_TI;
 extern FLAG_STATE FLAG_DLR;
@@ -212,8 +215,69 @@ void TIM5_IRQHandler(void)
 
 
   /* USER CODE BEGIN TIM4_IRQn 1 */
+  	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+  		__IO uint8_t flag=0;
+  		__IO uint32_t disTime=0;
 
+  		switch(pulse_set) {
+  		case 0:
+  			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
+  			pulse_set = 1;
+  			break;
+  		default:
+  			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
+  			pulse_set = 0;
+
+  	//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
+  	//		HAL_Delay(10);
+  	//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
+
+  			while(flag == 0)
+  			{
+  				while(HAL_GPIO_ReadPin(GPIOD,GPIO_PIN_11) == GPIO_PIN_SET)
+  				{
+  					 disTime++;
+  					 flag = 1;
+  				}
+
+  			}
+  				distance = disTime / 350;
+  			break;
+  		}
   /* USER CODE END TIM4_IRQn 1 */
+}
+
+void TIM6_IRQHandler() {
+	HAL_TIM_IRQHandler(&htim6);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+	__IO uint8_t flag=0;
+	__IO uint32_t disTime=0;
+
+	switch(pulse_set) {
+	case 0:
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
+		pulse_set = 1;
+		break;
+	default:
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
+		pulse_set = 0;
+
+//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
+//		HAL_Delay(10);
+//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
+
+		while(flag == 0)
+		{
+			while(HAL_GPIO_ReadPin(GPIOD,GPIO_PIN_11) == GPIO_PIN_SET)
+			{
+				 disTime++;
+				 flag = 1;
+			}
+
+		}
+			distance = disTime / 350;
+		break;
+	}
 }
 /*
  * Timer 7 used for button interrupts

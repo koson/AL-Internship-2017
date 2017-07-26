@@ -24,5 +24,5 @@ uint32_t Read_Distance(void)
 			}
 
 		}
-	 		return disTime;
+	 		return disTime / 350;
 }
