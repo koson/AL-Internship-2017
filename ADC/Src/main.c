@@ -115,6 +115,7 @@ static void CAN_filter_init(void);
 |*   can functions     |
 \**********************/
 
+uint32_t level(void);
 void CAN_Tx_Brake(uint8_t);
 void CAN_Tx(uint32_t ID);
 void CAN_Rx(void);
@@ -180,6 +181,7 @@ int main(void)
 	  }
 	  CAN_Rx();
 	  //ultraSonicRead();
+	  level();
 
   }
 }
@@ -683,6 +685,22 @@ void CAN_Rx(void)
 		verif_msg(hcan1.pRxMsg->StdId);
 		}
 }
+
+uint32_t level(void)
+{
+	HAL_ADC_Start(&hadc1);
+	ADC_Val = HAL_ADC_GetValue(&hadc1);
+	if( ADC_Val > 3500) {
+
+		  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_SET);
+	} else {
+
+		  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
+	}
+	return ADC_Val;
+
+}
+
 void verif_msg(volatile uint16_t ID)
 {
 	if (ID == 0x50)
