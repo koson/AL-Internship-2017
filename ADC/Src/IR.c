@@ -8,45 +8,48 @@
 int noOfOnes;
 IRMessage toReturn;
 
-IRMessage IRdecode(uint16_t message) {
+IRMessage IRdecode(uint16_t IR_ui16message) {
 	noOfOnes = 0;
 	toReturn = failed;
 	for(int i = 0; i < 16; i++) {
-		if((1 << i) & message ) {
+		if((1 << i) & IR_ui16message ) {
 			noOfOnes++;
 		}
 	}
 	switch(noOfOnes) {
 	case 0: toReturn = idle; //in case we do not recive anything
 			break;
-	case 3:
-	case 4:
-	case 5: toReturn = obstacleOnTheRoad;HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
+
+	case 4:toReturn = obstacleOnTheRoad;
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
 			break;
-	case 7:
-	case 8:
-	case 9: toReturn = cryticalBrake;HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+
+	case 8: toReturn = cryticalBrake;
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
 			break;
-	case 11:
-	case 12:
-	case 13: toReturn = goingToLeaveTheRoad;HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+
+	case 12: toReturn = goingToLeaveTheRoad;
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
 			break;
-	case 15:
-	case 16: toReturn = goingToStop;HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+
+	case 16: toReturn = goingToStop;
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET);
 			break;
-	default:toReturn = failed;HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+
+	default:toReturn = failed;
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
@@ -56,10 +59,10 @@ IRMessage IRdecode(uint16_t message) {
 	return toReturn;
 }
 
-int getDutyCycle(IRMessage msg) {
+int getDutyCycle(IRMessage IR_tmsg) {
 	int toReturn = -1;
 
-	switch(msg) {
+	switch(IR_tmsg) {
 	case idle: toReturn = 0;
 				break;
 	case obstacleOnTheRoad: toReturn = IRPeriod / 4;

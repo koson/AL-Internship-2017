@@ -38,10 +38,10 @@
 #include "leds.h"
 #include "buttons.h"
 /* USER CODE BEGIN 0 */
-int counter = 0;
-extern uint16_t message;
+int IR_intcounter = 0;
+extern uint16_t IR_ui16message;
 extern FLAG_MODE USE_BUTTONS;
-extern uint32_t distance;
+extern uint32_t IR_ui32distance;
 int synchronized = 0;
 int old_value = 1;
 uint8_t pulse_set = 0;
@@ -194,10 +194,10 @@ void TIM5_IRQHandler(void)
 
   	  if(synchronized == 1 || (old_value == 0 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1)) {
   		synchronized = 1;
-  		counter++;
-  			message = message << 1;
+  		IR_intcounter++;
+  		IR_ui16message = IR_ui16message << 1;
   			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
-  				message = message | 1;
+  				IR_ui16message = IR_ui16message | 1;
   			}
 
   			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
@@ -210,75 +210,44 @@ void TIM5_IRQHandler(void)
   	  }
   	  else {
   		  old_value = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3);
-  		  counter = 0;
+  		IR_intcounter = 0;
   	  }
 
 
-  /* USER CODE BEGIN TIM4_IRQn 1 */
-  	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-  		__IO uint8_t flag=0;
-  		__IO uint32_t disTime=0;
-
-  		switch(pulse_set) {
-  		case 0:
-  			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
-  			pulse_set = 1;
-  			break;
-  		default:
-  			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
-  			pulse_set = 0;
-
-  	//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
-  	//		HAL_Delay(10);
-  	//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
-
-  			while(flag == 0)
-  			{
-  				while(HAL_GPIO_ReadPin(GPIOD,GPIO_PIN_11) == GPIO_PIN_SET)
-  				{
-  					 disTime++;
-  					 flag = 1;
-  				}
-
-  			}
-  				distance = disTime / 350;
-  			break;
-  		}
+//  /* USER CODE BEGIN TIM4_IRQn 1 */
+//  	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+//  		__IO uint8_t flag=0;
+//  		__IO uint32_t disTime=0;
+//
+//  		switch(pulse_set) {
+//  		case 0:
+//  			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
+//  			pulse_set = 1;
+//  			break;
+//  		default:
+//  			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
+//  			pulse_set = 0;
+//
+//  	//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
+//  	//		HAL_Delay(10);
+//  	//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
+//
+//  			while(flag == 0)
+//  			{
+//  				while(HAL_GPIO_ReadPin(GPIOD,GPIO_PIN_11) == GPIO_PIN_SET)
+//  				{
+//  					 disTime++;
+//  					 flag = 1;
+//  				}
+//
+//  			}
+//  			IR_ui32distance = disTime / 350;
+//  			break;
+//  		}
   /* USER CODE END TIM4_IRQn 1 */
 }
 
-void TIM6_IRQHandler() {
-	HAL_TIM_IRQHandler(&htim6);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-	__IO uint8_t flag=0;
-	__IO uint32_t disTime=0;
 
-	switch(pulse_set) {
-	case 0:
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
-		pulse_set = 1;
-		break;
-	default:
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
-		pulse_set = 0;
-
-//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
-//		HAL_Delay(10);
-//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
-
-		while(flag == 0)
-		{
-			while(HAL_GPIO_ReadPin(GPIOD,GPIO_PIN_11) == GPIO_PIN_SET)
-			{
-				 disTime++;
-				 flag = 1;
-			}
-
-		}
-			distance = disTime / 350;
-		break;
-	}
-}
 /*
  * Timer 7 used for button interrupts
  * */

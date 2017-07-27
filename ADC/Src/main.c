@@ -59,20 +59,19 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim5;
-TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 
-uint32_t uwPrescalerValue;
-uint16_t message = 0;
-extern int counter;
+uint32_t CLK_ui32PrescalerValue;
+uint16_t IR_ui16message = 0;
+extern int IR_intcounter;
 
-IRMessage receivedMessage;
-IRMessage receivedFirstMessage;
-IRMessage receivedSecondMessage;
-IRMessage receivedThirdMessage;
-IRMessage messageToBeSent;
+IRMessage IR_tReceivedMessage;
+IRMessage IR_tReceivedFirstMessage;
+IRMessage IR_tReceivedSecondMessage;
+IRMessage IR_tReceivedThirdMessage;
+IRMessage IR_tMessageToBeSent;
 
-uint32_t distance;
+uint32_t IR_ui32distance;
 uint8_t US = 0;
 
 FLAG_STATE FLAG_TI=FLAG_OFF;
@@ -102,7 +101,7 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
-static void MX_TIM6_Init();
+//static void MX_TIM6_Init();
 static void MX_TIM7_Init(void);
 static void led_init(void);
 static void button_init(void);
@@ -142,42 +141,40 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM5_Init();
-  //MX_TIM6_Init();
   MX_TIM7_Init();
   pwm_init();
   CAN_filter_init();
   HAL_TIM_Base_Start_IT(&htim5);
   HAL_TIM_Base_Start_IT(&htim7);
- // HAL_TIM_Base_Start_IT(&htim6);
   while (1)
   {
-	  if(counter % 16 == 0 && counter < 20) {
-			 receivedFirstMessage = IRdecode(message);
+	  if(IR_intcounter % 16 == 0 && IR_intcounter < 20) {
+			 IR_tReceivedFirstMessage = IRdecode(IR_ui16message);
 		 }
-		 if(counter % 32 == 0 && counter < 40) {
-			 receivedSecondMessage = IRdecode(message);
+		 if(IR_intcounter % 32 == 0 && IR_intcounter < 40) {
+			 IR_tReceivedSecondMessage = IRdecode(IR_ui16message);
 		 }
-		 if(counter % 48 == 0) {
-			 receivedThirdMessage = IRdecode(message);
-			 if(receivedFirstMessage == receivedSecondMessage && receivedFirstMessage == receivedThirdMessage) {
-				 receivedMessage = receivedFirstMessage;
-			 } else if(receivedSecondMessage == receivedThirdMessage) {
-				 receivedMessage = receivedSecondMessage;
+		 if(IR_intcounter % 48 == 0) {
+			 IR_tReceivedThirdMessage = IRdecode(IR_ui16message);
+			 if(IR_tReceivedFirstMessage == IR_tReceivedSecondMessage && IR_tReceivedFirstMessage == IR_tReceivedThirdMessage) {
+				 IR_tReceivedMessage = IR_tReceivedFirstMessage;
+			 } else if(IR_tReceivedSecondMessage == IR_tReceivedThirdMessage) {
+				 IR_tReceivedMessage = IR_tReceivedSecondMessage;
 			 } else {
-				 receivedMessage = receivedThirdMessage;
+				 IR_tReceivedMessage = IR_tReceivedThirdMessage;
 			 }
 		 }
  /***********************************
-	 // distance = Read_Distance();
-	We use the TIM5 interrupt for reading distance too
- /***********************************/
-	  if(distance <= 10 /*&&  receivedMessage == cryticalBrake*/) {
+ 	 distance = Read_Distance();
+	 We use the TIM5 interrupt for reading distance too
+ **********************************/
+	  if(IR_ui32distance <= 10 /*&&  receivedMessage == cryticalBrake*/) {
 		  CAN_Tx(IR_OBSTACLE);
 		  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_SET);
 	  }
 	  else {
 		  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
-		  	CAN_Tx(CANdecode(receivedMessage));
+		  	CAN_Tx(CANdecode(IR_tReceivedMessage));
 	  }
 	  CAN_Rx();
 	  //ultraSonicRead();
@@ -244,27 +241,27 @@ void SystemClock_Config(void)
 
 void ultraSonicRead() {
 
-		  if(distance > 2 && distance < 50) {
+		  if(IR_ui32distance > 2 && IR_ui32distance < 50) {
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_SET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
 		  }
-		  else if (distance >= 50 && distance < 70) {
+		  else if (IR_ui32distance >= 50 && IR_ui32distance < 70) {
 
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_SET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
 		  }
-		  else if (distance >= 70 && distance < 100) {
+		  else if (IR_ui32distance >= 70 && IR_ui32distance < 100) {
 
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_SET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
 		  }
-		  else if (distance >= 100 && distance < 200) {
+		  else if (IR_ui32distance >= 100 && IR_ui32distance < 200) {
 
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_SET);
 			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
@@ -467,9 +464,9 @@ static void MX_TIM5_Init(void)
 {
 
   TIM_ClockConfigTypeDef sClockSourceConfig;
-  uwPrescalerValue=(uint32_t) ((SystemCoreClock /2) / 1000) - 1;
+  CLK_ui32PrescalerValue = (uint32_t) ((SystemCoreClock /2) / 1000) - 1;
   htim5.Instance = TIM5;
-  htim5.Init.Prescaler = uwPrescalerValue;
+  htim5.Init.Prescaler = CLK_ui32PrescalerValue;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim5.Init.Period = IRPeriod/16 -1;
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -485,22 +482,7 @@ static void MX_TIM5_Init(void)
   }
 
 }
-static void MX_TIM6_Init()
-{
-	TIM_ClockConfigTypeDef sClockSourceConfig;
-	htim6.Instance = TIM6;
-	htim6.Init.Prescaler = uwPrescalerValue;
-	htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim6.Init.Period = IRPeriod/16 -1;
-	htim6.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-	if(HAL_TIM_Base_Init(&htim6) != HAL_OK) {
-		_Error_Handler(__FILE__, __LINE__);
-	}
-	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-	if ( HAL_TIM_ConfigClockSource(&htim6, & sClockSourceConfig) != HAL_OK) {
-		_Error_Handler(__FILE__, __LINE__);
-	}
-}
+
 static void MX_TIM7_Init(void)
 {
 
