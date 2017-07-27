@@ -181,7 +181,36 @@ void TIM4_IRQHandler(void)
   }break;
   }
 
-  /* USER CODE END TIM4_IRQn 0 */
+//  /* USER CODE END TIM4_IRQn 0 */
+//	  BSP_LED_On(LED3);
+//	__IO uint8_t flag=0;
+//	__IO uint32_t disTime=0;
+//
+//	switch(pulse_set) {
+//	case 0:
+//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
+//		pulse_set = 1;
+//		break;
+//	default:
+//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
+//		pulse_set = 0;
+//
+////		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
+////		HAL_Delay(10);
+////		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
+//
+//		while(flag == 0)
+//		{
+//			while(HAL_GPIO_ReadPin(GPIOD,GPIO_PIN_11) == GPIO_PIN_SET)
+//			{
+//				 disTime++;
+//				 flag = 1;
+//			}
+//
+//		}
+//		IR_ui32distance = disTime / 350;
+//		break;
+//	}
 }
 void TIM5_IRQHandler(void)
 {
@@ -214,36 +243,12 @@ void TIM5_IRQHandler(void)
   	  }
 
 
-//  /* USER CODE BEGIN TIM4_IRQn 1 */
-//  	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-//  		__IO uint8_t flag=0;
-//  		__IO uint32_t disTime=0;
-//
-//  		switch(pulse_set) {
-//  		case 0:
-//  			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
-//  			pulse_set = 1;
-//  			break;
-//  		default:
-//  			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
-//  			pulse_set = 0;
-//
-//  	//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
-//  	//		HAL_Delay(10);
-//  	//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
-//
-//  			while(flag == 0)
-//  			{
-//  				while(HAL_GPIO_ReadPin(GPIOD,GPIO_PIN_11) == GPIO_PIN_SET)
-//  				{
-//  					 disTime++;
-//  					 flag = 1;
-//  				}
-//
-//  			}
-//  			IR_ui32distance = disTime / 350;
-//  			break;
-//  		}
+  /* USER CODE BEGIN TIM4_IRQn 1 */
+	  	  BSP_LED_On(LED3);
+		__IO uint8_t flag=0;
+		__IO uint32_t disTime=0;
+
+
   /* USER CODE END TIM4_IRQn 1 */
 }
 
@@ -350,6 +355,7 @@ void TIM7_IRQHandler(void)
 				  }
 				  if(press_DLR==SHORT_PRESS)
 					  dlr_toggle();
+
   }
 
 }

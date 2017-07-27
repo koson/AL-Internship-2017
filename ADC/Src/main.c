@@ -70,6 +70,8 @@ IRMessage IR_tReceivedFirstMessage;
 IRMessage IR_tReceivedSecondMessage;
 IRMessage IR_tReceivedThirdMessage;
 IRMessage IR_tMessageToBeSent;
+uint32_t IR_ui32PreviousMessage = IR_IDLE;
+uint32_t IR_ui32DecodedMessage;
 
 uint32_t IR_ui32distance;
 uint8_t US = 0;
@@ -672,13 +674,15 @@ uint32_t level(void)
 {
 	HAL_ADC_Start(&hadc1);
 	ADC_Val = HAL_ADC_GetValue(&hadc1);
-	if( ADC_Val > 3500) {
-
-		  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_SET);
-	} else {
-
-		  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
+	if(FLAG_DLR == FLAG_ON && FLAG_TI == FLAG_OFF) {
+		if( ADC_Val > 3500) {
+				//Diming
+				 dlr_dimming(4);
+			} else {
+				 dlr_on();
+			}
 	}
+
 	return ADC_Val;
 
 }
@@ -740,17 +744,20 @@ void pwm_init()
 uint32_t CANdecode(IRMessage msg)
 {
 	if(msg == cryticalBrake)
-		return  IR_BRAKE;
+		IR_ui32DecodedMessage = IR_BRAKE;
 	else if(msg == obstacleOnTheRoad)
-		return  IR_OBSTACLE;
+		IR_ui32DecodedMessage = IR_OBSTACLE;
 	else if(msg == failed)
-		return  IR_FAILED;
+		IR_ui32DecodedMessage = IR_ui32PreviousMessage;
 	else if(msg == goingToLeaveTheRoad)
-		return  IR_LEAVING;
+		IR_ui32DecodedMessage = IR_LEAVING;
 	else if(msg == goingToStop)
-		return  IR_STOP;
+		IR_ui32DecodedMessage = IR_STOP;
 	else
-		return  IR_IDLE;
+		IR_ui32DecodedMessage = IR_IDLE;
+
+	IR_ui32PreviousMessage = IR_ui32DecodedMessage;
+	return IR_ui32DecodedMessage;
 }
 void _Error_Handler(char * file, int line)
 {

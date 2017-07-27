@@ -122,9 +122,10 @@ int main(void)
   while (1)
   {
 
-	 //CAN_Rx();
+	 CAN_Rx();
 	 //CAN_Tx_Brake(level());
-	 transmit(IR_LEAVING);
+	 transmit(IR_BRAKE);
+	 level();
   }
 }
 
