@@ -129,6 +129,7 @@ void readIRMessage();
  * Light sensor functions
 \*************************/
 void dimmingIfHighLuminosity(void);
+void low_beam_on_dark(void);
 
 
 int main(void)
@@ -150,6 +151,7 @@ int main(void)
 
 	  /*Consider the luminosity in order to dim the lights*/
 	  dimmingIfHighLuminosity();
+	  low_beam_on_dark();
 
   }
 }
@@ -631,7 +633,16 @@ void dimmingIfHighLuminosity(void)
 				 drl_on();
 			}
 	}
+}
 
+void low_beam_on_dark()
+{
+	HAL_ADC_Start(&hadc1);
+	ADC_ui32LuminosityVal = HAL_ADC_GetValue(&hadc1);
+	if( ADC_ui32LuminosityVal < 2000)
+	{
+		low_beam_on();
+	}
 }
 
 void verif_msg(volatile uint16_t ID)
