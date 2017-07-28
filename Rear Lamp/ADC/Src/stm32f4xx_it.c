@@ -42,8 +42,7 @@
 /* External variables --------------------------------------------------------*/
 
 extern TIM_HandleTypeDef htim5;
-extern int transmit_counter;
-extern IRMessage messageToBeSent;
+extern int IR_intTransmitCounter;
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -52,8 +51,6 @@ extern IRMessage messageToBeSent;
 * @brief This function handles System service call via SWI instruction.
 *
 */
-void transmit(uint16_t CANId);
-
 void SVC_Handler(void)
 {
   /* USER CODE BEGIN SVCall_IRQn 0 */
@@ -100,7 +97,7 @@ void TIM5_IRQHandler(void)
   /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim5);
 
-  transmit_counter++;
+  IR_intTransmitCounter++;
 
 
 

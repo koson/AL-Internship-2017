@@ -55,19 +55,16 @@ CAN_HandleTypeDef hcan1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim5;
 
-uint32_t uwPrescalerValue;
-uint16_t message = 0;
-IRMessage receivedMessage;
-IRMessage messageToBeSent;
+uint32_t CLOCK_ui32PrescalerValue;
+uint16_t IR_tMessage = 0;
+IRMessage IR_tReceivedMessage;
+IRMessage IR_tMessageToBeSent;
 
 
 uint32_t ADC_Val; //0 - > 4092
-uint32_t Id;
 volatile uint16_t datarx[6] ;
 uint8_t TransmitMailbox = 0;
-int pwm;
-int transmiterCounter = 0;
-int transmit_counter = 0;
+int IR_intTransmitCounter = 0;
 
 static CanTxMsgTypeDef        TxMessage;
 static CanRxMsgTypeDef        RxMessage;
@@ -80,6 +77,8 @@ static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_CAN1_Init(void);
 static void CAN_filter_init(void);
+void systemInit();
+
 //For rear lamp IR
 static void MX_TIM2_Init(void);
 static void MX_TIM5_Init(void);
@@ -91,7 +90,7 @@ void transmit(uint16_t CANId);
 |*   can functions     |
 \**********************/
 
-uint32_t level(void);
+uint32_t getBrakelevel(void);
 void CAN_Tx_Brake(uint8_t);
 void CAN_Tx(uint32_t ID);
 void CAN_Rx(void);
@@ -107,26 +106,28 @@ uint32_t CANdecode(IRMessage);
 
 int main(void)
 {
+  systemInit();
 
-  HAL_Init();
-  SystemClock_Config();
-  MX_GPIO_Init();
-  MX_ADC1_Init();
-  MX_CAN1_Init();
-  CAN_filter_init();
-
-  MX_TIM2_Init();
-  MX_TIM5_Init();
-  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
-  HAL_TIM_Base_Start_IT(&htim5);
   while (1)
   {
-
 	 CAN_Rx();
-	 //CAN_Tx_Brake(level());
-	 transmit(IR_BRAKE);
-	 level();
+	 CAN_Tx_Brake(getBrakelevel());
+	 getBrakelevel();
   }
+}
+
+void systemInit() {
+	  HAL_Init();
+	  SystemClock_Config();
+	  MX_GPIO_Init();
+	  MX_ADC1_Init();
+	  MX_CAN1_Init();
+	  CAN_filter_init();
+
+	  MX_TIM2_Init();
+	  MX_TIM5_Init();
+	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
+	  HAL_TIM_Base_Start_IT(&htim5);
 }
 
 void transmit(uint16_t CANId) {
@@ -322,10 +323,10 @@ static void MX_TIM2_Init(void)
   TIM_MasterConfigTypeDef sMasterConfig;
   TIM_OC_InitTypeDef sConfigOC;
   /* Compute the prescaler value to have TIM3 counter clock equal to 10 KHz */
-   uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 1000) - 1;
+  CLOCK_ui32PrescalerValue = (uint32_t) ((SystemCoreClock /2) / 1000) - 1;
 
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = uwPrescalerValue;
+  htim2.Init.Prescaler = CLOCK_ui32PrescalerValue;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 10000 - 1;
   htim2.Init.ClockDivision = 0;
@@ -357,9 +358,9 @@ static void MX_TIM5_Init(void)
 {
 
   TIM_ClockConfigTypeDef sClockSourceConfig;
-  uwPrescalerValue=(uint32_t) ((SystemCoreClock /2) / 10000) - 1;
+  CLOCK_ui32PrescalerValue=(uint32_t) ((SystemCoreClock /2) / 10000) - 1;
   htim5.Instance = TIM5;
-  htim5.Init.Prescaler = uwPrescalerValue;
+  htim5.Init.Prescaler = CLOCK_ui32PrescalerValue;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim5.Init.Period = IRPeriod/16 -1;
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -433,23 +434,10 @@ void CAN_Tx(uint32_t ID)
 void verif_msg(volatile uint16_t id)
 {
 
-	switch(id) {
-			case 0x30: messageToBeSent = IR_BRAKE;
-							break;
-			case 0x31: messageToBeSent = IR_OBSTACLE;
-							break;
-			case 0x33: messageToBeSent = IR_LEAVING;
-							break;
-			case 0x34: messageToBeSent = IR_STOP;
-							break;
-			case 0x35: messageToBeSent = IR_FAILED;
-							break;
-			default : messageToBeSent = IR_IDLE;
-							break;
-		}
+	IR_tMessageToBeSent = id;
 
 	for(int i = 0 ; i < 2; i++) {
-		transmit(messageToBeSent);
+		transmit(IR_tMessageToBeSent);
 	}
 
 }
@@ -469,7 +457,7 @@ void CAN_Rx(void)
 		verif_msg(hcan1.pRxMsg->StdId);
 		}
 }
-uint32_t level(void)
+uint32_t getBrakelevel(void)
 {
 	HAL_ADC_Start(&hadc1);
 	ADC_Val = HAL_ADC_GetValue(&hadc1);
