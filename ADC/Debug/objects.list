@@ -18,6 +18,7 @@
 "Src/IR.o"
 "Src/buttons.o"
 "Src/leds.o"
+"Src/light_sensor.o"
 "Src/main.o"
 "Src/stm32f4_discovery.o"
 "Src/stm32f4xx_hal_msp.o"
