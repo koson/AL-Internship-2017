@@ -135,7 +135,7 @@ int main(void)
 {
   /*Initialize the system*/
   systemInit();
-
+  dlr_on();
   /*Infinite loop*/
   while (1)
   {

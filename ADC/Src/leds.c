@@ -116,14 +116,17 @@ void turn_indicator_toggle(void)
  */
 void dlr_on(void)
 {
-	FLAG_DLR=FLAG_ON;
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,TIM_PERIOD);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,TIM_PERIOD);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD);
-	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,TIM_PERIOD);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,TIM_PERIOD);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,TIM_PERIOD);
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,TIM_PERIOD);
+	if(FLAG_TI==FLAG_OFF)
+	{
+		FLAG_DLR=FLAG_ON;
+		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,TIM_PERIOD);
+		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,TIM_PERIOD);
+		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD);
+		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,TIM_PERIOD);
+		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,TIM_PERIOD);
+		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,TIM_PERIOD);
+		__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,TIM_PERIOD);
+	}
 }
 /**
  *  @brief turns on only two leds at 25%, when the turn indicator is on
