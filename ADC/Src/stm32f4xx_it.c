@@ -37,17 +37,9 @@
 #include "stm32f4xx_it.h"
 #include "leds.h"
 #include "buttons.h"
-/* USER CODE BEGIN 0 */
-int IR_intcounter = 0;
-extern uint16_t IR_ui16message;
-extern FLAG_MODE USE_BUTTONS;
-extern uint32_t IR_ui32distance;
-int synchronized = 0;
-int old_value = 1;
-uint8_t pulse_set = 0;
 
-/* USER CODE END 0 */
-static uint8_t led_phase=0;
+/* USER CODE BEGIN 0 */
+static uint8_t led_phase = 0;
 BUTTON_PRESS_Type press_HB=UNDEFINED_PRESS;
 BUTTON_PRESS_Type press_LB=UNDEFINED_PRESS;
 BUTTON_PRESS_Type press_TI=UNDEFINED_PRESS;
@@ -56,13 +48,19 @@ uint16_t time_elapsed_HB = 0;
 uint16_t time_elapsed_LB = 0;
 uint16_t time_elapsed_TI = 0;
 uint16_t time_elapsed_DLR = 0;
+int IR_intcounter = 0;
+int IR_synchronized = 0;
+int IR_oldBitValue = 1;
+
+/* USER CODE END 0 */
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
-extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim7;
 extern FLAG_STATE FLAG_TI;
 extern FLAG_STATE FLAG_DLR;
+extern uint16_t IR_ui16message;
+extern FLAG_MODE USE_BUTTONS;
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -72,12 +70,7 @@ extern FLAG_STATE FLAG_DLR;
 */
 void SVC_Handler(void)
 {
-  /* USER CODE BEGIN SVCall_IRQn 0 */
 
-  /* USER CODE END SVCall_IRQn 0 */
-  /* USER CODE BEGIN SVCall_IRQn 1 */
-
-  /* USER CODE END SVCall_IRQn 1 */
 }
 
 /**
@@ -85,12 +78,7 @@ void SVC_Handler(void)
 */
 void PendSV_Handler(void)
 {
-  /* USER CODE BEGIN PendSV_IRQn 0 */
 
-  /* USER CODE END PendSV_IRQn 0 */
-  /* USER CODE BEGIN PendSV_IRQn 1 */
-
-  /* USER CODE END PendSV_IRQn 1 */
 }
 
 /**
@@ -98,21 +86,14 @@ void PendSV_Handler(void)
 */
 void SysTick_Handler(void)
 {
-  /* USER CODE BEGIN SysTick_IRQn 0 */
-
-  /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   HAL_SYSTICK_IRQHandler();
-  /* USER CODE BEGIN SysTick_IRQn 1 */
-
-  /* USER CODE END SysTick_IRQn 1 */
 }
 /*@brief This function handles Timer 4 interrupt,
  * it is used for turn indicator signal
  * */
 void TIM4_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM4_IRQn 0 */
 
   HAL_TIM_IRQHandler(&htim4);
   switch(led_phase)
@@ -181,75 +162,34 @@ void TIM4_IRQHandler(void)
   }break;
   }
 
-//  /* USER CODE END TIM4_IRQn 0 */
-//	  BSP_LED_On(LED3);
-//	__IO uint8_t flag=0;
-//	__IO uint32_t disTime=0;
-//
-//	switch(pulse_set) {
-//	case 0:
-//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
-//		pulse_set = 1;
-//		break;
-//	default:
-//		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
-//		pulse_set = 0;
-//
-////		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
-////		HAL_Delay(10);
-////		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_RESET);
-//
-//		while(flag == 0)
-//		{
-//			while(HAL_GPIO_ReadPin(GPIOD,GPIO_PIN_11) == GPIO_PIN_SET)
-//			{
-//				 disTime++;
-//				 flag = 1;
-//			}
-//
-//		}
-//		IR_ui32distance = disTime / 350;
-//		break;
-//	}
 }
 void TIM5_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM4_IRQn 0 */
 
-
-  /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim5);
 
+  if(IR_synchronized == 1 || (IR_oldBitValue == 0 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1)) {
+	IR_synchronized = 1;
+	IR_intcounter++;
+	IR_ui16message = IR_ui16message << 1;
+		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
+			IR_ui16message = IR_ui16message | 1;
+		}
 
-  	  if(synchronized == 1 || (old_value == 0 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1)) {
-  		synchronized = 1;
-  		IR_intcounter++;
-  		IR_ui16message = IR_ui16message << 1;
-  			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
-  				IR_ui16message = IR_ui16message | 1;
-  			}
+		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
 
-  			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1) {
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+	   } else {
 
-  				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-  		   } else {
+			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+	   }
+  }
+  else
+  {
+	IR_oldBitValue = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3);
+	IR_intcounter = 0;
+  }
 
-  				HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-  		   }
-  	  }
-  	  else {
-  		  old_value = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3);
-  		IR_intcounter = 0;
-  	  }
-
-
-  /* USER CODE BEGIN TIM4_IRQn 1 */
-	  	  BSP_LED_On(LED3);
-		__IO uint8_t flag=0;
-		__IO uint32_t disTime=0;
-
-
-  /* USER CODE END TIM4_IRQn 1 */
 }
 
 
@@ -258,9 +198,7 @@ void TIM5_IRQHandler(void)
  * */
 void TIM7_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM7_IRQn 0 */
 
-  /* USER CODE END TIM6_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
   if (USE_BUTTONS == MANUAL)
   {

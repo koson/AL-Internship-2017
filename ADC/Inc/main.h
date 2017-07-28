@@ -44,6 +44,7 @@
 #define CAN1_TX_Pin GPIO_PIN_1
 #define CAN1_TX_GPIO_Port GPIOD
 
+#define MAXIMUM_LUMINOSITY 3500
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */

@@ -43,7 +43,6 @@
 #include "IR.h"
 #include "leds.h"
 #include "buttons.h"
-#include "distanceSensor.h"
 
 #define CAN_FIFO_ID                0
 #define CAN_FIFO                   CAN_FIFO0
@@ -54,7 +53,8 @@
 \**********************/
 ADC_HandleTypeDef hadc1;
 CAN_HandleTypeDef hcan1;
-//Tim2&Tim3 used for pwm generation for DLR leds
+
+/*Tim2&Tim3 used for pwm generation for DLR leds*/
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
@@ -73,8 +73,6 @@ IRMessage IR_tMessageToBeSent;
 uint32_t IR_ui32PreviousMessage = IR_IDLE;
 uint32_t IR_ui32DecodedMessage;
 
-uint32_t IR_ui32distance;
-uint8_t US = 0;
 
 FLAG_STATE FLAG_TI=FLAG_OFF;
 FLAG_STATE FLAG_DLR=FLAG_OFF;
@@ -83,11 +81,9 @@ FLAG_MODE USE_BUTTONS=MANUAL;
 
 uint16_t TIM_PERIOD=200;
 
-uint32_t ADC_Val; //0 - > 4092
-uint32_t Id;
+uint32_t ADC_ui32LuminosityVal; //0 - > 4092
 volatile uint16_t datarx[6] ;
 uint8_t TransmitMailbox = 0;
-int pwm;
 
 static CanTxMsgTypeDef        TxMessage;
 static CanRxMsgTypeDef        RxMessage;
@@ -103,20 +99,18 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
-//static void MX_TIM6_Init();
 static void MX_TIM7_Init(void);
+
 static void led_init(void);
 static void button_init(void);
 static void pwm_init(void);
 
 static void CAN_filter_init(void);
-
+void systemInit();
 
 /**********************\
 |*   can functions     |
 \**********************/
-
-uint32_t level(void);
 void CAN_Tx_Brake(uint8_t);
 void CAN_Tx(uint32_t ID);
 void CAN_Rx(void);
@@ -124,65 +118,57 @@ void verif_msg(volatile uint16_t);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
-
 uint32_t CANdecode(IRMessage);
-/*****************************\
-|*   Ultrasonic functoins     |
-\*****************************/
-void ultraSonicRead();
+
+/**********************\
+|*   IR functions      |
+\**********************/
+void readIRMessage();
+
+/*************************\
+ * Light sensor functions
+\*************************/
+void dimmingIfHighLuminosity(void);
+
 
 int main(void)
 {
+  /*Initialize the system*/
+  systemInit();
 
-  HAL_Init();
-  SystemClock_Config();
-  MX_GPIO_Init();
-  MX_ADC1_Init();
-  MX_CAN1_Init();
-  MX_TIM2_Init();
-  MX_TIM3_Init();
-  MX_TIM4_Init();
-  MX_TIM5_Init();
-  MX_TIM7_Init();
-  pwm_init();
-  CAN_filter_init();
-  HAL_TIM_Base_Start_IT(&htim5);
-  HAL_TIM_Base_Start_IT(&htim7);
+  /*Infinite loop*/
   while (1)
   {
-	  if(IR_intcounter % 16 == 0 && IR_intcounter < 20) {
-			 IR_tReceivedFirstMessage = IRdecode(IR_ui16message);
-		 }
-		 if(IR_intcounter % 32 == 0 && IR_intcounter < 40) {
-			 IR_tReceivedSecondMessage = IRdecode(IR_ui16message);
-		 }
-		 if(IR_intcounter % 48 == 0) {
-			 IR_tReceivedThirdMessage = IRdecode(IR_ui16message);
-			 if(IR_tReceivedFirstMessage == IR_tReceivedSecondMessage && IR_tReceivedFirstMessage == IR_tReceivedThirdMessage) {
-				 IR_tReceivedMessage = IR_tReceivedFirstMessage;
-			 } else if(IR_tReceivedSecondMessage == IR_tReceivedThirdMessage) {
-				 IR_tReceivedMessage = IR_tReceivedSecondMessage;
-			 } else {
-				 IR_tReceivedMessage = IR_tReceivedThirdMessage;
-			 }
-		 }
- /***********************************
- 	 distance = Read_Distance();
-	 We use the TIM5 interrupt for reading distance too
- **********************************/
-	  if(IR_ui32distance <= 10 /*&&  receivedMessage == cryticalBrake*/) {
-		  CAN_Tx(IR_OBSTACLE);
-		  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_SET);
-	  }
-	  else {
-		  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
-		  	CAN_Tx(CANdecode(IR_tReceivedMessage));
-	  }
+	  /*This function reads and memorize the IR message in the IR_tReceivedMessage */
+	  readIRMessage();
+
+	  /*Transmit the ridden message on CAN*/
+	  CAN_Tx(CANdecode(IR_tReceivedMessage));
+
+	  /*Receive commands from CAN*/
 	  CAN_Rx();
-	  //ultraSonicRead();
-	  level();
+
+	  /*Consider the luminosity in order to dim the lights*/
+	  dimmingIfHighLuminosity();
 
   }
+}
+
+void systemInit() {
+	  HAL_Init();
+	  SystemClock_Config();
+	  MX_GPIO_Init();
+	  MX_ADC1_Init();
+	  MX_CAN1_Init();
+	  MX_TIM2_Init();
+	  MX_TIM3_Init();
+	  MX_TIM4_Init();
+	  MX_TIM5_Init();
+	  MX_TIM7_Init();
+	  pwm_init();
+	  CAN_filter_init();
+	  HAL_TIM_Base_Start_IT(&htim5);
+	  HAL_TIM_Base_Start_IT(&htim7);
 }
 
 
@@ -241,42 +227,6 @@ void SystemClock_Config(void)
 }
 
 
-void ultraSonicRead() {
-
-		  if(IR_ui32distance > 2 && IR_ui32distance < 50) {
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_SET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
-		  }
-		  else if (IR_ui32distance >= 50 && IR_ui32distance < 70) {
-
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_SET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
-		  }
-		  else if (IR_ui32distance >= 70 && IR_ui32distance < 100) {
-
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_SET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
-		  }
-		  else if (IR_ui32distance >= 100 && IR_ui32distance < 200) {
-
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_SET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
-		  } else {
-
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_12,GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13,GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_14,GPIO_PIN_RESET);
-			  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_15,GPIO_PIN_RESET);
-		  }
-}
 
 static void MX_ADC1_Init(void)
 {
@@ -670,20 +620,17 @@ void CAN_Rx(void)
 		}
 }
 
-uint32_t level(void)
+void dimmingIfHighLuminosity(void)
 {
 	HAL_ADC_Start(&hadc1);
-	ADC_Val = HAL_ADC_GetValue(&hadc1);
+	ADC_ui32LuminosityVal = HAL_ADC_GetValue(&hadc1);
 	if(FLAG_DLR == FLAG_ON && FLAG_TI == FLAG_OFF) {
-		if( ADC_Val > 3500) {
-				//Diming
+		if( ADC_ui32LuminosityVal > MAXIMUM_LUMINOSITY) {
 				 dlr_dimming(4);
 			} else {
 				 dlr_on();
 			}
 	}
-
-	return ADC_Val;
 
 }
 
@@ -697,30 +644,30 @@ void verif_msg(volatile uint16_t ID)
 	if(USE_BUTTONS == AUTO)
 	switch (ID)
 	{
-		case 0x10:
+		case HIB_ON:
 					high_beam_on();
 					break;
-		case 0x11:
+		case LOB_ON:
 					low_beam_on();
 					break;
-		case 0x13:
+		case TRN_ON:
 					turn_indicator_on();
 					break;
-		case 0x14:
+		case DL_ON:
 					dlr_on();
 					break;
 
 
-		case 0x20:
+		case HIB_OFF:
 					high_beam_off();
 					break;
-		case 0x21:
+		case LOB_OFF:
 					low_beam_off();
 					break;
-		case 0x23:
+		case TRN_OFF:
 					turn_indicator_off();
 					break;
-		case 0x24:
+		case DL_OFF:
 					dlr_off();
 					break;
 
@@ -759,6 +706,26 @@ uint32_t CANdecode(IRMessage msg)
 	IR_ui32PreviousMessage = IR_ui32DecodedMessage;
 	return IR_ui32DecodedMessage;
 }
+
+void readIRMessage() {
+	if(IR_intcounter % 16 == 0 && IR_intcounter < 20) {
+		 IR_tReceivedFirstMessage = IRdecode(IR_ui16message);
+	 }
+	 if(IR_intcounter % 32 == 0 && IR_intcounter < 40) {
+		 IR_tReceivedSecondMessage = IRdecode(IR_ui16message);
+	 }
+	 if(IR_intcounter % 48 == 0) {
+		 IR_tReceivedThirdMessage = IRdecode(IR_ui16message);
+		 if(IR_tReceivedFirstMessage == IR_tReceivedSecondMessage && IR_tReceivedFirstMessage == IR_tReceivedThirdMessage) {
+			 IR_tReceivedMessage = IR_tReceivedFirstMessage;
+		 } else if(IR_tReceivedSecondMessage == IR_tReceivedThirdMessage) {
+			 IR_tReceivedMessage = IR_tReceivedSecondMessage;
+		 } else {
+			 IR_tReceivedMessage = IR_tReceivedThirdMessage;
+		 }
+	 }
+}
+
 void _Error_Handler(char * file, int line)
 {
   while(1) 
