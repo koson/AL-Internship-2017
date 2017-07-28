@@ -111,8 +111,23 @@ int main(void)
   while (1)
   {
 	 CAN_Rx();
-	 CAN_Tx_Brake(getBrakelevel());
-	 getBrakelevel();
+	 //CAN_Tx_Brake(getBrakelevel());
+	 if(getBrakelevel() > 100) {
+		 for(int i = 0 ; i < 2; i++) {
+			transmit(IR_BRAKE);
+		}
+		BSP_LED_On(STP0);
+		BSP_LED_On(STP1);
+		BSP_LED_On(STP2);
+
+	 }
+	 else {
+		CAN_Rx();
+		BSP_LED_Off(STP0);
+		BSP_LED_Off(STP1);
+		BSP_LED_Off(STP2);
+
+	 }
   }
 }
 
@@ -433,14 +448,14 @@ void CAN_Tx(uint32_t ID)
 }
 void verif_msg(volatile uint16_t id)
 {
-
 	IR_tMessageToBeSent = id;
 
 	for(int i = 0 ; i < 2; i++) {
 		transmit(IR_tMessageToBeSent);
 	}
-
 }
+
+
 void CAN_Rx(void)
 {
 
@@ -461,32 +476,7 @@ uint32_t getBrakelevel(void)
 {
 	HAL_ADC_Start(&hadc1);
 	ADC_Val = HAL_ADC_GetValue(&hadc1);
-	if( 100 < ADC_Val && ADC_Val < 1500 )
-	{
-						BSP_LED_On(STP0);
-						BSP_LED_Off(STP1);
-						BSP_LED_Off(STP2);
-				return(1);
-	}
-	else if( 1500 < ADC_Val && ADC_Val < 3000)
-	{
-						BSP_LED_On(STP0);
-						BSP_LED_On(STP1);
-						BSP_LED_Off(STP2);
-				return(2);
-	}
-	else if( 3000 < ADC_Val && ADC_Val < 5000)
-	{
-						BSP_LED_On(STP0);
-						BSP_LED_On(STP1);
-						BSP_LED_On(STP2);
-				return(3);
-	}
-	else
-	{
-		back_light_off();
-				return(0);
-	}
+	return ADC_Val;
 
 }
 
