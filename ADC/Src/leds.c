@@ -8,7 +8,7 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4_discovery.h"
 extern FLAG_STATE FLAG_TI;
-extern FLAG_STATE FLAG_DLR;
+extern FLAG_STATE FLAG_DRL;
 extern uint16_t TIM_PERIOD;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
@@ -89,9 +89,9 @@ void turn_indicator_on(void)
 {
 	HAL_TIM_Base_Start_IT(&htim4);
 	FLAG_TI=FLAG_ON;
-	if(FLAG_DLR==FLAG_ON)
+	if(FLAG_DRL==FLAG_ON)
 	{
-	  dlr_on_turn_indicator();
+	  drl_on_turn_indicator();
 	}
 }
 /**
@@ -114,11 +114,11 @@ void turn_indicator_toggle(void)
 /**
  * turns on the day light running
  */
-void dlr_on(void)
+void drl_on(void)
 {
 	if(FLAG_TI==FLAG_OFF)
 	{
-		FLAG_DLR=FLAG_ON;
+		FLAG_DRL=FLAG_ON;
 		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,TIM_PERIOD);
 		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,TIM_PERIOD);
 		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD);
@@ -132,9 +132,9 @@ void dlr_on(void)
  *  @brief turns on only two leds at 25%, when the turn indicator is on
  *
  *  */
-void dlr_on_turn_indicator()
+void drl_on_turn_indicator()
 {
-	FLAG_DLR=FLAG_ON;
+	FLAG_DRL=FLAG_ON;
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,TIM_PERIOD/4);
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,TIM_PERIOD/4);
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,0);
@@ -146,9 +146,9 @@ void dlr_on_turn_indicator()
 /**
  * @brief turns off the day light running
  */
-void dlr_off()
+void drl_off()
 {
-	FLAG_DLR=FLAG_OFF;
+	FLAG_DRL=FLAG_OFF;
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,0);
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,0);
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,0);
@@ -160,7 +160,7 @@ void dlr_off()
 /**
  *@brief dimming on day light running
  */
-void dlr_dimming(uint32_t div)
+void drl_dimming(uint32_t div)
 {
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,TIM_PERIOD/div);
 	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,TIM_PERIOD/div);
@@ -173,12 +173,12 @@ void dlr_dimming(uint32_t div)
 /**
  *@brief toggle dlr
  */
-void dlr_toggle()
+void drl_toggle()
 {
-	if(FLAG_DLR==FLAG_ON)
+	if(FLAG_DRL==FLAG_ON)
 	{
-		dlr_off();
+		drl_off();
 	}
 	else
-		dlr_on();
+		drl_on();
 }

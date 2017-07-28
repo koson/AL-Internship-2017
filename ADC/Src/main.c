@@ -75,7 +75,7 @@ uint32_t IR_ui32DecodedMessage;
 
 
 FLAG_STATE FLAG_TI=FLAG_OFF;
-FLAG_STATE FLAG_DLR=FLAG_OFF;
+FLAG_STATE FLAG_DRL=FLAG_OFF;
 
 FLAG_MODE USE_BUTTONS=MANUAL;
 
@@ -135,7 +135,7 @@ int main(void)
 {
   /*Initialize the system*/
   systemInit();
-  dlr_on();
+  drl_on();
   /*Infinite loop*/
   while (1)
   {
@@ -624,11 +624,11 @@ void dimmingIfHighLuminosity(void)
 {
 	HAL_ADC_Start(&hadc1);
 	ADC_ui32LuminosityVal = HAL_ADC_GetValue(&hadc1);
-	if(FLAG_DLR == FLAG_ON && FLAG_TI == FLAG_OFF) {
+	if(FLAG_DRL == FLAG_ON && FLAG_TI == FLAG_OFF) {
 		if( ADC_ui32LuminosityVal > MAXIMUM_LUMINOSITY) {
-				 dlr_dimming(4);
+				 drl_dimming(4);
 			} else {
-				 dlr_on();
+				 drl_on();
 			}
 	}
 
@@ -654,7 +654,7 @@ void verif_msg(volatile uint16_t ID)
 					turn_indicator_on();
 					break;
 		case DL_ON:
-					dlr_on();
+					drl_on();
 					break;
 
 
@@ -668,7 +668,7 @@ void verif_msg(volatile uint16_t ID)
 					turn_indicator_off();
 					break;
 		case DL_OFF:
-					dlr_off();
+					drl_off();
 					break;
 
 

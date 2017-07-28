@@ -58,7 +58,7 @@ extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
 extern TIM_HandleTypeDef htim7;
 extern FLAG_STATE FLAG_TI;
-extern FLAG_STATE FLAG_DLR;
+extern FLAG_STATE FLAG_DRL;
 extern uint16_t IR_ui16message;
 extern FLAG_MODE USE_BUTTONS;
 /******************************************************************************/
@@ -154,8 +154,8 @@ void TIM4_IRQHandler(void)
 	  if(FLAG_TI==FLAG_OFF)
 	  {
 			 HAL_TIM_Base_Stop_IT(&htim4);
-			 if(FLAG_DLR==FLAG_ON)
-			 		 dlr_on();
+			 if(FLAG_DRL==FLAG_ON)
+			 		 drl_on();
 	  }
 	  led_phase=0;
 
@@ -292,7 +292,7 @@ void TIM7_IRQHandler(void)
 						  press_DLR=UNDEFINED_PRESS;
 				  }
 				  if(press_DLR==SHORT_PRESS)
-					  dlr_toggle();
+					  drl_toggle();
 
   }
 

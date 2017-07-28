@@ -20,10 +20,10 @@ void turn_indicator_on(void);
 void turn_indicator_off(void);
 void turn_indicator_toggle(void);
 
-void dlr_on(void);
-void dlr_on_turn_indicator(void);
-void dlr_off(void);
-void dlr_dimming(uint32_t pwm);
-void dlr_toggle(void);
+void drl_on(void);
+void drl_on_turn_indicator(void);
+void drl_off(void);
+void drl_dimming(uint32_t pwm);
+void drl_toggle(void);
 
 #endif /* LEDS_H_ */
