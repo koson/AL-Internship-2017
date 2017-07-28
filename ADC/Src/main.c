@@ -43,6 +43,7 @@
 #include "IR.h"
 #include "leds.h"
 #include "buttons.h"
+#include "light_sensor.h"
 
 #define CAN_FIFO_ID                0
 #define CAN_FIFO                   CAN_FIFO0
@@ -51,8 +52,8 @@
 /**********************\
 |*     handlers        |
 \**********************/
-ADC_HandleTypeDef hadc1;
 CAN_HandleTypeDef hcan1;
+ADC_HandleTypeDef hadc1;
 
 /*Tim2&Tim3 used for pwm generation for DLR leds*/
 TIM_HandleTypeDef htim2;
@@ -76,12 +77,12 @@ uint32_t IR_ui32DecodedMessage;
 
 FLAG_STATE FLAG_TI=FLAG_OFF;
 FLAG_STATE FLAG_DRL=FLAG_OFF;
+FLAG_STATE FLAG_HI=FLAG_OFF;
 
 FLAG_MODE USE_BUTTONS=MANUAL;
 
 uint16_t TIM_PERIOD=200;
 
-uint32_t ADC_ui32LuminosityVal; //0 - > 4092
 volatile uint16_t datarx[6] ;
 uint8_t TransmitMailbox = 0;
 
@@ -125,12 +126,6 @@ uint32_t CANdecode(IRMessage);
 \**********************/
 void readIRMessage();
 
-/*************************\
- * Light sensor functions
-\*************************/
-void dimmingIfHighLuminosity(void);
-void low_beam_on_dark(void);
-
 
 int main(void)
 {
@@ -152,6 +147,7 @@ int main(void)
 	  /*Consider the luminosity in order to dim the lights*/
 	  dimmingIfHighLuminosity();
 	  low_beam_on_dark();
+	  high_beam_blocked();
 
   }
 }
@@ -622,28 +618,6 @@ void CAN_Rx(void)
 		}
 }
 
-void dimmingIfHighLuminosity(void)
-{
-	HAL_ADC_Start(&hadc1);
-	ADC_ui32LuminosityVal = HAL_ADC_GetValue(&hadc1);
-	if(FLAG_DRL == FLAG_ON && FLAG_TI == FLAG_OFF) {
-		if( ADC_ui32LuminosityVal > MAXIMUM_LUMINOSITY) {
-				 drl_dimming(4);
-			} else {
-				 drl_on();
-			}
-	}
-}
-
-void low_beam_on_dark()
-{
-	HAL_ADC_Start(&hadc1);
-	ADC_ui32LuminosityVal = HAL_ADC_GetValue(&hadc1);
-	if( ADC_ui32LuminosityVal < 2000)
-	{
-		low_beam_on();
-	}
-}
 
 void verif_msg(volatile uint16_t ID)
 {
