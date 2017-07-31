@@ -98,9 +98,9 @@ typedef enum
 } FLAG_MODE;
 typedef enum
 {
-  NIGHT = 0,
-  DAY = 1,
-  MAX_LIGHT =2
+   DAY = 0,
+   NIGHT = 1,
+   MAX_LIGHT =2
 } FLAG_LIGHT;
 /**
   * @}

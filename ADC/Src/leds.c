@@ -61,6 +61,8 @@ void high_beam_toggle(void)
  * */
 void high_beam_obstacle(uint8_t data1,uint8_t data2)
 {
+	if(FLAG_HI==FLAG_ON)
+	{
 		high_beam_on();
 		switch(data2)
 		{
@@ -82,7 +84,7 @@ void high_beam_obstacle(uint8_t data1,uint8_t data2)
 			case 5:BSP_LED_Off(HBM4);break;
 			case 6:break;
 		}
-
+	}
 }
 
 /**

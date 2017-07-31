@@ -9,7 +9,7 @@
 #define LIGHT_SENSOR_H_
 
 #define MAXIMUM_LUMINOSITY 3500
-#define MINIMUM_LUMINOSITY 2000
+#define MINIMUM_LUMINOSITY 1500
 /*************************\
  * Light sensor functions
 \*************************/

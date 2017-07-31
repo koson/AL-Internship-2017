@@ -148,6 +148,7 @@ int main(void)
 	  CAN_Rx();
 	  setLightFlag();
 	  /*Consider the luminosity in order to dim the lights*/
+
 	  dimmingIfHighLuminosity();
 	  low_beam_on_dark();
 	  high_beam_blocked();
