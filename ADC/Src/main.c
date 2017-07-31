@@ -71,8 +71,8 @@ IRMessage IR_tReceivedFirstMessage;
 IRMessage IR_tReceivedSecondMessage;
 IRMessage IR_tReceivedThirdMessage;
 IRMessage IR_tMessageToBeSent;
-uint32_t IR_ui32PreviousMessage = IR_IDLE;
-uint32_t IR_ui32DecodedMessage;
+uint32_t  IR_ui32PreviousMessage = IR_IDLE;
+uint32_t  IR_ui32DecodedMessage;
 
 
 FLAG_STATE FLAG_TI=FLAG_OFF;
@@ -118,7 +118,7 @@ void systemInit();
 void CAN_Tx_Brake(uint8_t);
 void CAN_Tx(uint32_t ID);
 void CAN_Rx(void);
-void verif_msg(volatile uint16_t);
+void verif_msg(volatile uint16_t, uint8_t,uint8_t);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
@@ -154,7 +154,6 @@ int main(void)
 
   }
 }
-
 void systemInit() {
 	  HAL_Init();
 	  SystemClock_Config();
@@ -171,8 +170,6 @@ void systemInit() {
 	  HAL_TIM_Base_Start_IT(&htim5);
 	  HAL_TIM_Base_Start_IT(&htim7);
 }
-
-
 void SystemClock_Config(void)
 {
 
@@ -226,9 +223,6 @@ void SystemClock_Config(void)
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
-
-
-
 static void MX_ADC1_Init(void)
 {
 
@@ -435,7 +429,6 @@ static void MX_TIM5_Init(void)
   }
 
 }
-
 static void MX_TIM7_Init(void)
 {
 
@@ -617,13 +610,12 @@ void CAN_Rx(void)
 				datarx[3] = hcan1.pRxMsg->DLC;
 				datarx[4] = hcan1.pRxMsg->Data[0];
 				datarx[5] = hcan1.pRxMsg->Data[1];
-		verif_msg(hcan1.pRxMsg->StdId);
+		verif_msg(hcan1.pRxMsg->StdId, hcan1.pRxMsg->Data[0],hcan1.pRxMsg->Data[1]);
 		}
 }
-
-
-void verif_msg(volatile uint16_t ID)
+void verif_msg(volatile uint16_t ID, uint8_t DATA1, uint8_t DATA2)
 {
+
 	if (ID == MODE_AUTO)
 		USE_BUTTONS = AUTO;
 	else if(ID == MODE_MANUAL)
@@ -672,10 +664,11 @@ void verif_msg(volatile uint16_t ID)
 		case TOGGLE_DRL:
 					drl_toggle();
 					break;
+		case HIB_OBSTACLE:
+					high_beam_obstacle(DATA1,DATA2);
+					break;
 	}
 }
-
-
 void pwm_init()
 {
 
@@ -687,7 +680,6 @@ void pwm_init()
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
 }
-
 uint32_t CANdecode(IRMessage msg)
 {
 	if(msg == cryticalBrake)
@@ -706,7 +698,6 @@ uint32_t CANdecode(IRMessage msg)
 	IR_ui32PreviousMessage = IR_ui32DecodedMessage;
 	return IR_ui32DecodedMessage;
 }
-
 void readIRMessage() {
 	if(IR_intcounter % 16 == 0 && IR_intcounter < 20) {
 		 IR_tReceivedFirstMessage = IRdecode(IR_ui16message);
@@ -729,7 +720,6 @@ void toggle_MODE()
 {
 	USE_BUTTONS=!USE_BUTTONS;
 }
-
 void _Error_Handler(char * file, int line)
 {
   while(1) 

@@ -36,5 +36,7 @@
 #define TOGGLE_DRL    0x63
 #define TOGGLE_MODE   0x64
 
+#define HIB_OBSTACLE  0x70
+
 
 #endif /* SIGNALS_H_ */

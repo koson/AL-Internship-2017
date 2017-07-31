@@ -11,6 +11,7 @@
 void high_beam_on(void);
 void high_beam_off(void);
 void high_beam_toggle(void);
+void high_beam_obstacle(uint8_t data1,uint8_t data2);
 
 void low_beam_on(void);
 void low_beam_off(void);

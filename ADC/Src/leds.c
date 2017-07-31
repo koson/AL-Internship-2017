@@ -56,6 +56,35 @@ void high_beam_toggle(void)
 		high_beam_off();
 	}
 }
+/*
+ * @brief
+ * */
+void high_beam_obstacle(uint8_t data1,uint8_t data2)
+{
+		high_beam_on();
+		switch(data2)
+		{
+			case 0:break;
+			case 1:BSP_LED_Off(HBM0);break;
+			case 2:BSP_LED_Off(HBM1);break;
+			case 3:BSP_LED_Off(HBM2);break;
+			case 4:BSP_LED_Off(HBM3);break;
+			case 5:BSP_LED_Off(HBM4);break;
+			case 6:break;
+		}
+		switch(data1)
+		{
+			case 0:break;
+			case 1:BSP_LED_Off(HBM0);break;
+			case 2:BSP_LED_Off(HBM1);break;
+			case 3:BSP_LED_Off(HBM2);break;
+			case 4:BSP_LED_Off(HBM3);break;
+			case 5:BSP_LED_Off(HBM4);break;
+			case 6:break;
+		}
+
+}
+
 /**
  * @brief turns on low beam leds (SET the corresponding pins)
  */
