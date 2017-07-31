@@ -40,9 +40,11 @@
 /* USER CODE BEGIN 0 */
 /* USER CODE END 0 */
 /* External variables --------------------------------------------------------*/
-
+static uint8_t led_phase = 0;
+extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
 extern int IR_intTransmitCounter;
+extern FLAG_STATE FLAG_TI;
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -88,7 +90,78 @@ void SysTick_Handler(void)
 
   /* USER CODE END SysTick_IRQn 1 */
 }
+void TIM4_IRQHandler(void)
+{
 
+  HAL_TIM_IRQHandler(&htim4);
+  switch(led_phase)
+  {
+  case 0:
+  {
+	  BSP_LED_On(BTRN0);
+	  BSP_LED_On(BTRN1);
+
+  	  led_phase++;
+  }break;
+  case 1:
+  {
+	  BSP_LED_On(BTRN2);
+  	  led_phase++;
+  }break;
+  case 2:
+  {
+	  BSP_LED_On(BTRN3);
+  	  led_phase++;
+  }break;
+  case 3:
+  {
+	  BSP_LED_On(BTRN4);
+  	  led_phase++;
+  }break;
+  case 4:
+  {
+	  BSP_LED_On(BTRN5);
+	  led_phase++;
+  }break;
+  case 5:
+  {
+	  led_phase++;
+  }break;
+  case 6:
+   {
+ 	  led_phase++;
+   }break;
+
+  case 7:
+  {
+ 	  led_phase++;
+  }break;
+  case 8:
+   {
+	  BSP_LED_Off(BTRN0);
+	  BSP_LED_Off(BTRN1);
+	  BSP_LED_Off(BTRN2);
+	  BSP_LED_Off(BTRN3);
+	  BSP_LED_Off(BTRN4);
+	  BSP_LED_Off(BTRN5);
+	  led_phase++;
+   }break;
+  case 9:
+   {
+  	  led_phase++;
+   }break;
+  case 10:
+  {
+	  if(FLAG_TI==FLAG_OFF)
+	  {
+			 HAL_TIM_Base_Stop_IT(&htim4);
+	  }
+	  led_phase=0;
+
+  }break;
+  }
+
+}
 void TIM5_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM4_IRQn 0 */

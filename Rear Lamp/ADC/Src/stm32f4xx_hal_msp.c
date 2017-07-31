@@ -196,6 +196,20 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 
     /* USER CODE END TIM4_MspInit 1 */
     }
+  if(htim_base->Instance==TIM4)
+      {
+      /* USER CODE BEGIN TIM4_MspInit 0 */
+
+      /* USER CODE END TIM4_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_TIM4_CLK_ENABLE();
+        /* TIM4 interrupt Init */
+        HAL_NVIC_SetPriority(TIM4_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(TIM4_IRQn);
+      /* USER CODE BEGIN TIM4_MspInit 1 */
+
+      /* USER CODE END TIM4_MspInit 1 */
+      }
 
 }
 
@@ -258,7 +272,20 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
 	  GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
 	  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
   }
+  if(htim->Instance==TIM4)
+	  	   {
+	  	   /* USER CODE BEGIN TIM4_MspInit 0 */
 
+	  	   /* USER CODE END TIM4_MspInit 0 */
+	  	     /* Peripheral clock enable */
+	  	     __HAL_RCC_TIM4_CLK_ENABLE();
+	  	     /* TIM4 interrupt Init */
+	  	     HAL_NVIC_SetPriority(TIM4_IRQn, 0, 0);
+	  	     HAL_NVIC_EnableIRQ(TIM4_IRQn);
+	  	   /* USER CODE BEGIN TIM4_MspInit 1 */
+
+	  	   /* USER CODE END TIM4_MspInit 1 */
+	  	   }
 }
 
 void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* htim_pwm)
