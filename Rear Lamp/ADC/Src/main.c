@@ -41,6 +41,7 @@
 #include "signals.h"
 #include "stm32f4_discovery.h"
 #include "IR.h"
+#include "leds.h"
 
 #define CAN_FIFO_ID                0
 #define CAN_FIFO                   CAN_FIFO0
@@ -99,27 +100,20 @@ void CAN_Tx_Brake(uint8_t);
 void CAN_Tx(uint32_t ID);
 void CAN_Rx(void);
 void verif_msg(volatile uint16_t);
-
-void back_light_on(void);
-void back_light_off(void);
-void back_light_toggle(void);
-void turn_indicator_on();
 FLAG_STATE FLAG_TI=FLAG_OFF;
-
-
 uint32_t CANdecode(IRMessage);
 GPIO_InitTypeDef  GPIO_InitStruct;
 
 int main(void)
 {
   systemInit();
-  //turn_indicator_on();
-
+  turn_indicator_on();
+  go_back_on();
   while (1)
   {
 	  progresiveBrakeLight();
 //	 CAN_Rx();
-	 //CAN_Tx_Brake(getBrakelevel());
+	 CAN_Tx_Brake(getBrakelevel());
 	 if(getBrakelevel() > 100) {
 		 for(int i = 0 ; i < 2; i++) {
 			transmit(IR_BRAKE);
@@ -165,11 +159,11 @@ void turnProgresiveLed(Led_TypeDef led, int val) {
 }
 
 void progresiveBrakeLight() {
-	turnProgresiveLed(STPP1, 200);
-	turnProgresiveLed(STPP2, 700);
-	turnProgresiveLed(STPP3, 1200);
-	turnProgresiveLed(STPP4, 1700);
-	turnProgresiveLed(STPP5, 2200);
+	turnProgresiveLed(STPP1, 100);
+	turnProgresiveLed(STPP2, 100);
+	turnProgresiveLed(STPP3, 400);
+	turnProgresiveLed(STPP4, 1000);
+	turnProgresiveLed(STPP5, 1700);
 	turnProgresiveLed(STPP6, 3000);
 }
 
@@ -337,6 +331,7 @@ static void MX_GPIO_Init(void)
     BSP_LED_Init(STP1);
     BSP_LED_Init(STP2);
 
+
     BSP_LED_Init(STPP1);
     BSP_LED_Init(STPP2);
     BSP_LED_Init(STPP3);
@@ -350,6 +345,9 @@ static void MX_GPIO_Init(void)
     BSP_LED_Init(BTRN3);
     BSP_LED_Init(BTRN4);
     BSP_LED_Init(BTRN5);
+
+    BSP_LED_Init(LEDGOBACK1);
+    BSP_LED_Init(LEDGOBACK2);
 }
 
 /* TIM2 init function */
@@ -531,35 +529,7 @@ uint32_t getBrakelevel(void)
 
 }
 
-void back_light_on()
-{
 
-	  BSP_LED_On(STP0);
-	  BSP_LED_On(STP1);
-	  BSP_LED_On(STP2);
-
-}
-void back_light_off()
-{
-	  BSP_LED_Off(STP0);
-	  BSP_LED_Off(STP1);
-	  BSP_LED_Off(STP2);
-}
-void back_light_toggle()
-{
-	  BSP_LED_Toggle(STP0);
-	  BSP_LED_Toggle(STP1);
-	  BSP_LED_Toggle(STP2);
-}
-void turn_indicator_on(void)
-{
-	HAL_TIM_Base_Start_IT(&htim4);
-	FLAG_TI=FLAG_ON;
-}
-void turn_indicator_off(void)
-{
-	 FLAG_TI=FLAG_OFF;
-}
 uint32_t CANdecode(IRMessage msg)
 {
 	if(msg == cryticalBrake)
