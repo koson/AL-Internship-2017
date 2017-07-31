@@ -85,6 +85,8 @@ static void MX_TIM5_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void transmit(uint16_t CANId);
+void progresiveBrakeLight();
+void turnProgresiveLed(Led_TypeDef led, int val);
 
 /**********************\
 |*   can functions     |
@@ -101,8 +103,9 @@ void back_light_off(void);
 void back_light_toggle(void);
 
 
-uint32_t CANdecode(IRMessage);
 
+uint32_t CANdecode(IRMessage);
+GPIO_InitTypeDef  GPIO_InitStruct;
 
 int main(void)
 {
@@ -110,6 +113,7 @@ int main(void)
 
   while (1)
   {
+	  progresiveBrakeLight();
 	 CAN_Rx();
 	 //CAN_Tx_Brake(getBrakelevel());
 	 if(getBrakelevel() > 100) {
@@ -128,6 +132,8 @@ int main(void)
 		BSP_LED_Off(STP2);
 
 	 }
+
+
   }
 }
 
@@ -143,6 +149,24 @@ void systemInit() {
 	  MX_TIM5_Init();
 	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
 	  HAL_TIM_Base_Start_IT(&htim5);
+}
+
+void turnProgresiveLed(Led_TypeDef led, int val) {
+	if(getBrakelevel() > val) {
+		BSP_LED_On(led);
+	}
+	else {
+		BSP_LED_Off(led);
+	}
+}
+
+void progresiveBrakeLight() {
+	turnProgresiveLed(STPP1, 200);
+	turnProgresiveLed(STPP2, 700);
+	turnProgresiveLed(STPP3, 1200);
+	turnProgresiveLed(STPP4, 1700);
+	turnProgresiveLed(STPP5, 2200);
+	turnProgresiveLed(STPP6, 3000);
 }
 
 void transmit(uint16_t CANId) {
@@ -328,6 +352,12 @@ static void MX_GPIO_Init(void)
     BSP_LED_Init(STP1);
     BSP_LED_Init(STP2);
 
+    BSP_LED_Init(STPP1);
+    BSP_LED_Init(STPP2);
+    BSP_LED_Init(STPP3);
+    BSP_LED_Init(STPP4);
+    BSP_LED_Init(STPP5);
+    BSP_LED_Init(STPP6);
 
 }
 
