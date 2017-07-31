@@ -59,6 +59,7 @@ extern TIM_HandleTypeDef htim5;
 extern TIM_HandleTypeDef htim7;
 extern FLAG_STATE FLAG_TI;
 extern FLAG_STATE FLAG_DRL;
+extern FLAG_LIGHT LIGHT_STATUS;
 extern uint16_t IR_ui16message;
 extern FLAG_MODE USE_BUTTONS;
 /******************************************************************************/
@@ -231,8 +232,10 @@ void TIM7_IRQHandler(void)
 				  press_HB=UNDEFINED_PRESS;
 		  }
 		  if(press_HB==SHORT_PRESS)
+		  {
+			  if(LIGHT_STATUS==NIGHT)
 			  high_beam_toggle();
-
+		  }
 
 		  if(read_button_LB()==GPIO_PIN_SET)
 		  {

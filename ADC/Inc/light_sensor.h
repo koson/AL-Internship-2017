@@ -9,11 +9,12 @@
 #define LIGHT_SENSOR_H_
 
 #define MAXIMUM_LUMINOSITY 3500
+#define MINIMUM_LUMINOSITY 2000
 /*************************\
  * Light sensor functions
 \*************************/
 void dimmingIfHighLuminosity(void);
 void low_beam_on_dark(void);
-void high_beam_blocked();
-
+void high_beam_blocked(void);
+void setLightFlag(void);
 #endif /* LIGHT_SENSOR_H_ */

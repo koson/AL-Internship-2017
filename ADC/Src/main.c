@@ -81,6 +81,8 @@ FLAG_STATE FLAG_HI=FLAG_OFF;
 
 FLAG_MODE USE_BUTTONS=MANUAL;
 
+FLAG_LIGHT LIGHT_STATUS=DAY;
+
 uint16_t TIM_PERIOD=200;
 
 volatile uint16_t datarx[6] ;
@@ -143,7 +145,7 @@ int main(void)
 
 	  /*Receive commands from CAN*/
 	  CAN_Rx();
-
+	  setLightFlag();
 	  /*Consider the luminosity in order to dim the lights*/
 	  dimmingIfHighLuminosity();
 	  low_beam_on_dark();

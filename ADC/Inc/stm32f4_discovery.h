@@ -96,6 +96,12 @@ typedef enum
 	AUTO = 0,
 	MANUAL = 1
 } FLAG_MODE;
+typedef enum
+{
+  NIGHT = 0,
+  DAY = 1,
+  MAX_LIGHT =2
+} FLAG_LIGHT;
 /**
   * @}
   */ 

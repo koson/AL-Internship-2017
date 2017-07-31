@@ -11,6 +11,7 @@
 extern FLAG_STATE FLAG_TI;
 extern FLAG_STATE FLAG_HI;
 extern FLAG_STATE FLAG_DRL;
+extern FLAG_LIGHT LIGHT_STATUS;
 extern uint16_t TIM_PERIOD;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
@@ -20,14 +21,13 @@ extern TIM_HandleTypeDef htim4;
  * */
 void high_beam_on(void)
 {
-	FLAG_HI=FLAG_ON;
+		FLAG_HI=FLAG_ON;
 
-	BSP_LED_On(HBM0);
-	BSP_LED_On(HBM1);
-	BSP_LED_On(HBM2);
-	BSP_LED_On(HBM3);
-	BSP_LED_On(HBM4);
-
+		BSP_LED_On(HBM0);
+		BSP_LED_On(HBM1);
+		BSP_LED_On(HBM2);
+		BSP_LED_On(HBM3);
+		BSP_LED_On(HBM4);
 }
 /*
  * @brief turns high beam off (RESET the corresponding pins)
