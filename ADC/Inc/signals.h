@@ -30,4 +30,11 @@
 #define MODE_AUTO 	  0x50
 #define MODE_MANUAL   0x51
 
+#define TOGGLE_HIB    0x60
+#define TOGGLE_LOB    0x61
+#define TOGGLE_TRN    0x62
+#define TOGGLE_DRL    0x63
+#define TOGGLE_MODE   0x64
+
+
 #endif /* SIGNALS_H_ */

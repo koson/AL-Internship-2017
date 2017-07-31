@@ -107,6 +107,7 @@ static void MX_TIM7_Init(void);
 static void led_init(void);
 static void button_init(void);
 static void pwm_init(void);
+static void toggle_MODE(void);
 
 static void CAN_filter_init(void);
 void systemInit();
@@ -623,11 +624,12 @@ void CAN_Rx(void)
 
 void verif_msg(volatile uint16_t ID)
 {
-	if (ID == 0x50)
+	if (ID == MODE_AUTO)
 		USE_BUTTONS = AUTO;
-	else if(ID == 0x51)
+	else if(ID == MODE_MANUAL)
 		USE_BUTTONS = MANUAL;
-
+	else if(ID == TOGGLE_MODE)
+		toggle_MODE();
 	if(USE_BUTTONS == AUTO)
 	switch (ID)
 	{
@@ -658,7 +660,18 @@ void verif_msg(volatile uint16_t ID)
 					drl_off();
 					break;
 
-
+		case TOGGLE_HIB:
+					high_beam_toggle();
+					break;
+		case TOGGLE_LOB:
+					low_beam_toggle();
+					break;
+		case TOGGLE_TRN:
+					turn_indicator_toggle();
+					break;
+		case TOGGLE_DRL:
+					drl_toggle();
+					break;
 	}
 }
 
@@ -711,6 +724,10 @@ void readIRMessage() {
 			 IR_tReceivedMessage = IR_tReceivedThirdMessage;
 		 }
 	 }
+}
+void toggle_MODE()
+{
+	USE_BUTTONS=!USE_BUTTONS;
 }
 
 void _Error_Handler(char * file, int line)
