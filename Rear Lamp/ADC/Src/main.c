@@ -41,6 +41,7 @@
 #include "signals.h"
 #include "stm32f4_discovery.h"
 #include "IR.h"
+#include "leds.h"
 
 #define CAN_FIFO_ID                0
 #define CAN_FIFO                   CAN_FIFO0
@@ -53,6 +54,7 @@
 ADC_HandleTypeDef hadc1;
 CAN_HandleTypeDef hcan1;
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim5;
 
 uint32_t CLOCK_ui32PrescalerValue;
@@ -81,6 +83,7 @@ void systemInit();
 
 //For rear lamp IR
 static void MX_TIM2_Init(void);
+static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
@@ -97,25 +100,20 @@ void CAN_Tx_Brake(uint8_t);
 void CAN_Tx(uint32_t ID);
 void CAN_Rx(void);
 void verif_msg(volatile uint16_t);
-
-void back_light_on(void);
-void back_light_off(void);
-void back_light_toggle(void);
-
-
-
+FLAG_STATE FLAG_TI=FLAG_OFF;
 uint32_t CANdecode(IRMessage);
 GPIO_InitTypeDef  GPIO_InitStruct;
 
 int main(void)
 {
   systemInit();
-
+  turn_indicator_on();
+  go_back_on();
   while (1)
   {
 	  progresiveBrakeLight();
-	 CAN_Rx();
-	 //CAN_Tx_Brake(getBrakelevel());
+//	 CAN_Rx();
+	 CAN_Tx_Brake(getBrakelevel());
 	 if(getBrakelevel() > 100) {
 		 for(int i = 0 ; i < 2; i++) {
 			transmit(IR_BRAKE);
@@ -133,7 +131,6 @@ int main(void)
 
 	 }
 
-
   }
 }
 
@@ -146,6 +143,7 @@ void systemInit() {
 	  CAN_filter_init();
 
 	  MX_TIM2_Init();
+	  MX_TIM4_Init();
 	  MX_TIM5_Init();
 	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
 	  HAL_TIM_Base_Start_IT(&htim5);
@@ -161,11 +159,11 @@ void turnProgresiveLed(Led_TypeDef led, int val) {
 }
 
 void progresiveBrakeLight() {
-	turnProgresiveLed(STPP1, 200);
-	turnProgresiveLed(STPP2, 700);
-	turnProgresiveLed(STPP3, 1200);
-	turnProgresiveLed(STPP4, 1700);
-	turnProgresiveLed(STPP5, 2200);
+	turnProgresiveLed(STPP1, 100);
+	turnProgresiveLed(STPP2, 100);
+	turnProgresiveLed(STPP3, 400);
+	turnProgresiveLed(STPP4, 1000);
+	turnProgresiveLed(STPP5, 1700);
 	turnProgresiveLed(STPP6, 3000);
 }
 
@@ -302,25 +300,6 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10 
-                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14, GPIO_PIN_RESET);
-
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6 
-                          |GPIO_PIN_7, GPIO_PIN_RESET);
-
-
-  /*Configure GPIO pins : PD3 PD4 PD5 PD6 
-                           PD7 */
-  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6 
-                          |GPIO_PIN_7;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
   /*ADC Channel 11 -> PC1 */
     GPIO_InitStruct.Pin = GPIO_PIN_1;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -352,6 +331,7 @@ static void MX_GPIO_Init(void)
     BSP_LED_Init(STP1);
     BSP_LED_Init(STP2);
 
+
     BSP_LED_Init(STPP1);
     BSP_LED_Init(STPP2);
     BSP_LED_Init(STPP3);
@@ -359,6 +339,15 @@ static void MX_GPIO_Init(void)
     BSP_LED_Init(STPP5);
     BSP_LED_Init(STPP6);
 
+    BSP_LED_Init(BTRN0);
+    BSP_LED_Init(BTRN1);
+    BSP_LED_Init(BTRN2);
+    BSP_LED_Init(BTRN3);
+    BSP_LED_Init(BTRN4);
+    BSP_LED_Init(BTRN5);
+
+    BSP_LED_Init(LEDGOBACK1);
+    BSP_LED_Init(LEDGOBACK2);
 }
 
 /* TIM2 init function */
@@ -398,7 +387,37 @@ static void MX_TIM2_Init(void)
   HAL_TIM_MspPostInit(&htim2);
 
 }
+void MX_TIM4_Init()
+{
 
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 16000;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 200;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+  HAL_TIM_Base_MspInit(&htim4);
+
+}
 static void MX_TIM5_Init(void)
 {
 
@@ -510,26 +529,6 @@ uint32_t getBrakelevel(void)
 
 }
 
-void back_light_on()
-{
-
-	  BSP_LED_On(STP0);
-	  BSP_LED_On(STP1);
-	  BSP_LED_On(STP2);
-
-}
-void back_light_off()
-{
-	  BSP_LED_Off(STP0);
-	  BSP_LED_Off(STP1);
-	  BSP_LED_Off(STP2);
-}
-void back_light_toggle()
-{
-	  BSP_LED_Toggle(STP0);
-	  BSP_LED_Toggle(STP1);
-	  BSP_LED_Toggle(STP2);
-}
 
 uint32_t CANdecode(IRMessage msg)
 {
