@@ -7,7 +7,9 @@
 
 #include "stm32f4xx_hal.h"
 #include "stm32f4_discovery.h"
+#include "leds.h"
 extern FLAG_STATE FLAG_TI;
+extern FLAG_STATE FLAG_HI;
 extern FLAG_STATE FLAG_DRL;
 extern uint16_t TIM_PERIOD;
 extern TIM_HandleTypeDef htim2;
@@ -18,6 +20,8 @@ extern TIM_HandleTypeDef htim4;
  * */
 void high_beam_on(void)
 {
+	FLAG_HI=FLAG_ON;
+
 	BSP_LED_On(HBM0);
 	BSP_LED_On(HBM1);
 	BSP_LED_On(HBM2);
@@ -30,6 +34,8 @@ void high_beam_on(void)
  * */
 void high_beam_off(void)
 {
+	FLAG_HI=FLAG_OFF;
+
 	BSP_LED_Off(HBM0);
 	BSP_LED_Off(HBM1);
 	BSP_LED_Off(HBM2);
@@ -41,11 +47,14 @@ void high_beam_off(void)
  * */
 void high_beam_toggle(void)
 {
-	BSP_LED_Toggle(HBM0);
-	BSP_LED_Toggle(HBM1);
-	BSP_LED_Toggle(HBM2);
-	BSP_LED_Toggle(HBM3);
-	BSP_LED_Toggle(HBM4);
+	if(FLAG_HI==FLAG_OFF)
+	{
+		high_beam_on();
+	}
+	else
+	{
+		high_beam_off();
+	}
 }
 /**
  * @brief turns on low beam leds (SET the corresponding pins)

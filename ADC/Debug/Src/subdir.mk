@@ -7,6 +7,7 @@ C_SRCS += \
 ../Src/IR.c \
 ../Src/buttons.c \
 ../Src/leds.c \
+../Src/light_sensor.c \
 ../Src/main.c \
 ../Src/stm32f4_discovery.c \
 ../Src/stm32f4xx_hal_msp.c \
@@ -17,6 +18,7 @@ OBJS += \
 ./Src/IR.o \
 ./Src/buttons.o \
 ./Src/leds.o \
+./Src/light_sensor.o \
 ./Src/main.o \
 ./Src/stm32f4_discovery.o \
 ./Src/stm32f4xx_hal_msp.o \
@@ -27,6 +29,7 @@ C_DEPS += \
 ./Src/IR.d \
 ./Src/buttons.d \
 ./Src/leds.d \
+./Src/light_sensor.d \
 ./Src/main.d \
 ./Src/stm32f4_discovery.d \
 ./Src/stm32f4xx_hal_msp.d \
@@ -39,7 +42,7 @@ Src/%.o: ../Src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32F407xx -I"D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc" -I"D:/users/F27284C/Project/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc" -I"D:/users/F27284C/Project/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"D:/users/F27284C/Project/AL-Internship-2017/ADC/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"D:/users/F27284C/Project/AL-Internship-2017/ADC/Drivers/CMSIS/Include" -I"D:/users/F27284C/Project/AL-Internship-2017/ADC/Inc"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32F407xx -I"D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc" -I"D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc" -I"D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/CMSIS/Include" -I"D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
