@@ -95,7 +95,13 @@ GPIO_TypeDef* GPIO_PORT[LEDn] = {LED4_GPIO_PORT,
                                  LED6_GPIO_PORT,
 								 STP0_GPIO_PORT,
 								 STP1_GPIO_PORT,
-								 STP2_GPIO_PORT
+								 STP2_GPIO_PORT,
+								 STPP1_GPIO_PORT,
+								 STPP2_GPIO_PORT,
+								 STPP3_GPIO_PORT,
+								 STPP4_GPIO_PORT,
+								 STPP5_GPIO_PORT,
+								 STPP6_GPIO_PORT
 };
 const uint16_t GPIO_PIN[LEDn] = {LED4_PIN, 
                                  LED3_PIN, 
@@ -103,7 +109,13 @@ const uint16_t GPIO_PIN[LEDn] = {LED4_PIN,
                                  LED6_PIN,
 								 STP0_PIN,
 								 STP1_PIN,
-								 STP2_PIN
+								 STP2_PIN,
+								 STPP1_PIN,
+								 STPP2_PIN,
+								 STPP3_PIN,
+								 STPP4_PIN,
+								 STPP5_PIN,
+								 STPP6_PIN
 };
 
 GPIO_TypeDef* BUTTON_PORT[BUTTONn] = {KEY_BUTTON_GPIO_PORT};

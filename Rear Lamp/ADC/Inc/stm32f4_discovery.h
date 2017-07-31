@@ -71,6 +71,12 @@ typedef enum
   STP0 = 4,
   STP1 = 5,
   STP2 = 6,
+  STPP1 = 7,
+  STPP2 = 8,
+  STPP3 = 9,
+  STPP4 = 10,
+  STPP5 = 11,
+  STPP6 = 12,
 } Led_TypeDef;
 
 typedef enum 
@@ -106,7 +112,7 @@ typedef enum
 /** @defgroup STM32F4_DISCOVERY_LOW_LEVEL_LED STM32F4 DISCOVERY LOW LEVEL LED
   * @{
   */
-#define LEDn                             7
+#define LEDn                             13
 
 #define LED4_PIN                         GPIO_PIN_12
 #define LED4_GPIO_PORT                   GPIOD
@@ -144,13 +150,49 @@ typedef enum
 #define STP2_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
 #define STP2_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOD_CLK_DISABLE()
 
+#define STPP1_PIN							GPIO_PIN_7
+#define STPP1_GPIO_PORT						GPIOE
+#define STPP1_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
+#define STPP1_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOD_CLK_DISABLE()
+
+#define STPP2_PIN							GPIO_PIN_8
+#define STPP2_GPIO_PORT						GPIOE
+#define STPP2_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
+#define STPP2_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOD_CLK_DISABLE()
+
+#define STPP3_PIN							GPIO_PIN_9
+#define STPP3_GPIO_PORT						GPIOE
+#define STPP3_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
+#define STPP3_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOD_CLK_DISABLE()
+
+#define STPP4_PIN							GPIO_PIN_10
+#define STPP4_GPIO_PORT						GPIOE
+#define STPP4_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
+#define STPP4_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOD_CLK_DISABLE()
+
+#define STPP5_PIN							GPIO_PIN_11
+#define STPP5_GPIO_PORT						GPIOE
+#define STPP5_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
+#define STPP5_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOD_CLK_DISABLE()
+
+#define STPP6_PIN							GPIO_PIN_15
+#define STPP6_GPIO_PORT						GPIOE
+#define STPP6_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOD_CLK_ENABLE()
+#define STPP6_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOD_CLK_DISABLE()
+
 #define LEDx_GPIO_CLK_ENABLE(__INDEX__) do{if((__INDEX__) == 0) LED4_GPIO_CLK_ENABLE(); else \
                                            if((__INDEX__) == 1) LED3_GPIO_CLK_ENABLE(); else \
                                            if((__INDEX__) == 2) LED5_GPIO_CLK_ENABLE(); else \
                                            if((__INDEX__) == 3) LED6_GPIO_CLK_ENABLE(); else \
                                            if((__INDEX__) == 4) STP0_GPIO_CLK_ENABLE(); else \
                                            if((__INDEX__) == 5) STP1_GPIO_CLK_ENABLE(); else \
-                                           if((__INDEX__) == 6) STP2_GPIO_CLK_ENABLE(); \
+                                           if((__INDEX__) == 6) STP2_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 7) STPP1_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 8) STPP2_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 9) STPP3_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 10) STPP4_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 11) STPP5_GPIO_CLK_ENABLE(); else \
+                                           if((__INDEX__) == 12) STPP6_GPIO_CLK_ENABLE(); \
                                            }while(0)
 
 #define LEDx_GPIO_CLK_DISABLE(__INDEX__) do{if((__INDEX__) == 0) LED4_GPIO_CLK_DISABLE(); else \
@@ -159,6 +201,13 @@ typedef enum
                                             if((__INDEX__) == 3) LED6_GPIO_CLK_DISABLE(); else \
                                             if((__INDEX__) == 4) STP0_GPIO_CLK_DISABLE(); else \
                                             if((__INDEX__) == 5) STP1_GPIO_CLK_DISABLE(); else \
+                                            if((__INDEX__) == 6) STP2_GPIO_CLK_DISABLE(); else \
+                                            if((__INDEX__) == 7) STPP1_GPIO_CLK_DISABLE(); else \
+                                            if((__INDEX__) == 8) STPP2_GPIO_CLK_DISABLE(); else \
+                                            if((__INDEX__) == 9) STPP3_GPIO_CLK_DISABLE(); else \
+                                            if((__INDEX__) == 10) STPP4_GPIO_CLK_DISABLE(); else \
+                                            if((__INDEX__) == 11) STPP5_GPIO_CLK_DISABLE(); else \
+                                            if((__INDEX__) == 12) STPP6_GPIO_CLK_DISABLE(); \
                                            	}while(0)
 /**
   * @}
