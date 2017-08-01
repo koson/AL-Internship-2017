@@ -62,8 +62,8 @@ void go_back_toggle()
 {
 	if(FLAG_GO_BACK==FLAG_OFF)
 		{
-			turn_indicator_on();
+		go_back_on();
 		}
 		else
-			turn_indicator_off();
+			go_back_off();
 }

@@ -56,6 +56,7 @@ CAN_HandleTypeDef hcan1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim5;
+TIM_HandleTypeDef htim7;
 
 uint32_t CLOCK_ui32PrescalerValue;
 uint16_t IR_tMessage = 0;
@@ -67,7 +68,7 @@ IRMessage IR_tPreviousMessage = IR_IDLE;
 uint32_t ADC_Val; //0 - > 4092
 volatile uint16_t datarx[6] ;
 uint8_t TransmitMailbox = 0;
-int IR_intTransmitCounter = 0;
+int IR_intTransmitCounter = 3;
 int IR_intWasIdle = 0;
 int IR_intWasIdle2 = 0;
 
@@ -114,8 +115,8 @@ int main(void)
   systemInit();
   while (1)
   {
-	  CAN_Rx();
-	/* progresiveBrakeLight();
+
+	 progresiveBrakeLight();
 	 CAN_Tx_Brake(getBrakelevel());
 	 if(getBrakelevel() > 0) {
 		 for(int i = 0 ; i < 2; i++) {
@@ -130,6 +131,9 @@ int main(void)
 				 }
 				 else{
 					 CAN_Rx();
+					 if(IR_intTransmitCounter > 48) {
+						 IR_intWasIdle = 0;
+					 }
 				 }
 			 }
 		}
@@ -142,12 +146,14 @@ int main(void)
 		}
 		else {
 			CAN_Rx();
-			transmit(IR_IDLE);
+			if(IR_intTransmitCounter > 48) {
+				IR_intWasIdle2 = 0;
+			}
 		}
 
 		back_light_off();
 	 }
-	 */
+
   }
 }
 
@@ -162,6 +168,7 @@ void systemInit()
 	  MX_TIM2_Init();
 	  MX_TIM4_Init();
 	  MX_TIM5_Init();
+
 	  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
 	  HAL_TIM_Base_Start_IT(&htim5);
 }
@@ -444,7 +451,9 @@ static void MX_TIM5_Init(void)
 	{
 	_Error_Handler(__FILE__, __LINE__);
 	}
+	HAL_TIM_Base_MspInit(&htim5);
 }
+
 
 void CAN_filter_init(void)
 {
@@ -504,24 +513,15 @@ void verif_msg(volatile uint16_t id)
 	if(0x30 <= id && id <= 0x35)
 	{
 		IR_tMessageToBeSent = id;
-	if(IR_tPreviousMessage != IR_tMessageToBeSent) {
+		if(IR_tPreviousMessage != IR_tMessageToBeSent) {
 			IR_intTransmitCounter = 0;
 			IR_tPreviousMessage = IR_tMessageToBeSent;
 		}
 
-		if(IR_intTransmitCounter < 49) {
-			IR_tMessageToBeSent = id;
+
+		for(int i = 0 ; i < 2; i++) {
+				transmit(IR_tMessageToBeSent);
 		}
-		else {
-			IR_tMessageToBeSent = IR_IDLE;
-		}
-
-
-
-	for(int i = 0 ; i < 2; i++) {
-			transmit(IR_tMessageToBeSent);
-			
-	}
 	}
 	else
 		switch (id)
