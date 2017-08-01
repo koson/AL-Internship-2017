@@ -101,17 +101,18 @@ void CAN_Tx(uint32_t ID);
 void CAN_Rx(void);
 void verif_msg(volatile uint16_t);
 FLAG_STATE FLAG_TI=FLAG_OFF;
+FLAG_STATE FLAG_GO_BACK=FLAG_OFF;
+
 uint32_t CANdecode(IRMessage);
 GPIO_InitTypeDef  GPIO_InitStruct;
 
 int main(void)
 {
   systemInit();
-  turn_indicator_on();
-  go_back_on();
   while (1)
   {
-	 progresiveBrakeLight();
+	  CAN_Rx();
+	/* progresiveBrakeLight();
 	 CAN_Tx_Brake(getBrakelevel());
 	 if(getBrakelevel() > 0) {
 		 for(int i = 0 ; i < 2; i++) {
@@ -131,7 +132,7 @@ int main(void)
 		BSP_LED_Off(STP1);
 		BSP_LED_Off(STP2);
 
-	 }
+	 }*/
 
   }
 }
@@ -499,11 +500,36 @@ void CAN_Tx(uint32_t ID)
 }
 void verif_msg(volatile uint16_t id)
 {
-	IR_tMessageToBeSent = id;
+	if(0x30 <= id && id <= 0x35)
+	{
+		IR_tMessageToBeSent = id;
 
-	for(int i = 0 ; i < 2; i++) {
-		transmit(IR_tMessageToBeSent);
+		for(int i = 0 ; i < 2; i++) {
+			transmit(IR_tMessageToBeSent);
+		}
 	}
+	else
+		switch (id)
+		{
+		case TURN_ON:
+			 turn_indicator_on();
+			 break;
+		case TURN_OFF:
+			 turn_indicator_off();
+			 break;
+		case DRIVE_ON:
+			 go_back_on();
+			 break;
+		case DRIVE_OFF:
+			 go_back_off();
+			 break;
+		case BACK_TURN :
+			 turn_indicator_toggle();
+			 break;
+		case BACK_DRIVE:
+			 go_back_toggle();
+			 break;
+		}
 }
 
 
