@@ -10,23 +10,22 @@ extern FLAG_STATE FLAG_TI;
 
 void back_light_on()
 {
-
-	  BSP_LED_On(STP0);
-	  BSP_LED_On(STP1);
-	  BSP_LED_On(STP2);
+	BSP_LED_On(STP0);
+	BSP_LED_On(STP1);
+	BSP_LED_On(STP2);
 
 }
 void back_light_off()
 {
-	  BSP_LED_Off(STP0);
-	  BSP_LED_Off(STP1);
-	  BSP_LED_Off(STP2);
+	BSP_LED_Off(STP0);
+    BSP_LED_Off(STP1);
+	BSP_LED_Off(STP2);
 }
 void back_light_toggle()
 {
-	  BSP_LED_Toggle(STP0);
-	  BSP_LED_Toggle(STP1);
-	  BSP_LED_Toggle(STP2);
+	BSP_LED_Toggle(STP0);
+	BSP_LED_Toggle(STP1);
+	BSP_LED_Toggle(STP2);
 }
 void turn_indicator_on(void)
 {
@@ -35,13 +34,12 @@ void turn_indicator_on(void)
 }
 void turn_indicator_off(void)
 {
-	 FLAG_TI=FLAG_OFF;
+	FLAG_TI=FLAG_OFF;
 }
 void go_back_on(void)
 {
 	BSP_LED_On(LEDGOBACK1);
 	BSP_LED_On(LEDGOBACK2);
-
 }
 void go_back_off(void)
 {
