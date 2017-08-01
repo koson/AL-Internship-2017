@@ -60,13 +60,16 @@ TIM_HandleTypeDef htim5;
 uint32_t CLOCK_ui32PrescalerValue;
 uint16_t IR_tMessage = 0;
 IRMessage IR_tReceivedMessage;
-IRMessage IR_tMessageToBeSent;
+IRMessage IR_tMessageToBeSent = -1;
+IRMessage IR_tPreviousMessage = IR_IDLE;
 
 
 uint32_t ADC_Val; //0 - > 4092
 volatile uint16_t datarx[6] ;
 uint8_t TransmitMailbox = 0;
 int IR_intTransmitCounter = 0;
+int IR_intWasIdle = 0;
+int IR_intWasIdle2 = 0;
 
 static CanTxMsgTypeDef        TxMessage;
 static CanRxMsgTypeDef        RxMessage;
@@ -115,15 +118,33 @@ int main(void)
 	 CAN_Tx_Brake(getBrakelevel());
 	 if(getBrakelevel() > 0) {
 		 for(int i = 0 ; i < 2; i++) {
-			 if(getBrakelevel() > 2)
-			 transmit(IR_BRAKE);
-			 else
-				 transmit(IR_IDLE);
+			 if(getBrakelevel() > 2) {
+				 transmit(IR_BRAKE);
+			 	 IR_intWasIdle = 0;
+			 }
+			 else {
+				 if(IR_intWasIdle == 0) {
+					 transmit(IR_IDLE);
+					 IR_intWasIdle = 1;
+				 }
+				 else{
+					 CAN_Rx();
+				 }
+			 }
 		}
 		back_light_on();
 	 }
 	 else {
-		CAN_Rx();
+		if(IR_intWasIdle2 == 0) {
+			transmit(IR_IDLE);
+			IR_intWasIdle2 = 1;
+		}
+		else {
+			CAN_Rx();
+			transmit(IR_IDLE);
+		}
+
+
 		back_light_off();
 	 }
   }
@@ -350,7 +371,7 @@ static void MX_TIM2_Init(void)
 	htim2.Instance = TIM2;
 	htim2.Init.Prescaler = CLOCK_ui32PrescalerValue;
 	htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim2.Init.Period = 10000 - 1;
+	htim2.Init.Period = IRPeriod - 1;
 	htim2.Init.ClockDivision = 0;
 	if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
 	{
@@ -479,9 +500,22 @@ void CAN_Tx(uint32_t ID)
 }
 void verif_msg(volatile uint16_t id)
 {
-	IR_tMessageToBeSent = id;
+	if(IR_tPreviousMessage != IR_tMessageToBeSent) {
+			IR_intTransmitCounter = 0;
+			IR_tPreviousMessage = IR_tMessageToBeSent;
+		}
+
+		if(IR_intTransmitCounter < 49) {
+			IR_tMessageToBeSent = id;
+		}
+		else {
+			IR_tMessageToBeSent = IR_IDLE;
+		}
+
+
+
 	for(int i = 0 ; i < 2; i++) {
-		transmit(IR_tMessageToBeSent);
+			transmit(IR_tMessageToBeSent);
 	}
 }
 
