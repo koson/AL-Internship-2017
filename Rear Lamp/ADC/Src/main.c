@@ -111,12 +111,14 @@ int main(void)
   go_back_on();
   while (1)
   {
-	  progresiveBrakeLight();
-//	 CAN_Rx();
+	 progresiveBrakeLight();
 	 CAN_Tx_Brake(getBrakelevel());
-	 if(getBrakelevel() > 100) {
+	 if(getBrakelevel() > 0) {
 		 for(int i = 0 ; i < 2; i++) {
-			transmit(IR_BRAKE);
+			 if(getBrakelevel() > 2)
+			 transmit(IR_BRAKE);
+			 else
+				 transmit(IR_IDLE);
 		}
 		BSP_LED_On(STP0);
 		BSP_LED_On(STP1);
@@ -159,12 +161,12 @@ void turnProgresiveLed(Led_TypeDef led, int val) {
 }
 
 void progresiveBrakeLight() {
-	turnProgresiveLed(STPP1, 100);
-	turnProgresiveLed(STPP2, 100);
-	turnProgresiveLed(STPP3, 400);
-	turnProgresiveLed(STPP4, 1000);
-	turnProgresiveLed(STPP5, 1700);
-	turnProgresiveLed(STPP6, 3000);
+	turnProgresiveLed(STPP1, 0);
+	turnProgresiveLed(STPP2, 0);
+	turnProgresiveLed(STPP3, 1);
+	turnProgresiveLed(STPP4, 2);
+	turnProgresiveLed(STPP5, 3);
+	turnProgresiveLed(STPP6, 4);
 }
 
 void transmit(uint16_t CANId) {
@@ -525,6 +527,18 @@ uint32_t getBrakelevel(void)
 {
 	HAL_ADC_Start(&hadc1);
 	ADC_Val = HAL_ADC_GetValue(&hadc1);
+	if(ADC_Val >= 0 && ADC_Val <= 100)
+		ADC_Val = 0;
+	else if(ADC_Val > 100 && ADC_Val <= 400)
+		ADC_Val = 1;
+	else if(ADC_Val > 400 && ADC_Val <= 1000)
+		ADC_Val = 2;
+	else if(ADC_Val > 1000 && ADC_Val <= 1700)
+		ADC_Val = 3;
+	else if(ADC_Val > 1700 && ADC_Val <= 3000)
+		ADC_Val = 4;
+	else if(ADC_Val > 3000)
+		ADC_Val = 5;
 	return ADC_Val;
 
 }
