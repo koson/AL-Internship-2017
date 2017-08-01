@@ -515,7 +515,7 @@ void verif_msg(volatile uint16_t id)
 		IR_tMessageToBeSent = id;
 		if(IR_tPreviousMessage != IR_tMessageToBeSent) {
 			IR_intTransmitCounter = 0;
-			IR_tPreviousMessage = IR_tMessageToBeSent;
+			IR_tPreviousMessage = IR_IDLE;
 		}
 
 

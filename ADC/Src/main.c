@@ -141,8 +141,6 @@ int main(void)
 	  /*This function reads and memorize the IR message in the IR_tReceivedMessage */
 	  readIRMessage();
 
-	  /*Transmit the ridden message on CAN*/
-	  CAN_Tx(CANdecode(IR_tReceivedMessage));
 
 	  /*Receive commands from CAN*/
 	  CAN_Rx();
@@ -152,6 +150,10 @@ int main(void)
 	  dimmingIfHighLuminosity();
 	  low_beam_on_dark();
 	  high_beam_blocked();
+
+
+	  /*Transmit the ridden message on CAN*/
+	  CAN_Tx(CANdecode(IR_tReceivedMessage));
 
   }
 }
@@ -715,6 +717,7 @@ void readIRMessage() {
 		 } else {
 			 IR_tReceivedMessage = IR_tReceivedThirdMessage;
 		 }
+
 	 }
 }
 void toggle_MODE()
