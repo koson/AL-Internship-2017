@@ -33,6 +33,10 @@ void turn_indicator_on(void)
 	HAL_TIM_Base_Start_IT(&htim4);
 	FLAG_TI=FLAG_ON;
 }
+void turn_indicator_off()
+{
+	FLAG_TI=FLAG_OFF;
+}
 void turn_indicator_toggle()
 {
 	if(FLAG_TI==FLAG_OFF)
@@ -41,10 +45,6 @@ void turn_indicator_toggle()
 	}
 	else
 		turn_indicator_off();
-}
-void turn_indicator_off()
-{
-	FLAG_TI=FLAG_OFF;
 }
 void go_back_on(void)
 {

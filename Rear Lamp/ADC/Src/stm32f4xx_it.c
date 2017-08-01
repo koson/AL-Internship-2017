@@ -43,7 +43,6 @@
 static uint8_t led_phase = 0;
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
-extern TIM_HandleTypeDef htim7;
 extern int IR_intTransmitCounter;
 extern FLAG_STATE FLAG_TI;
 /******************************************************************************/
@@ -181,23 +180,7 @@ void TIM5_IRQHandler(void)
   /* USER CODE END TIM4_IRQn 1 */
 }
 
-void TIM7_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM4_IRQn 0 */
 
-
-  /* USER CODE END TIM4_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim7);
-
-  IR_intTransmitCounter++;
-
-
-
-
-  /* USER CODE BEGIN TIM4_IRQn 1 */
-
-  /* USER CODE END TIM4_IRQn 1 */
-}
 /******************************************************************************/
 /* STM32F4xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */

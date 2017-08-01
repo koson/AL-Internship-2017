@@ -210,20 +210,6 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 
       /* USER CODE END TIM4_MspInit 1 */
       }
-  if(htim_base->Instance==TIM7)
-      {
-      /* USER CODE BEGIN TIM4_MspInit 0 */
-
-      /* USER CODE END TIM4_MspInit 0 */
-        /* Peripheral clock enable */
-        __HAL_RCC_TIM4_CLK_ENABLE();
-        /* TIM4 interrupt Init */
-        HAL_NVIC_SetPriority(TIM7_IRQn, 0, 0);
-        HAL_NVIC_EnableIRQ(TIM7_IRQn);
-      /* USER CODE BEGIN TIM4_MspInit 1 */
-
-      /* USER CODE END TIM4_MspInit 1 */
-      }
 
 }
 
