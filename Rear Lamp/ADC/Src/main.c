@@ -113,6 +113,7 @@ GPIO_InitTypeDef  GPIO_InitStruct;
 int main(void)
 {
   systemInit();
+  back_light_on();
   while (1)
   {
 
@@ -137,7 +138,6 @@ int main(void)
 				 }
 			 }
 		}
-		back_light_on();
 	 }
 	 else {
 		if(IR_intWasIdle2 == 0) {
@@ -150,8 +150,6 @@ int main(void)
 				IR_intWasIdle2 = 0;
 			}
 		}
-
-		back_light_off();
 	 }
 
   }
@@ -403,7 +401,7 @@ static void MX_TIM2_Init(void)
 	}
 	HAL_TIM_MspPostInit(&htim2);
 }
-void MX_TIM4_Init()
+static void MX_TIM4_Init(void)
 {
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;

@@ -164,20 +164,13 @@ void TIM4_IRQHandler(void)
 }
 void TIM5_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM4_IRQn 0 */
+  /* USER CODE BEGIN TIM5_IRQn 0 */
 
-
-  /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim5);
 
   IR_intTransmitCounter++;
 
-
-
-
-  /* USER CODE BEGIN TIM4_IRQn 1 */
-
-  /* USER CODE END TIM4_IRQn 1 */
+  /* USER CODE END TIM5_IRQn 0 */
 }
 
 
@@ -188,10 +181,4 @@ void TIM5_IRQHandler(void)
 /* please refer to the startup file (startup_stm32f4xx.s).                    */
 /******************************************************************************/
 
-/**
-* @brief This function handles TIM4 global interrupt.
-*/
-/* USER CODE BEGIN 1 */
-
-/* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
