@@ -47,6 +47,11 @@ TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim5;
 TIM_HandleTypeDef htim7;
 
+<<<<<<< HEAD
+=======
+uint32_t CLK_ui32PrescalerValue;
+
+>>>>>>> Test_Buttons_Branch
 IRMessage IR_tReceivedMessage;
 IRMessage IR_tReceivedFirstMessage;
 IRMessage IR_tReceivedSecondMessage;
