@@ -54,8 +54,6 @@ TIM_HandleTypeDef htim7;
 
 uint32_t CLK_ui32PrescalerValue;
 
-extern int IR_intcounter;
-
 IRMessage IR_tReceivedMessage;
 IRMessage IR_tReceivedFirstMessage;
 IRMessage IR_tReceivedSecondMessage;
