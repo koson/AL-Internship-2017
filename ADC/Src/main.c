@@ -37,17 +37,7 @@
   */
 
 #include "main.h"
-#include "stm32f4xx_hal.h"
-#include "signals.h"
-#include "stm32f4_discovery.h"
-#include "IR.h"
-#include "leds.h"
-#include "buttons.h"
-#include "light_sensor.h"
 
-#define CAN_FIFO_ID                0
-#define CAN_FIFO                   CAN_FIFO0
-#define CAN_FIFO_IN                CAN_IT_FMP0
 
 /**********************\
 |*     handlers        |
@@ -63,7 +53,7 @@ TIM_HandleTypeDef htim5;
 TIM_HandleTypeDef htim7;
 
 uint32_t CLK_ui32PrescalerValue;
-uint16_t IR_ui16message = 0;
+
 extern int IR_intcounter;
 
 IRMessage IR_tReceivedMessage;
@@ -71,7 +61,7 @@ IRMessage IR_tReceivedFirstMessage;
 IRMessage IR_tReceivedSecondMessage;
 IRMessage IR_tReceivedThirdMessage;
 IRMessage IR_tMessageToBeSent;
-uint32_t  IR_ui32PreviousMessage = IR_IDLE;
+
 uint32_t  IR_ui32DecodedMessage;
 
 
@@ -85,11 +75,10 @@ FLAG_LIGHT LIGHT_STATUS=DAY;
 
 uint16_t TIM_PERIOD=200;
 
-volatile uint16_t datarx[6] ;
-uint8_t TransmitMailbox = 0;
 
-static CanTxMsgTypeDef        TxMessage;
-static CanRxMsgTypeDef        RxMessage;
+
+
+
 
 /**********************\
 |*       config        |
@@ -97,32 +86,27 @@ static CanRxMsgTypeDef        RxMessage;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
-static void MX_CAN1_Init(void);
+
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
 static void MX_TIM7_Init(void);
 
-static void led_init(void);
-static void button_init(void);
-static void pwm_init(void);
-static void toggle_MODE(void);
+void led_init(void);
+void button_init(void);
+void pwm_init(void);
 
-static void CAN_filter_init(void);
 void systemInit();
 
 /**********************\
 |*   can functions     |
 \**********************/
-void CAN_Tx_Brake(uint8_t);
-void CAN_Tx(uint32_t ID);
-void CAN_Rx(void);
-void verif_msg(volatile uint16_t, uint8_t,uint8_t);
+
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
-uint32_t CANdecode(IRMessage);
+
 
 /**********************\
 |*   IR functions      |
@@ -169,7 +153,6 @@ void systemInit() {
 	  MX_TIM5_Init();
 	  MX_TIM7_Init();
 	  pwm_init();
-	  CAN_filter_init();
 	  HAL_TIM_Base_Start_IT(&htim5);
 	  HAL_TIM_Base_Start_IT(&htim7);
 }
@@ -179,13 +162,13 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
 
-    /**Configure the main internal regulator output voltage 
+    /**Configure the main internal regulator output voltage
     */
   __HAL_RCC_PWR_CLK_ENABLE();
 
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-    /**Initializes the CPU, AHB and APB busses clocks 
+    /**Initializes the CPU, AHB and APB busses clocks
     */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
@@ -201,7 +184,7 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Initializes the CPU, AHB and APB busses clocks 
+    /**Initializes the CPU, AHB and APB busses clocks
     */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -215,11 +198,11 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure the Systick interrupt time 
+    /**Configure the Systick interrupt time
     */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
-    /**Configure the Systick 
+    /**Configure the Systick
     */
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
@@ -231,7 +214,7 @@ static void MX_ADC1_Init(void)
 
   ADC_ChannelConfTypeDef sConfig;
 
-    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
+    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
     */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
@@ -250,7 +233,7 @@ static void MX_ADC1_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
     */
   sConfig.Channel = ADC_CHANNEL_11;
   sConfig.Rank = 1;
@@ -259,30 +242,6 @@ static void MX_ADC1_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
-
-}
-static void MX_CAN1_Init(void)
-{
-	HAL_CAN_DeInit(&hcan1);
-	__HAL_RCC_CAN1_CLK_ENABLE();
-	hcan1.pTxMsg = &TxMessage;
-	hcan1.pRxMsg = &RxMessage;
-	hcan1.Instance = CAN1;
-	hcan1.Init.Prescaler = 4;
-	hcan1.Init.Mode = CAN_MODE_NORMAL;
-	hcan1.Init.SJW = CAN_SJW_1TQ;
-	hcan1.Init.BS1 = CAN_BS1_12TQ;
-	hcan1.Init.BS2 = CAN_BS2_5TQ;
-	hcan1.Init.TTCM = DISABLE;
-	hcan1.Init.ABOM = DISABLE;
-	hcan1.Init.AWUM = DISABLE;
-	hcan1.Init.NART = DISABLE;
-	hcan1.Init.RFLM = DISABLE;
-	hcan1.Init.TXFP = DISABLE;
-	if (HAL_CAN_Init(&hcan1) != HAL_OK)
-	{
-	_Error_Handler(__FILE__, __LINE__);
-	}
 
 }
 static void MX_TIM2_Init(void)
@@ -513,7 +472,7 @@ static void MX_GPIO_Init(void)
     button_init();
 
 }
-void led_init()
+void led_init(void)
 {
 	BSP_LED_Init(LED3);
 	BSP_LED_Init(LED4);
@@ -539,7 +498,7 @@ void led_init()
 	BSP_LED_Init(TRN4);
 
 }
-void button_init()
+void button_init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -551,128 +510,7 @@ void button_init()
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 }
-void CAN_filter_init(void)
-{
-	CAN_FilterConfTypeDef  sFilterConfig;
-
-	/*##-2- Configure the CAN Filter ###########################################*/
-	sFilterConfig.FilterNumber = 0;
-	sFilterConfig.FilterFIFOAssignment = CAN_FIFO;
-	sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
-	sFilterConfig.FilterScale = CAN_FILTERSCALE_16BIT;
-	sFilterConfig.FilterIdHigh = 0x0000;
-	sFilterConfig.FilterIdLow = 0x0000;
-	sFilterConfig.FilterMaskIdHigh = 0x0000;
-	sFilterConfig.FilterMaskIdLow = 0x0000;
-
-	sFilterConfig.FilterActivation = ENABLE;
-	sFilterConfig.BankNumber = 0;
-	HAL_CAN_ConfigFilter(&hcan1, &sFilterConfig);
-
-}
-void CAN_Tx_Brake(uint8_t Data)
-{
-	hcan1.pTxMsg->StdId = BRK;
-	hcan1.pTxMsg->ExtId= 1;
-	hcan1.pTxMsg->RTR = CAN_RTR_DATA;
-	hcan1.pTxMsg->IDE = CAN_ID_STD;
-	hcan1.pTxMsg->DLC = 1;
-	hcan1.pTxMsg->Data[0] = Data;
-	TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
-	do
-	{
-		TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
-	}
-	while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
-}
-void CAN_Tx(uint32_t ID)
-{
-	hcan1.pTxMsg->StdId = ID;
-	hcan1.pTxMsg->ExtId= 1;
-	hcan1.pTxMsg->RTR = CAN_RTR_DATA;
-	hcan1.pTxMsg->IDE = CAN_ID_STD;
-	hcan1.pTxMsg->DLC = 1;
-	hcan1.pTxMsg->Data[0] = 0x00;
-
-	TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
-	do
-	{
-		TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
-
-	}
-	while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
-}
-void CAN_Rx(void)
-{
-
-		if(HAL_CAN_Receive(&hcan1, CAN_FILTER_FIFO0, 10)==HAL_OK)
-		{
-				datarx[0] = hcan1.pRxMsg->StdId;
-				datarx[1] = hcan1.pRxMsg->DLC;
-				datarx[2] = hcan1.pRxMsg->RTR;
-				datarx[3] = hcan1.pRxMsg->DLC;
-				datarx[4] = hcan1.pRxMsg->Data[0];
-				datarx[5] = hcan1.pRxMsg->Data[1];
-		verif_msg(hcan1.pRxMsg->StdId, hcan1.pRxMsg->Data[0],hcan1.pRxMsg->Data[1]);
-		}
-}
-void verif_msg(volatile uint16_t ID, uint8_t DATA1, uint8_t DATA2)
-{
-
-	if (ID == MODE_AUTO)
-		USE_BUTTONS = AUTO;
-	else if(ID == MODE_MANUAL)
-		USE_BUTTONS = MANUAL;
-	else if(ID == TOGGLE_MODE)
-		toggle_MODE();
-	if(USE_BUTTONS == AUTO)
-	switch (ID)
-	{
-		case HIB_ON:
-					high_beam_on();
-					break;
-		case LOB_ON:
-					low_beam_on();
-					break;
-		case TRN_ON:
-					turn_indicator_on();
-					break;
-		case DL_ON:
-					drl_on();
-					break;
-
-
-		case HIB_OFF:
-					high_beam_off();
-					break;
-		case LOB_OFF:
-					low_beam_off();
-					break;
-		case TRN_OFF:
-					turn_indicator_off();
-					break;
-		case DL_OFF:
-					drl_off();
-					break;
-
-		case TOGGLE_HIB:
-					high_beam_toggle();
-					break;
-		case TOGGLE_LOB:
-					low_beam_toggle();
-					break;
-		case TOGGLE_TRN:
-					turn_indicator_toggle();
-					break;
-		case TOGGLE_DRL:
-					drl_toggle();
-					break;
-		case HIB_OBSTACLE:
-					high_beam_obstacle(DATA1,DATA2);
-					break;
-	}
-}
-void pwm_init()
+void pwm_init(void)
 {
 
 	HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);
@@ -683,47 +521,9 @@ void pwm_init()
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
 }
-uint32_t CANdecode(IRMessage msg)
-{
-	if(msg == cryticalBrake)
-		IR_ui32DecodedMessage = IR_BRAKE;
-	else if(msg == obstacleOnTheRoad)
-		IR_ui32DecodedMessage = IR_OBSTACLE;
-	else if(msg == failed)
-		IR_ui32DecodedMessage = IR_ui32PreviousMessage;
-	else if(msg == goingToLeaveTheRoad)
-		IR_ui32DecodedMessage = IR_LEAVING;
-	else if(msg == goingToStop)
-		IR_ui32DecodedMessage = IR_STOP;
-	else
-		IR_ui32DecodedMessage = IR_IDLE;
 
-	IR_ui32PreviousMessage = IR_ui32DecodedMessage;
-	return IR_ui32DecodedMessage;
-}
-void readIRMessage() {
-	if(IR_intcounter % 16 == 0 && IR_intcounter < 20) {
-		 IR_tReceivedFirstMessage = IRdecode(IR_ui16message);
-	 }
-	 if(IR_intcounter % 32 == 0 && IR_intcounter < 40) {
-		 IR_tReceivedSecondMessage = IRdecode(IR_ui16message);
-	 }
-	 if(IR_intcounter % 48 == 0) {
-		 IR_tReceivedThirdMessage = IRdecode(IR_ui16message);
-		 if(IR_tReceivedFirstMessage == IR_tReceivedSecondMessage && IR_tReceivedFirstMessage == IR_tReceivedThirdMessage) {
-			 IR_tReceivedMessage = IR_tReceivedFirstMessage;
-		 } else if(IR_tReceivedSecondMessage == IR_tReceivedThirdMessage) {
-			 IR_tReceivedMessage = IR_tReceivedSecondMessage;
-		 } else {
-			 IR_tReceivedMessage = IR_tReceivedThirdMessage;
-		 }
 
-	 }
-}
-void toggle_MODE()
-{
-	USE_BUTTONS=!USE_BUTTONS;
-}
+
 void _Error_Handler(char * file, int line)
 {
   while(1) 

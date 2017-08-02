@@ -221,6 +221,7 @@ void HAL_DBGMCU_DisableDBGStandbyMode(void);
 void HAL_EnableCompensationCell(void);
 void HAL_DisableCompensationCell(void);
 void HAL_GetUID(uint32_t *UID);
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim);
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) ||\
     defined(STM32F469xx) || defined(STM32F479xx)
 void HAL_EnableMemorySwappingBank(void);

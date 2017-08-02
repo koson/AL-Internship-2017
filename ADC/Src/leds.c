@@ -11,7 +11,7 @@
 extern FLAG_STATE FLAG_TI;
 extern FLAG_STATE FLAG_HI;
 extern FLAG_STATE FLAG_DRL;
-extern FLAG_LIGHT LIGHT_STATUS;
+
 extern uint16_t TIM_PERIOD;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
@@ -19,6 +19,8 @@ extern TIM_HandleTypeDef htim4;
 /*
  * @brief turns high beam on(SET the corresponding pins)
  * */
+
+
 void high_beam_on(void)
 {
 		FLAG_HI=FLAG_ON;

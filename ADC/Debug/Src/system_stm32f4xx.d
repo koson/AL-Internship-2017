@@ -9,7 +9,6 @@ Src/system_stm32f4xx.o: ../Src/system_stm32f4xx.c \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/stm32f4xx_hal_conf.h \
- D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/main.h \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h \
@@ -49,8 +48,6 @@ D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/CMSIS/Device/ST/STM
 D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 
 D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/stm32f4xx_hal_conf.h:
-
-D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/main.h:
 
 D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:
 

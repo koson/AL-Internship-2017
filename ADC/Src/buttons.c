@@ -5,7 +5,7 @@
  *      Author: F27284C
  */
 
-#include "stm32f4_discovery.h"
+#include "buttons.h"
 GPIO_PinState read_button_HB()
 {
 	return HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_6);

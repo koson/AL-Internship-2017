@@ -6,8 +6,34 @@
  */
 #include "IR.h"
 int noOfOnes;
-IRMessage toReturn;
+IRMessage IR_tReceivedFirstMessage;
+IRMessage IR_tReceivedSecondMessage;
+IRMessage IR_tReceivedThirdMessage;
+uint16_t IR_ui16message = 0;
 
+IRMessage IR_tReceivedMessage;
+IRMessage toReturn;
+int IR_intcounter;
+
+void readIRMessage() {
+	if(IR_intcounter % 16 == 0 && IR_intcounter < 20) {
+		 IR_tReceivedFirstMessage = IRdecode(IR_ui16message);
+	 }
+	 if(IR_intcounter % 32 == 0 && IR_intcounter < 40) {
+		 IR_tReceivedSecondMessage = IRdecode(IR_ui16message);
+	 }
+	 if(IR_intcounter % 48 == 0) {
+		 IR_tReceivedThirdMessage = IRdecode(IR_ui16message);
+		 if(IR_tReceivedFirstMessage == IR_tReceivedSecondMessage && IR_tReceivedFirstMessage == IR_tReceivedThirdMessage) {
+			 IR_tReceivedMessage = IR_tReceivedFirstMessage;
+		 } else if(IR_tReceivedSecondMessage == IR_tReceivedThirdMessage) {
+			 IR_tReceivedMessage = IR_tReceivedSecondMessage;
+		 } else {
+			 IR_tReceivedMessage = IR_tReceivedThirdMessage;
+		 }
+
+	 }
+}
 IRMessage IRdecode(uint16_t IR_ui16message) {
 	noOfOnes = 0;
 	toReturn = failed;
@@ -58,7 +84,6 @@ IRMessage IRdecode(uint16_t IR_ui16message) {
 
 	return toReturn;
 }
-
 int getDutyCycle(IRMessage IR_tmsg) {
 	int toReturn = -1;
 

@@ -1,7 +1,6 @@
 Src/stm32f4xx_it.o: ../Src/stm32f4xx_it.c \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/stm32f4xx_hal_conf.h \
- D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/main.h \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
@@ -32,13 +31,13 @@ Src/stm32f4xx_it.o: ../Src/stm32f4xx_it.c \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/stm32f4_discovery.h \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/stm32f4xx_it.h \
  D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/leds.h \
- D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/buttons.h
+ D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/buttons.h \
+ D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/signals.h \
+ D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/stm32f4_discovery.h
 
 D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 
 D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/stm32f4xx_hal_conf.h:
-
-D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/main.h:
 
 D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:
 
@@ -101,3 +100,7 @@ D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/stm32f4xx_it.h:
 D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/leds.h:
 
 D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/buttons.h:
+
+D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/signals.h:
+
+D:/users/F27280C/Documents/AL/AL-Internship-2017/ADC/Inc/stm32f4_discovery.h:

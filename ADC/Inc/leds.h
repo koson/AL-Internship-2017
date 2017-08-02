@@ -8,6 +8,8 @@
 #ifndef LEDS_H_
 #define LEDS_H_
 
+
+
 void high_beam_on(void);
 void high_beam_off(void);
 void high_beam_toggle(void);

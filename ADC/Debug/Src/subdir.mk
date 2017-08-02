@@ -6,6 +6,7 @@
 C_SRCS += \
 ../Src/IR.c \
 ../Src/buttons.c \
+../Src/can.c \
 ../Src/leds.c \
 ../Src/light_sensor.c \
 ../Src/main.c \
@@ -17,6 +18,7 @@ C_SRCS += \
 OBJS += \
 ./Src/IR.o \
 ./Src/buttons.o \
+./Src/can.o \
 ./Src/leds.o \
 ./Src/light_sensor.o \
 ./Src/main.o \
@@ -28,6 +30,7 @@ OBJS += \
 C_DEPS += \
 ./Src/IR.d \
 ./Src/buttons.d \
+./Src/can.d \
 ./Src/leds.d \
 ./Src/light_sensor.d \
 ./Src/main.d \

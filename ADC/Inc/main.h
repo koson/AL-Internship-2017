@@ -39,10 +39,14 @@
 #ifndef __MAIN_H
 #define __MAIN_H
   /* Includes ------------------------------------------------------------------*/
-#define CAN1_RX_Pin GPIO_PIN_0
-#define CAN1_RX_GPIO_Port GPIOD
-#define CAN1_TX_Pin GPIO_PIN_1
-#define CAN1_TX_GPIO_Port GPIOD
+#include "stm32f4xx_hal.h"
+#include "signals.h"
+#include "stm32f4_discovery.h"
+#include "IR.h"
+#include "leds.h"
+#include "buttons.h"
+#include "light_sensor.h"
+#include "can.h"
 
 
 /* USER CODE BEGIN Includes */
