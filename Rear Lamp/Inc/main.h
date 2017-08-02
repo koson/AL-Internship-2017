@@ -39,12 +39,24 @@
 #ifndef __MAIN_H
 #define __MAIN_H
   /* Includes ------------------------------------------------------------------*/
+#include "stm32f4xx_hal.h"
+#include "signals.h"
+#include "stm32f4_discovery.h"
+#include "IR.h"
+#include "leds.h"
+
 #define CLK_IN_Pin GPIO_PIN_10
 #define CLK_IN_GPIO_Port GPIOB
 #define CAN1_RX_Pin GPIO_PIN_0
 #define CAN1_RX_GPIO_Port GPIOD
 #define CAN1_TX_Pin GPIO_PIN_1
 #define CAN1_TX_GPIO_Port GPIOD
+
+#define CAN_FIFO_ID                0
+#define CAN_FIFO                   CAN_FIFO0
+#define CAN_FIFO_IN                CAN_IT_FMP0
+#define TIM_PERIOD 200
+
 
 /* USER CODE BEGIN Includes */
 

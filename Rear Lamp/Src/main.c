@@ -37,16 +37,6 @@
   */
 
 #include "main.h"
-#include "stm32f4xx_hal.h"
-#include "signals.h"
-#include "stm32f4_discovery.h"
-#include "IR.h"
-#include "leds.h"
-
-#define CAN_FIFO_ID                0
-#define CAN_FIFO                   CAN_FIFO0
-#define CAN_FIFO_IN                CAN_IT_FMP0
-#define TIM_PERIOD 200
 
 /**********************\
 |*     handlers        |
