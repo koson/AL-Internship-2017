@@ -66,7 +66,10 @@ void low_beam_on_dark()
 	}
 }
 
-
+/*
+ * @brief Turns off high beam if it is too light
+ * @description high beam pins are set to low state and low beam lights are turned on
+ */
 void high_beam_blocked()
 {
 	HAL_ADC_Start(&hadc1);
@@ -76,7 +79,14 @@ void high_beam_blocked()
 		if(LIGHT_STATUS==MAX_LIGHT)
 		{
 			 high_beam_off();
+			 FLAG_HI=FLAG_ON;//intended
 			 low_beam_on();
+
+		}
+		else
+		{
+			high_beam_on();
+
 		}
 	}
 }
