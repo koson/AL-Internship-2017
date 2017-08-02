@@ -16,6 +16,7 @@ extern FLAG_STATE FLAG_TI;
 extern FLAG_STATE FLAG_HI;
 extern FLAG_STATE FLAG_DRL;
 extern FLAG_LIGHT LIGHT_STATUS;
+FLAG_STATE FLAG_SENSOR=FLAG_ON;
 void setLightFlag(void)
 {
 	HAL_ADC_Start(&hadc1);
@@ -44,13 +45,25 @@ void dimmingIfHighLuminosity(void)
 
 void low_beam_on_dark()
 {
+
 	HAL_ADC_Start(&hadc1);
 	ADC_ui32LuminosityVal = HAL_ADC_GetValue(&hadc1);
 	if(LIGHT_STATUS==NIGHT)
 	{
-		low_beam_on();
+		if(FLAG_SENSOR==FLAG_ON)
+		{
+			low_beam_on();
+			FLAG_SENSOR=FLAG_OFF;
+		}
 	}
-
+	else
+	{
+		if(FLAG_SENSOR==FLAG_OFF)
+		{
+			low_beam_off();
+			FLAG_SENSOR=FLAG_ON;
+		}
+	}
 }
 
 

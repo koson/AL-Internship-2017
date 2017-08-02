@@ -46,12 +46,7 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim5;
 TIM_HandleTypeDef htim7;
-
-<<<<<<< HEAD
-=======
 uint32_t CLK_ui32PrescalerValue;
-
->>>>>>> Test_Buttons_Branch
 IRMessage IR_tReceivedMessage;
 IRMessage IR_tReceivedFirstMessage;
 IRMessage IR_tReceivedSecondMessage;
@@ -63,11 +58,9 @@ FLAG_STATE FLAG_DRL=FLAG_OFF;
 FLAG_STATE FLAG_HI=FLAG_OFF;
 FLAG_LIGHT LIGHT_STATUS=DAY;
 FLAG_MODE USE_BUTTONS=MANUAL;
-
 uint32_t CLK_ui32PrescalerValue;
 uint32_t  IR_ui32DecodedMessage;
 uint16_t TIM_PERIOD=200;
-extern int IR_intcounter;
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
