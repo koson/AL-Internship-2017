@@ -39,48 +39,36 @@
 #include "main.h"
 
 
-/**********************\
-|*     handlers        |
-\**********************/
 CAN_HandleTypeDef hcan1;
 ADC_HandleTypeDef hadc1;
-
-/*Tim2&Tim3 used for pwm generation for DLR leds*/
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim5;
 TIM_HandleTypeDef htim7;
 
+<<<<<<< HEAD
+=======
 uint32_t CLK_ui32PrescalerValue;
 
+>>>>>>> Test_Buttons_Branch
 IRMessage IR_tReceivedMessage;
 IRMessage IR_tReceivedFirstMessage;
 IRMessage IR_tReceivedSecondMessage;
 IRMessage IR_tReceivedThirdMessage;
 IRMessage IR_tMessageToBeSent;
 
-uint32_t  IR_ui32DecodedMessage;
-
-
 FLAG_STATE FLAG_TI=FLAG_OFF;
 FLAG_STATE FLAG_DRL=FLAG_OFF;
 FLAG_STATE FLAG_HI=FLAG_OFF;
-
+FLAG_LIGHT LIGHT_STATUS=DAY;
 FLAG_MODE USE_BUTTONS=MANUAL;
 
-FLAG_LIGHT LIGHT_STATUS=DAY;
-
+uint32_t CLK_ui32PrescalerValue;
+uint32_t  IR_ui32DecodedMessage;
 uint16_t TIM_PERIOD=200;
+extern int IR_intcounter;
 
-
-
-
-
-
-/**********************\
-|*       config        |
-\**********************/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
@@ -94,23 +82,9 @@ static void MX_TIM7_Init(void);
 void led_init(void);
 void button_init(void);
 void pwm_init(void);
-
 void systemInit();
-
-/**********************\
-|*   can functions     |
-\**********************/
-
-
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-
-
-
-/**********************\
-|*   IR functions      |
-\**********************/
 void readIRMessage();
-
 
 int main(void)
 {
@@ -123,7 +97,6 @@ int main(void)
 	  /*This function reads and memorize the IR message in the IR_tReceivedMessage */
 	  readIRMessage();
 
-
 	  /*Receive commands from CAN*/
 	  CAN_Rx();
 	  setLightFlag();
@@ -132,7 +105,6 @@ int main(void)
 	  dimmingIfHighLuminosity();
 	  low_beam_on_dark();
 	  high_beam_blocked();
-
 
 	  /*Transmit the ridden message on CAN*/
 	  CAN_Tx(CANdecode(IR_tReceivedMessage));
@@ -519,9 +491,6 @@ void pwm_init(void)
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
 }
-
-
-
 void _Error_Handler(char * file, int line)
 {
   while(1) 
