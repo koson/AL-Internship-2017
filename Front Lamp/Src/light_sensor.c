@@ -15,8 +15,12 @@ extern ADC_HandleTypeDef hadc1;
 extern FLAG_STATE FLAG_TI;
 extern FLAG_STATE FLAG_HI;
 extern FLAG_STATE FLAG_DRL;
+extern FLAG_STATE FLAG_LO;
 extern FLAG_LIGHT LIGHT_STATUS;
 FLAG_STATE FLAG_SENSOR=FLAG_ON;
+/**
+ * @brief Light sensor sets the light state
+ */
 void setLightFlag(void)
 {
 	HAL_ADC_Start(&hadc1);
@@ -30,6 +34,10 @@ void setLightFlag(void)
 			LIGHT_STATUS=DAY;
 
 }
+/**
+ * @brief DRL LEDs are dimmed on high luminosity
+ *
+ */
 void dimmingIfHighLuminosity(void)
 {
 	HAL_ADC_Start(&hadc1);
@@ -42,7 +50,10 @@ void dimmingIfHighLuminosity(void)
 			}
 	}
 }
-
+/**
+ * @brief Turns on high beam on dark
+ * @description
+ */
 void low_beam_on_dark()
 {
 
@@ -52,8 +63,11 @@ void low_beam_on_dark()
 	{
 		if(FLAG_SENSOR==FLAG_ON)
 		{
-			low_beam_on();
-			FLAG_SENSOR=FLAG_OFF;
+			if(FLAG_LO==FLAG_OFF)
+			{
+				low_beam_on();
+				FLAG_SENSOR=FLAG_OFF;
+			}
 		}
 	}
 	else

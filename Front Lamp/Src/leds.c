@@ -11,6 +11,7 @@
 extern FLAG_STATE FLAG_TI;
 extern FLAG_STATE FLAG_HI;
 extern FLAG_STATE FLAG_DRL;
+extern FLAG_STATE FLAG_LO;
 
 extern uint16_t TIM_PERIOD;
 extern TIM_HandleTypeDef htim2;
@@ -94,6 +95,7 @@ void high_beam_obstacle(uint8_t data1,uint8_t data2)
  */
 void low_beam_on(void)
 {
+	FLAG_LO=FLAG_ON;
 	BSP_LED_On(LBM0);
 	BSP_LED_On(LBM1);
 	BSP_LED_On(LBM2);
@@ -107,6 +109,7 @@ void low_beam_on(void)
  */
 void low_beam_off(void)
 {
+	FLAG_LO=FLAG_OFF;
 	BSP_LED_Off(LBM0);
 	BSP_LED_Off(LBM1);
 	BSP_LED_Off(LBM2);
@@ -118,6 +121,7 @@ void low_beam_off(void)
  */
 void low_beam_toggle(void)
 {
+	FLAG_LO=!FLAG_LO;
 	BSP_LED_Toggle(LBM0);
 	BSP_LED_Toggle(LBM1);
 	BSP_LED_Toggle(LBM2);
