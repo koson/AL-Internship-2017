@@ -47,7 +47,7 @@
 #include "buttons.h"
 #include "light_sensor.h"
 #include "can.h"
-
+#include "init.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -59,9 +59,7 @@
 
 /* USER CODE END Private defines */
 
-void _Error_Handler(char *, int);
 
-#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
 
 /**
   * @}
