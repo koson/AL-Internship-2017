@@ -36,6 +36,7 @@
 #include "stm32f4_discovery.h"
 #include "stm32f4xx_it.h"
 #include "leds.h"
+#include "can.h"
 #include "buttons.h"
 
 /* USER CODE BEGIN 0 */

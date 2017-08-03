@@ -17,6 +17,7 @@ void CAN_Tx(uint32_t ID);
 void CAN_Rx(void);
 void toggle_MODE(void);
 void verif_msg(volatile uint16_t, uint8_t,uint8_t);
+void CAN_Tx_Turn(uint8_t);
 
 uint32_t CANdecode(IRMessage);
 

@@ -1,0 +1,249 @@
+/*@!Encoding:1252*/
+includes
+{
+
+}
+
+variables
+{
+  msTimer IR;
+  msTimer REAR_LED;
+  msTimer TRN_TIM;
+  
+  int level = 0;
+  int trn_flag = -1;
+  int trn_pos = 0;
+ 
+  
+  byte Toggle = 1;
+  byte Toggle_led = 1;
+  
+  byte currentCanID = 0; 
+  byte currentCanID_led = 0; 
+  
+  message BRAKE lvl;
+  message SEND_IR_CRITICAL_BRAKE brk;
+  message SEND_IR_LEAVING_THE_ROAD leav;
+  message SEND_IR_OBSTACLE obs;
+  message SEND_IR_STOP sto;
+  message SEND_IR_IDLE ir_idle;
+  
+  message TURN_INDICATOR_OFF trn_off;
+  message BACKWARDS_DRIVE_OFF back_off;
+  
+  message BACK_TURN_INDICATOR bck_trn;
+  message BACKWARDS bck_drv;
+  
+  message 0x0 msg_ToBeSentOnCAN;
+  message 0x0 msg_ToBeSentOnCAN_led;
+  int aMessagesToSend[4] = {0x30, 0x31, 0x33, 0x34};
+  int bMessagesToSend[4] = {0x20, 0x40, 0x21, 0x41};
+}
+
+on timer TRN_TIM
+{
+ switch (trn_pos)
+ {
+   case 0:
+     sysSetVariableInt(sysvar::Back_turn::TR1,1);
+     sysSetVariableInt(sysvar::Back_turn::TR2,1);
+     break;
+  case 1:
+     sysSetVariableInt(sysvar::Back_turn::TR3,1);
+     break;
+  case 2:
+     sysSetVariableInt(sysvar::Back_turn::TR4,1);
+     break;
+  case 3:
+     sysSetVariableInt(sysvar::Back_turn::TR5,1);
+     break;
+  case 4:
+     sysSetVariableInt(sysvar::Back_turn::TR6,1);
+     break;
+  case 5:
+     break;
+  case 6:
+     break;
+
+  case 7:
+     sysSetVariableInt(sysvar::Back_turn::TR1,0);
+     sysSetVariableInt(sysvar::Back_turn::TR2,0);
+     sysSetVariableInt(sysvar::Back_turn::TR3,0);
+     sysSetVariableInt(sysvar::Back_turn::TR4,0);
+     sysSetVariableInt(sysvar::Back_turn::TR5,0);
+     sysSetVariableInt(sysvar::Back_turn::TR6,0);
+     break;
+  case 8:
+    break;
+
+  case 9:
+    trn_pos = -1;
+    break;
+ } 
+ trn_pos++;
+ setTimer(TRN_TIM,65);
+}
+
+on timer REAR_LED
+{
+   msg_ToBeSentOnCAN_led.dlc = 1;
+   msg_ToBeSentOnCAN_led.id = bMessagesToSend[currentCanID_led++];
+  if(currentCanID_led == 4)
+  {
+    currentCanID_led = 0;
+  }
+  output(msg_ToBeSentOnCAN_led);
+  setTimer(REAR_LED,5000);
+}
+on timer IR
+{
+  msg_ToBeSentOnCAN.dlc = 1;
+  msg_ToBeSentOnCAN.id = aMessagesToSend[currentCanID++];
+  if(currentCanID == 4)
+  {
+    currentCanID = 0;
+  }
+  output(msg_ToBeSentOnCAN);
+  
+  setTimer(IR,500);
+}
+
+on envVar TOGGLE_REVERSE
+{
+ output(bck_drv); 
+}
+on envVar TOGGLE_REVERSE_TURN
+{
+  trn_flag = !trn_flag;
+ if (!trn_flag)
+  setTimer(TRN_TIM,100);
+ else
+  {
+     cancelTimer(TRN_TIM);
+     sysSetVariableInt(sysvar::Back_turn::TR1,0);
+     sysSetVariableInt(sysvar::Back_turn::TR2,0);
+     sysSetVariableInt(sysvar::Back_turn::TR3,0);
+     sysSetVariableInt(sysvar::Back_turn::TR4,0);
+     sysSetVariableInt(sysvar::Back_turn::TR5,0);
+  }
+ output(bck_trn); 
+}
+
+on envVar IR_BRAKE
+{
+  
+  output(brk);
+}
+on envVar IR_LEAVING
+{
+
+ output(leav); 
+}
+on envVar IR_OBSTACLE
+{
+
+ output(obs); 
+}
+on envVar IR_STOP
+{
+
+ output(sto);  
+}
+
+on envVar TOGGLE_DEMO_SIGNALS
+{
+   Toggle++;
+  if(Toggle%2 == 0)
+    InitMsgs(); 
+  else
+  {
+    cancelTimer(IR);
+    currentCanID = 0;
+    output(ir_idle);
+  }
+}
+on envVar TOGGLE_DEMO_REAR
+{
+     Toggle_led++;
+  if(Toggle_led%2 == 0)
+    InitMsgs_led(); 
+  else
+  {
+    cancelTimer(REAR_LED);
+    currentCanID_led = 0;
+  }
+}
+
+on message BRAKE
+{
+  level = this.byte(0);
+  sysSetVariableInt(sysvar::Vector::brake_level,this.byte(0)); 
+  
+  switch (level)
+  {
+    case 1:
+            sysSetVariableInt(sysvar::Vector::BRK0,1);
+            sysSetVariableInt(sysvar::Vector::BRK1,1);
+            sysSetVariableInt(sysvar::Vector::BRK2,0);
+            sysSetVariableInt(sysvar::Vector::BRK3,0);
+            sysSetVariableInt(sysvar::Vector::BRK4,0);
+            sysSetVariableInt(sysvar::Vector::BRK5,0);
+            break;
+    case 2:
+            sysSetVariableInt(sysvar::Vector::BRK0,1);
+            sysSetVariableInt(sysvar::Vector::BRK1,1);
+            sysSetVariableInt(sysvar::Vector::BRK2,1);
+            sysSetVariableInt(sysvar::Vector::BRK3,0);
+            sysSetVariableInt(sysvar::Vector::BRK4,0);
+            sysSetVariableInt(sysvar::Vector::BRK5,0);
+            break;
+    case 3:
+            sysSetVariableInt(sysvar::Vector::BRK0,1);
+            sysSetVariableInt(sysvar::Vector::BRK1,1);
+            sysSetVariableInt(sysvar::Vector::BRK2,1);
+            sysSetVariableInt(sysvar::Vector::BRK3,1);
+            sysSetVariableInt(sysvar::Vector::BRK4,0);
+            sysSetVariableInt(sysvar::Vector::BRK5,0);
+            break;
+    case 4:
+            sysSetVariableInt(sysvar::Vector::BRK0,1);
+            sysSetVariableInt(sysvar::Vector::BRK1,1);
+            sysSetVariableInt(sysvar::Vector::BRK2,1);
+            sysSetVariableInt(sysvar::Vector::BRK3,1);
+            sysSetVariableInt(sysvar::Vector::BRK4,1);
+            sysSetVariableInt(sysvar::Vector::BRK5,0);
+            break;
+    case 5:
+            sysSetVariableInt(sysvar::Vector::BRK0,1);
+            sysSetVariableInt(sysvar::Vector::BRK1,1);
+            sysSetVariableInt(sysvar::Vector::BRK2,1);
+            sysSetVariableInt(sysvar::Vector::BRK3,1);
+            sysSetVariableInt(sysvar::Vector::BRK4,1);
+            sysSetVariableInt(sysvar::Vector::BRK5,1);
+            break;
+    default:
+            sysSetVariableInt(sysvar::Vector::BRK0,1);
+            sysSetVariableInt(sysvar::Vector::BRK1,0);
+            sysSetVariableInt(sysvar::Vector::BRK2,0);
+            sysSetVariableInt(sysvar::Vector::BRK3,0);
+            sysSetVariableInt(sysvar::Vector::BRK4,0);
+            sysSetVariableInt(sysvar::Vector::BRK5,0);
+            break;
+      
+  }
+}
+
+on start
+{
+ output(trn_off);
+  output(back_off);
+}
+
+void InitMsgs()
+{
+  setTimer(IR,10);
+}
+void InitMsgs_led()
+{
+  setTimer(REAR_LED,10);
+}

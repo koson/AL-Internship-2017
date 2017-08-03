@@ -1,0 +1,348 @@
+/*@!Encoding:1252*/
+includes
+{
+}
+
+variables
+{
+  msTimer LED_DEMO; 
+  msTimer TRN_TIM;
+  
+  byte Toggle = 1;
+  byte currentCanID = 0;
+  byte obstacle_flag1 = 0;
+  byte obstacle_flag2 = 0;
+  
+  int hib_on_flag = -1;
+  int trn_flag = -1;
+  int trn_pos = 0;
+  int lob_flag = -1;
+  int drl_flag = -1;
+  
+  int mode_flag = 0;
+  
+  message 0x0 msg_ToBeSentOnCAN;
+  
+  message MODE_MANUAL man;
+  message MODE_AUTO au;
+  
+  message TOGGLE_DRL drl;
+  message TOGGLE_HIB hib;
+  message TOGGLE_TRN trn;
+  message TOGGLE_LOB lob;
+  message TOGGLE_MODE mode;
+  
+  message IR_OBSTACLE obst;
+  message IR_IDLE  idl;
+  
+  message HIB_OBSTACLE hib_obs;
+  message DLR_OFF dl_off;
+  message LOW_BEAM_OFF lo_off;
+  message HI_BEAM_OFF hi_off;
+  message TURN_SIGNAL_OFF tr_off;
+  
+  int aMessagesToSend[14] = {0x50,0x20, 0x21, 0x23,0x24,  0x14, 0x11, 0x21, 0x10, 0x20, 0x13, 0x23, 0x24, 0x51};  
+  
+}
+
+on timer LED_DEMO
+{
+  msg_ToBeSentOnCAN.dlc = 1;
+  msg_ToBeSentOnCAN.id = aMessagesToSend[currentCanID++];
+  if(currentCanID == 15)
+  {
+    currentCanID = 0;
+    setTimer(LED_DEMO,20000);
+  }
+  else
+  {
+    if(currentCanID > 0 && currentCanID < 5)
+    {
+      setTimer(LED_DEMO,10);
+      output(msg_ToBeSentOnCAN);
+    }
+    else
+    {
+    setTimer(LED_DEMO,2000);
+    output(msg_ToBeSentOnCAN);
+    if( currentCanID == 11)
+       setTimer(LED_DEMO,10000);
+    else
+       setTimer(LED_DEMO,2000);
+    }
+  }
+  if(currentCanID == 16)
+    currentCanID = 0;
+}
+
+on timer TRN_TIM
+{
+ switch (trn_pos)
+ {
+   case 0:
+     sysSetVariableInt(sysvar::Turn::TR1,1);
+     sysSetVariableInt(sysvar::Turn::TR2,1);
+     break;
+  case 1:
+     sysSetVariableInt(sysvar::Turn::TR3,1);
+     break;
+  case 2:
+     sysSetVariableInt(sysvar::Turn::TR4,1);
+     break;
+  case 3:
+     sysSetVariableInt(sysvar::Turn::TR5,1);
+     break;
+  case 4:
+     break;
+  case 5:
+     break;
+  case 6:
+     break;
+
+  case 7:
+     sysSetVariableInt(sysvar::Turn::TR1,0);
+     sysSetVariableInt(sysvar::Turn::TR2,0);
+     sysSetVariableInt(sysvar::Turn::TR3,0);
+     sysSetVariableInt(sysvar::Turn::TR4,0);
+     sysSetVariableInt(sysvar::Turn::TR5,0);
+     break;
+  case 8:
+    break;
+
+  case 9:
+    trn_pos = -1;
+    break;
+ } 
+ trn_pos++;
+ setTimer(TRN_TIM,65);
+}
+
+on message MODE_AUTO
+{
+  mode_flag = 1;
+}
+on message MODE_MANUAL
+{
+  mode_flag = 0; 
+}
+
+on message HIB_OBSTACLE
+{
+  int pos = 0;
+
+  if(!hib_on_flag)
+  {
+    
+    sysSetVariableInt(sysvar::Vector::HIB1,1);
+    sysSetVariableInt(sysvar::Vector::HIB2,1);
+    sysSetVariableInt(sysvar::Vector::HIB3,1);
+    sysSetVariableInt(sysvar::Vector::HIB4,1);
+    sysSetVariableInt(sysvar::Vector::HIB5,1);
+    
+    pos = this.byte(0);
+    switch (pos)
+    {
+      case 0 :
+              break;
+      case 1 :
+              sysSetVariableInt(sysvar::Vector::HIB1,0);
+              break;
+      case 2 :
+              sysSetVariableInt(sysvar::Vector::HIB2,0);
+              break;
+      case 3 :
+              sysSetVariableInt(sysvar::Vector::HIB3,0);
+              break;
+      case 4 :
+              sysSetVariableInt(sysvar::Vector::HIB4,0);
+              break;
+      case 5 :
+              sysSetVariableInt(sysvar::Vector::HIB5,0);
+              break;
+      case 6 :
+              break;
+    }
+    pos = this.byte(1);
+    switch (pos)
+    {
+      case 0 :
+              break;
+      case 1 :
+              sysSetVariableInt(sysvar::Vector::HIB1,0);
+              break;
+      case 2 :
+              sysSetVariableInt(sysvar::Vector::HIB2,0);
+              break;
+      case 3 :
+              sysSetVariableInt(sysvar::Vector::HIB3,0);
+              break;
+      case 4 :
+              sysSetVariableInt(sysvar::Vector::HIB4,0);
+              break;
+      case 5 :
+              sysSetVariableInt(sysvar::Vector::HIB5,0);
+              break;
+      case 6 :
+              break;
+    }
+   }
+}
+
+on sysvar Vector::track1
+{
+  
+  if (@this)
+    obstacle_flag1 = 1;
+  else
+    obstacle_flag1 = 0;
+  if (obstacle_flag1)
+    output(obst);
+
+  hib_obs.byte(0) = @this;
+
+  output(hib_obs);
+  
+  if(@this == 0 && !obstacle_flag1 && !obstacle_flag2)
+    output(idl);
+}
+on sysvar Vector::track2
+{
+  if (@this)
+    obstacle_flag2 = 1;
+  else
+    obstacle_flag2 = 0;
+  if (obstacle_flag2)
+    output(obst);
+  
+  
+  hib_obs.byte(1) = @this;
+  output(hib_obs);
+  
+  if(@this == 0 && !obstacle_flag1 && !obstacle_flag2)
+    output(idl);
+}
+
+on envVar TOGGLE_DRL
+{
+ if (mode_flag)
+ {
+  drl_flag = ! drl_flag;
+  if (!drl_flag)
+    sysSetVariableInt(sysvar::DRL::DR,1);
+  else
+    sysSetVariableInt(sysvar::DRL::DR,0);
+  output(drl);
+ }
+}
+on envVar TOGGLE_LOB
+{
+ if (mode_flag)
+ {
+  lob_flag = ! lob_flag;
+  if (!lob_flag)
+    sysSetVariableInt(sysvar::LOB::LO,1);
+  else
+    sysSetVariableInt(sysvar::LOB::LO,0);
+  output(lob);
+ } 
+}
+on envVar TOGGLE_HIB
+{
+ if (mode_flag)
+ {
+    hib_on_flag = !hib_on_flag;
+    if (!hib_on_flag)
+    {
+        sysSetVariableInt(sysvar::Vector::HIB1,1);
+        sysSetVariableInt(sysvar::Vector::HIB2,1);
+        sysSetVariableInt(sysvar::Vector::HIB3,1);
+        sysSetVariableInt(sysvar::Vector::HIB4,1);
+        sysSetVariableInt(sysvar::Vector::HIB5,1);
+    }
+    else
+    {
+       sysSetVariableInt(sysvar::Vector::HIB1,0);
+       sysSetVariableInt(sysvar::Vector::HIB2,0);
+       sysSetVariableInt(sysvar::Vector::HIB3,0);
+       sysSetVariableInt(sysvar::Vector::HIB4,0);
+       sysSetVariableInt(sysvar::Vector::HIB5,0); 
+    }
+    
+    output(hib);
+  }
+}
+on envVar TOGGLE_TRN
+{
+ if (mode_flag)
+ {
+   trn_flag = !trn_flag;
+   if (!trn_flag)
+    setTimer(TRN_TIM,100);
+   else
+    {
+       cancelTimer(TRN_TIM);
+       sysSetVariableInt(sysvar::Turn::TR1,0);
+       sysSetVariableInt(sysvar::Turn::TR2,0);
+       sysSetVariableInt(sysvar::Turn::TR3,0);
+       sysSetVariableInt(sysvar::Turn::TR4,0);
+       sysSetVariableInt(sysvar::Turn::TR5,0);
+    }
+   output(trn);
+  }
+}
+on envVar TOGGLE_MODE
+{
+  mode_flag = !mode_flag;
+  output(mode);
+}
+on envVar TOGGLE_DEMO_LED
+{
+  Toggle++;
+  if(Toggle%2 == 0)
+    InitMsgs(); 
+  else
+  {
+    cancelTimer(LED_DEMO);
+    currentCanID = 0;
+    output(dl_off);
+    output(hi_off);
+    output(lo_off);
+    output(tr_off);
+  }
+}
+
+on message IR_CRITICAL_BRAKE
+{
+  sysSetVariableString(sysvar::Vector::IR_signal,"BRAKE");
+}
+on message IR_IDLE
+{
+ sysSetVariableString(sysvar::Vector::IR_signal,"IDLE"); 
+}
+on message IR_LEAVING_THE_ROAD
+{
+ sysSetVariableString(sysvar::Vector::IR_signal,"LEAVING"); 
+}
+on message IR_OBSTACLE
+{
+ sysSetVariableString(sysvar::Vector::IR_signal,"OBSTACLE"); 
+}
+on message IR_STOP
+{
+ sysSetVariableString(sysvar::Vector::IR_signal,"STOP"); 
+}
+
+on start
+{
+  output(au);
+  output(dl_off);
+  output(hi_off);
+  output(lo_off);
+  output(tr_off);
+  output(man);
+}
+
+void InitMsgs()
+{
+  setTimer(LED_DEMO,10);
+}

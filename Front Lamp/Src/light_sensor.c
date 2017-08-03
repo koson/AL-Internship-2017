@@ -17,6 +17,7 @@ extern FLAG_STATE FLAG_HI;
 extern FLAG_STATE FLAG_DRL;
 extern FLAG_STATE FLAG_LO;
 extern FLAG_LIGHT LIGHT_STATUS;
+extern volatile uint16_t datarx[6] ;
 FLAG_STATE FLAG_SENSOR=FLAG_ON;
 /**
  * @brief Light sensor sets the light state
@@ -99,8 +100,7 @@ void high_beam_blocked()
 		}
 		else
 		{
-			high_beam_on();
-
+			high_beam_obstacle(datarx[5],datarx[4]);
 		}
 	}
 }

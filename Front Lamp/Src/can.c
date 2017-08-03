@@ -63,6 +63,21 @@ void CAN_Tx_Brake(uint8_t Data)
 	}
 	while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
 }
+void CAN_Tx_Turn(uint8_t Data)
+{
+	hcan1.pTxMsg->StdId = TOGGLE_TRN;
+	hcan1.pTxMsg->ExtId= 1;
+	hcan1.pTxMsg->RTR = CAN_RTR_DATA;
+	hcan1.pTxMsg->IDE = CAN_ID_STD;
+	hcan1.pTxMsg->DLC = 1;
+	hcan1.pTxMsg->Data[0] = Data;
+	TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
+	do
+	{
+		TransmitMailbox = HAL_CAN_Transmit(&hcan1, 10);
+	}
+	while (TransmitMailbox == CAN_TXSTATUS_NOMAILBOX);
+}
 void CAN_Tx(uint32_t ID)
 {
 	hcan1.pTxMsg->StdId = ID;
