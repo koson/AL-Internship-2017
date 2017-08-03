@@ -41,10 +41,13 @@
 /* USER CODE END 0 */
 /* External variables --------------------------------------------------------*/
 static uint8_t led_phase = 0;
+static uint8_t emb = 0;
+
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
 extern int IR_intTransmitCounter;
 extern FLAG_STATE FLAG_TI;
+extern FLAG_STATE EMERGENCY_BRAKE;
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -94,72 +97,143 @@ void TIM4_IRQHandler(void)
 {
 
   HAL_TIM_IRQHandler(&htim4);
-  switch(led_phase)
+  if(EMERGENCY_BRAKE==FLAG_OFF)
   {
-  case 0:
-  {
-	  BSP_LED_On(BTRN0);
-	  BSP_LED_On(BTRN1);
-
-  	  led_phase++;
-  }break;
-  case 1:
-  {
-	  BSP_LED_On(BTRN2);
-  	  led_phase++;
-  }break;
-  case 2:
-  {
-	  BSP_LED_On(BTRN3);
-  	  led_phase++;
-  }break;
-  case 3:
-  {
-	  BSP_LED_On(BTRN4);
-  	  led_phase++;
-  }break;
-  case 4:
-  {
-	  BSP_LED_On(BTRN5);
-	  led_phase++;
-  }break;
-  case 5:
-  {
-	  led_phase++;
-  }break;
-  case 6:
-   {
- 	  led_phase++;
-   }break;
-
-  case 7:
-  {
- 	  led_phase++;
-  }break;
-  case 8:
-   {
-	  BSP_LED_Off(BTRN0);
-	  BSP_LED_Off(BTRN1);
-	  BSP_LED_Off(BTRN2);
-	  BSP_LED_Off(BTRN3);
-	  BSP_LED_Off(BTRN4);
-	  BSP_LED_Off(BTRN5);
-	  led_phase++;
-   }break;
-  case 9:
-   {
-  	  led_phase++;
-   }break;
-  case 10:
-  {
-	  if(FLAG_TI==FLAG_OFF)
+	  switch(led_phase)
 	  {
-			 HAL_TIM_Base_Stop_IT(&htim4);
-	  }
-	  led_phase=0;
+	  case 0:
+	  {
+		  BSP_LED_On(BTRN0);
+		  BSP_LED_On(BTRN1);
 
-  }break;
+		  led_phase++;
+	  }break;
+	  case 1:
+	  {
+		  BSP_LED_On(BTRN2);
+		  led_phase++;
+	  }break;
+	  case 2:
+	  {
+		  BSP_LED_On(BTRN3);
+		  led_phase++;
+	  }break;
+	  case 3:
+	  {
+		  BSP_LED_On(BTRN4);
+		  led_phase++;
+	  }break;
+	  case 4:
+	  {
+		  BSP_LED_On(BTRN5);
+		  led_phase++;
+	  }break;
+	  case 5:
+	  {
+		  led_phase++;
+	  }break;
+	  case 6:
+	   {
+		  led_phase++;
+	   }break;
+
+	  case 7:
+	  {
+		  led_phase++;
+	  }break;
+	  case 8:
+	   {
+		  BSP_LED_Off(BTRN0);
+		  BSP_LED_Off(BTRN1);
+		  BSP_LED_Off(BTRN2);
+		  BSP_LED_Off(BTRN3);
+		  BSP_LED_Off(BTRN4);
+		  BSP_LED_Off(BTRN5);
+		  led_phase++;
+	   }break;
+	  case 9:
+	   {
+		  led_phase++;
+	   }break;
+	  case 10:
+	  {
+		  if(FLAG_TI==FLAG_OFF)
+		  {
+				 HAL_TIM_Base_Stop_IT(&htim4);
+		  }
+		  led_phase=0;
+
+	  }break;
+	  }
   }
+  else
+  {
+	  switch(led_phase)
+		  {
+		  case 0:
+		  {
+			  BSP_LED_On(BTRN0);
+			  BSP_LED_On(BTRN1);
+			  BSP_LED_On(BTRN2);
+			  BSP_LED_On(BTRN3);
+			  BSP_LED_On(BTRN4);
+			  BSP_LED_On(BTRN5);
+			  led_phase++;
+
+		  }break;
+		  case 1:
+		  {
+			  led_phase++;
+		  }break;
+		  case 2:
+		  {
+			  led_phase++;
+		  }break;
+		  case 3:
+		  {
+			  BSP_LED_Off(BTRN0);
+			  BSP_LED_Off(BTRN1);
+			  BSP_LED_Off(BTRN2);
+			  BSP_LED_Off(BTRN3);
+			  BSP_LED_Off(BTRN4);
+			  BSP_LED_Off(BTRN5);
+			  led_phase++;
+		  }break;
+		  case 4:
+		  {
+
+			  led_phase++;
+		  }break;
+		  case 5:
+		  {
+			  led_phase++;
+		  }break;
+		  case 6:
+		   {
+			  led_phase++;
+		   }break;
+
+		  case 7:
+		  {
+			  led_phase++;
+			  emb++;
+		  }break;
+		  case 8:
+		  {
+			  if(emb==5)
+			  {
+				  if(FLAG_TI==FLAG_OFF)
+					  HAL_TIM_Base_Stop_IT(&htim4);
+				  EMERGENCY_BRAKE=FLAG_OFF;
+				  emb=0;
+			  }
+			  led_phase=0;
+		  }break;
+	 }
+
+
+  }
+
 
 }
 void TIM5_IRQHandler(void)

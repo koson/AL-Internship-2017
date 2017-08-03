@@ -69,27 +69,37 @@ int main(void)
 {
   /*Initialize the system*/
   systemInit();
+
   drl_on();
   /*Infinite loop*/
   while (1)
   {
-	  /*This function reads and memorize the IR message in the IR_tReceivedMessage */
-	  readIRMessage();
+	  while(!read_button_TI()||!read_button_DLR())
+	  {
+		  readIRMessage();
 
-	  /*Receive commands from CAN*/
-	  CAN_Rx();
-	  setLightFlag();
-	  /*Consider the intensity of light in order to dim the LEDs*/
-	  dimmingIfHighLuminosity();
-	  low_beam_on_dark();
-	  high_beam_blocked();
+		  /*Receive commands from CAN*/
+		  CAN_Rx();
+		  setLightFlag();
+		  /*Consider the intensity of light in order to dim the LEDs*/
+		  dimmingIfHighLuminosity();
+		  low_beam_on_dark();
+		  high_beam_blocked();
 
-	  /*Transmit the ridden message on CAN*/
-	  CAN_Tx(CANdecode(IR_tReceivedMessage));
+		  /*Transmit the ridden message on CAN*/
+		  CAN_Tx(CANdecode(IR_tReceivedMessage));
+	  }
+	  while(read_button_TI()&&read_button_DLR())
+	  {
 
+	  }
+	  while(!read_button_TI()||!read_button_DLR())
+	  {
+		  demo();
+
+	  }
   }
 }
-
 
 #ifdef USE_FULL_ASSERT
 void assert_failed(uint8_t* file, uint32_t line)

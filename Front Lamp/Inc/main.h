@@ -48,7 +48,7 @@
 #include "light_sensor.h"
 #include "can.h"
 #include "init.h"
-
+#include "demo.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */

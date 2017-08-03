@@ -270,7 +270,7 @@ typedef enum
 /**
  * @brief Wakeup push-button
  */
-#define KEY_BUTTON_PIN                GPIO_PIN_0
+#define KEY_BUTTON_PIN                GPIO_PIN_4
 #define KEY_BUTTON_GPIO_PORT          GPIOA
 #define KEY_BUTTON_GPIO_CLK_ENABLE()  __HAL_RCC_GPIOA_CLK_ENABLE()
 #define KEY_BUTTON_GPIO_CLK_DISABLE() __HAL_RCC_GPIOA_CLK_DISABLE()

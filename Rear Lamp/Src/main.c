@@ -95,6 +95,8 @@ void CAN_Tx(uint32_t ID);
 void CAN_Rx(void);
 void verif_msg(volatile uint16_t);
 FLAG_STATE FLAG_TI=FLAG_OFF;
+FLAG_STATE EMERGENCY_BRAKE=FLAG_OFF;
+
 FLAG_STATE FLAG_GO_BACK=FLAG_OFF;
 
 uint32_t CANdecode(IRMessage);
@@ -104,6 +106,7 @@ int main(void)
 {
   systemInit();
   back_light_on();
+  turn_indicator_on();
   while (1)
   {
 
@@ -141,7 +144,10 @@ int main(void)
 			}
 		}
 	 }
-
+	 if(getBrakelevel() ==5) {
+		 EMERGENCY_BRAKE=FLAG_ON;
+		 turn_indicator_on();
+	 }
   }
 }
 
