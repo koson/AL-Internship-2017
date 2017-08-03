@@ -121,6 +121,7 @@ int main(void)
 			 else {
 				 if(IR_intWasIdle == 0) {
 					 transmit(IR_IDLE);
+					 CAN_Tx(IR_IDLE);
 					 IR_intWasIdle = 1;
 				 }
 				 else{
@@ -135,6 +136,7 @@ int main(void)
 	 else {
 		if(IR_intWasIdle2 == 0) {
 			transmit(IR_IDLE);
+			CAN_Tx(IR_IDLE);
 			IR_intWasIdle2 = 1;
 		}
 		else {

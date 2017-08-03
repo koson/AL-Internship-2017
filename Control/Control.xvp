@@ -4,6 +4,15 @@
     <Object Type="Vector.CANalyzer.Panels.Design.VectorTabControl, Vector.CANalyzer.Panels.CommonControls, Version=9.0.65.0, Culture=neutral, PublicKeyToken=null" Name="VectorTabControl1" Children="Controls" ControlName="Tab Control">
       <Object Type="Vector.CANalyzer.Panels.Design.VectorTabPage, Vector.CANalyzer.Panels.CommonControls, Version=9.0.65.0, Culture=neutral, PublicKeyToken=null" Name="VectorTabPage1" Children="Controls" ControlName="">
         <Object Type="Vector.CANalyzer.Panels.Design.GroupBoxControl, Vector.CANalyzer.Panels.CommonControls, Version=9.0.65.0, Culture=neutral, PublicKeyToken=null" Name="GroupBoxControl10" Children="Controls" ControlName="Group Box 8">
+          <Object Type="Vector.CANalyzer.Panels.Design.LEDControl, Vector.CANalyzer.Panels.CommonControls, Version=9.0.65.0, Culture=neutral, PublicKeyToken=null" Name="LEDControl41" ControlName="LED Control 21">
+            <Property Name="Name">LEDControl41</Property>
+            <Property Name="Size">37, 37</Property>
+            <Property Name="Location">532, 295</Property>
+            <Property Name="UsedLEDColorOn">Indigo</Property>
+            <Property Name="UsedLEDColorOff">Gray</Property>
+            <Property Name="SymbolConfiguration">4;16;IR;;;Reciever;1;;;-1</Property>
+            <Property Name="TabIndex">32</Property>
+          </Object>
           <Object Type="Vector.CANalyzer.Panels.Design.LEDControl, Vector.CANalyzer.Panels.CommonControls, Version=9.0.65.0, Culture=neutral, PublicKeyToken=null" Name="LEDControl39" ControlName="LED Control 19">
             <Property Name="Name">LEDControl39</Property>
             <Property Name="Size">59, 59</Property>
@@ -438,6 +447,15 @@
       </Object>
       <Object Type="Vector.CANalyzer.Panels.Design.VectorTabPage, Vector.CANalyzer.Panels.CommonControls, Version=9.0.65.0, Culture=neutral, PublicKeyToken=null" Name="VectorTabPage2" Children="Controls" ControlName="">
         <Object Type="Vector.CANalyzer.Panels.Design.GroupBoxControl, Vector.CANalyzer.Panels.CommonControls, Version=9.0.65.0, Culture=neutral, PublicKeyToken=null" Name="GroupBoxControl11" Children="Controls" ControlName="Group Box 9">
+          <Object Type="Vector.CANalyzer.Panels.Design.LEDControl, Vector.CANalyzer.Panels.CommonControls, Version=9.0.65.0, Culture=neutral, PublicKeyToken=null" Name="LEDControl40" ControlName="LED Control 20">
+            <Property Name="Name">LEDControl40</Property>
+            <Property Name="Size">54, 54</Property>
+            <Property Name="Location">49, 204</Property>
+            <Property Name="UsedLEDColorOn">Indigo</Property>
+            <Property Name="UsedLEDColorOff">Gray</Property>
+            <Property Name="SymbolConfiguration">4;16;IR;;;Tranciever;1;;;-1</Property>
+            <Property Name="TabIndex">48</Property>
+          </Object>
           <Object Type="Vector.CANalyzer.Panels.Design.LEDControl, Vector.CANalyzer.Panels.CommonControls, Version=9.0.65.0, Culture=neutral, PublicKeyToken=null" Name="LEDControl17" ControlName="LED Control 17">
             <Property Name="Name">LEDControl17</Property>
             <Property Name="Size">54, 54</Property>
