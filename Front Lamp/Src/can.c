@@ -1,9 +1,9 @@
 #include "main.h"
 
-static CanTxMsgTypeDef        TxMessage;
-static CanRxMsgTypeDef        RxMessage;
+CanTxMsgTypeDef        TxMessage;
+CanRxMsgTypeDef        RxMessage;
 uint32_t  IR_ui32DecodedMessage;
-CAN_HandleTypeDef hcan1;
+extern CAN_HandleTypeDef hcan1;
 uint32_t  IR_ui32PreviousMessage= IR_IDLE;
 volatile uint16_t datarx[6] ;
 uint8_t TransmitMailbox = 0;
