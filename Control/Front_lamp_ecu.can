@@ -314,22 +314,27 @@ on envVar TOGGLE_DEMO_LED
 on message IR_CRITICAL_BRAKE
 {
   sysSetVariableString(sysvar::Vector::IR_signal,"BRAKE");
+  sysSetVariableInt(sysvar::IR::Reciever,1);
 }
 on message IR_IDLE
 {
  sysSetVariableString(sysvar::Vector::IR_signal,"IDLE"); 
+ sysSetVariableInt(sysvar::IR::Reciever,0);
 }
 on message IR_LEAVING_THE_ROAD
 {
  sysSetVariableString(sysvar::Vector::IR_signal,"LEAVING"); 
+ sysSetVariableInt(sysvar::IR::Reciever,1);
 }
 on message IR_OBSTACLE
 {
  sysSetVariableString(sysvar::Vector::IR_signal,"OBSTACLE"); 
+ sysSetVariableInt(sysvar::IR::Reciever,1);
 }
 on message IR_STOP
 {
- sysSetVariableString(sysvar::Vector::IR_signal,"STOP"); 
+ sysSetVariableString(sysvar::Vector::IR_signal,"STOP");
+ sysSetVariableInt(sysvar::IR::Reciever,1);
 }
 
 on start

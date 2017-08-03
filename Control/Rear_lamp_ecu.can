@@ -40,6 +40,10 @@ variables
   int bMessagesToSend[4] = {0x20, 0x40, 0x21, 0x41};
 }
 
+on message SEND_IR_IDLE
+{
+ sysSetVariableInt(sysvar::IR::Tranciever,0); 
+}
 on timer TRN_TIM
 {
  switch (trn_pos)
@@ -131,22 +135,22 @@ on envVar TOGGLE_REVERSE_TURN
 
 on envVar IR_BRAKE
 {
-  
+  sysSetVariableInt(sysvar::IR::Tranciever,1);
   output(brk);
 }
 on envVar IR_LEAVING
 {
-
+ sysSetVariableInt(sysvar::IR::Tranciever,1);
  output(leav); 
 }
 on envVar IR_OBSTACLE
 {
-
+ sysSetVariableInt(sysvar::IR::Tranciever,1);
  output(obs); 
 }
 on envVar IR_STOP
 {
-
+ sysSetVariableInt(sysvar::IR::Tranciever,1);
  output(sto);  
 }
 
