@@ -363,7 +363,7 @@ static void MX_TIM2_Init(void)
 	TIM_MasterConfigTypeDef sMasterConfig;
 	TIM_OC_InitTypeDef sConfigOC;
 	/* Compute the prescaler value to have TIM3 counter clock equal to 10 KHz */
-	CLOCK_ui32PrescalerValue = (uint32_t) ((SystemCoreClock /2) / 1000) - 1;
+	CLOCK_ui32PrescalerValue = (uint32_t) ((SystemCoreClock /2) / 100000) - 1;
 
 	htim2.Instance = TIM2;
 	htim2.Init.Prescaler = CLOCK_ui32PrescalerValue;

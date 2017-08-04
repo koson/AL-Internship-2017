@@ -245,7 +245,7 @@ void MX_TIM5_Init(void)
 {
 
 	TIM_ClockConfigTypeDef sClockSourceConfig;
-	CLK_ui32PrescalerValue = (uint32_t) ((SystemCoreClock /2) / 1000) - 1;
+	CLK_ui32PrescalerValue = (uint32_t) ((SystemCoreClock /2) / 100000) - 1;
 	htim5.Instance = TIM5;
 	htim5.Init.Prescaler = CLK_ui32PrescalerValue;
 	htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
