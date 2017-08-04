@@ -81,10 +81,6 @@ int main(void)
 		  /*Receive commands from CAN*/
 		  CAN_Rx();
 		  setLightFlag();
-		  /*Consider the intensity of light in order to dim the LEDs*/
-		  dimmingIfHighLuminosity();
-		  low_beam_on_dark();
-		  high_beam_blocked();
 
 		  /*Transmit the ridden message on CAN*/
 		  CAN_Tx(CANdecode(IR_tReceivedMessage));

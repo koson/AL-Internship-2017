@@ -196,7 +196,7 @@ void TIM5_IRQHandler(void)
 
 
 /*
- * Timer 7 used for button interrupts
+ * Timer 7 used for button interrupts and Light sensor detection
  * */
 void TIM7_IRQHandler(void)
 {
@@ -297,7 +297,10 @@ void TIM7_IRQHandler(void)
 				  }
 				  if(press_DLR==SHORT_PRESS)
 					  drl_toggle();
-
+	  /*Light sensor functionality*/
+	  dimmingIfHighLuminosity();
+	  low_beam_on_dark();
+	  high_beam_blocked();
   }
 
 }
