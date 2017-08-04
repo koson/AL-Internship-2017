@@ -10,11 +10,19 @@ int noOfOnes;
 IRMessage IR_tToReturn;
 extern TIM_HandleTypeDef htim2;
 
+/**
+* @brief This function transmits a message in function of its ID on CAN database
+* @description takes as a parameter an ID from the CAN database and in function of it starts the PWM generation with the according duty cycle
+*/
 void transmit(uint16_t CANId)
 {
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_4, getDutyCycle(CANId));
 }
 
+/**
+* @brief This function decodify the IR message
+* @description takes as a parameter a 16 bits data and in function of how many bits are setted returns a certain message
+*/
 IRMessage IRdecode(uint16_t message) {
 	noOfOnes = 0;
 	IR_tToReturn = failed;
@@ -65,6 +73,12 @@ IRMessage IRdecode(uint16_t message) {
 	return IR_tToReturn;
 }
 
+
+/**
+* @brief This function return the duty cycle in order to transmit a certain message based on PWM
+* @description takes as a parameter an IRMessage type and in function of this it will return the duty cycle for the PWM generation in order to transmit
+* 			   that message
+*/
 int getDutyCycle(int msg) {
 	int toReturn = -1;
 
