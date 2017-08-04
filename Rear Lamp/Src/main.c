@@ -81,7 +81,6 @@ static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-void transmit(uint16_t CANId);
 void progresiveBrakeLight();
 void turnProgresiveLed(Led_TypeDef led, int val);
 
@@ -182,12 +181,6 @@ void progresiveBrakeLight()
 	turnProgresiveLed(STPP5, 3);
 	turnProgresiveLed(STPP6, 4);
 }
-
-void transmit(uint16_t CANId)
-{
-	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_4, getDutyCycle(CANId));
-}
-
 
 void SystemClock_Config(void)
 {
