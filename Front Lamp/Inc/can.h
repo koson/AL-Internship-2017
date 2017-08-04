@@ -10,6 +10,7 @@
 #define CAN_FIFO                   CAN_FIFO0
 #define CAN_FIFO_IN                CAN_IT_FMP0
 
+#include "IR.h"
 
 void MX_CAN1_Init(void);
 void CAN_Tx_Brake(uint8_t);
@@ -19,6 +20,6 @@ void toggle_MODE(void);
 void verif_msg(volatile uint16_t, uint8_t,uint8_t);
 void CAN_Tx_Turn(uint8_t);
 
-uint32_t CANdecode(IRMessage);
+uint32_t CANdecode(IRMessage msg);
 
 #endif
