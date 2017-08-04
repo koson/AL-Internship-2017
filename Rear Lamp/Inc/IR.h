@@ -24,6 +24,7 @@ typedef enum IRMsg {idle,
 
 IRMessage IRdecode(uint16_t message);
 int getDutyCycle(int msg);
+void transmit(uint16_t CANId);
 
 
 

@@ -8,6 +8,12 @@
 #include "signals.h"
 int noOfOnes;
 IRMessage IR_tToReturn;
+extern TIM_HandleTypeDef htim2;
+
+void transmit(uint16_t CANId)
+{
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_4, getDutyCycle(CANId));
+}
 
 IRMessage IRdecode(uint16_t message) {
 	noOfOnes = 0;
