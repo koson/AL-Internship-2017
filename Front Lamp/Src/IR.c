@@ -42,6 +42,8 @@ void readIRMessage() {
 /**
 * @brief This function decodify the IR message
 * @description takes as a parameter a 16 bits data and in function of how many bits are setted returns a certain message
+* @param uint16 value that represents the primitive form for the message
+* @ret value the message of type IRMessage
 */
 IRMessage IRdecode(uint16_t IR_ui16message) {
 	noOfOnes = 0;
@@ -98,6 +100,8 @@ IRMessage IRdecode(uint16_t IR_ui16message) {
 * @brief This function return the duty cycle in order to transmit a certain message based on PWM
 * @description takes as a parameter an IRMessage type and in function of this it will return the duty cycle for the PWM generation in order to transmit
 * 			   that message
+* @param IRMessage type message
+* @ret value the duty cycle for the pwm for that message
 */
 int getDutyCycle(IRMessage IR_tmsg) {
 	int toReturn = -1;
