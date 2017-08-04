@@ -13,8 +13,7 @@
 GPIO_PinState read_button_HB(void);
 GPIO_PinState read_button_LB(void);
 GPIO_PinState read_button_TI(void);
-GPIO_PinState read_button_DLR(void);
-void button_init(void);
+GPIO_PinState read_button_DRL(void);
 
 
 #endif /* BUTTONS_H_ */

@@ -56,6 +56,7 @@ IRMessage IR_tReceivedThirdMessage;
 IRMessage IR_tMessageToBeSent;
 
 FLAG_STATE FLAG_TI=FLAG_OFF;
+BUTTON_PRESS_Type press_TI=UNDEFINED_PRESS;
 FLAG_STATE FLAG_DRL=FLAG_OFF;
 FLAG_STATE FLAG_HI=FLAG_OFF;
 FLAG_STATE FLAG_LO=FLAG_OFF;
@@ -74,7 +75,7 @@ int main(void)
   /*Infinite loop*/
   while (1)
   {
-	  while(!read_button_TI()||!read_button_DLR())
+	  while(press_TI!=LONG_PRESS)
 	  {
 		  readIRMessage();
 
@@ -85,18 +86,9 @@ int main(void)
 		  /*Transmit the ridden message on CAN*/
 		  CAN_Tx(CANdecode(IR_tReceivedMessage));
 	  }
-	  while(read_button_TI()&&read_button_DLR())
-	  {
-
-	  }
-	  while(!read_button_TI()||!read_button_DLR())
+	  while(press_TI!=LONG_PRESS)
 	  {
 		  demo();
-
-	  }
-	  while(read_button_TI()&&read_button_DLR())
-	  {
-
 	  }
   }
 }

@@ -37,18 +37,19 @@
 #include "stm32f4xx_it.h"
 #include "leds.h"
 #include "can.h"
+#include "light_sensor.h"
 #include "buttons.h"
 
 /* USER CODE BEGIN 0 */
 static uint8_t led_phase = 0;
 BUTTON_PRESS_Type press_HB=UNDEFINED_PRESS;
 BUTTON_PRESS_Type press_LB=UNDEFINED_PRESS;
-BUTTON_PRESS_Type press_TI=UNDEFINED_PRESS;
-BUTTON_PRESS_Type press_DLR=UNDEFINED_PRESS;
+extern BUTTON_PRESS_Type press_TI;
+BUTTON_PRESS_Type press_DRL=UNDEFINED_PRESS;
 uint16_t time_elapsed_HB = 0;
 uint16_t time_elapsed_LB = 0;
 uint16_t time_elapsed_TI = 0;
-uint16_t time_elapsed_DLR = 0;
+uint16_t time_elapsed_DRL = 0;
 int IR_intcounter = 0;
 int IR_synchronized = 0;
 int IR_oldBitValue = 1;
@@ -63,6 +64,7 @@ extern FLAG_STATE FLAG_DRL;
 extern FLAG_LIGHT LIGHT_STATUS;
 extern uint16_t IR_ui16message;
 extern FLAG_MODE USE_BUTTONS;
+
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -261,7 +263,7 @@ void TIM7_IRQHandler(void)
 		  {
 			time_elapsed_TI++;
 		  }
-			  if(time_elapsed_TI>=10)
+			  if(time_elapsed_TI>=10&&time_elapsed_TI<=100)
 			  {
 				  if(read_button_TI()==GPIO_PIN_RESET)
 				  {
@@ -271,31 +273,41 @@ void TIM7_IRQHandler(void)
 			  }
 			  else
 			  {
-					  press_TI=UNDEFINED_PRESS;
+				  if(time_elapsed_TI>100)
+				  {
+						  press_TI=LONG_PRESS;
+						  if(read_button_TI()==GPIO_PIN_RESET)
+						  {
+						 	  time_elapsed_TI=0;
+						  }
+				  }
+				  else
+				 		press_TI=UNDEFINED_PRESS;
 			  }
+
 			  if(press_TI==SHORT_PRESS)
 			  {
 				  turn_indicator_toggle();
 			  }
 
 
-			  if(read_button_DLR()==GPIO_PIN_SET)
+			  if(read_button_DRL()==GPIO_PIN_SET)
 			  {
-				time_elapsed_DLR++;
+				time_elapsed_DRL++;
 			  }
-				  if(time_elapsed_DLR>=10)
+				  if(time_elapsed_DRL>=10)
 				  {
-					  if(read_button_DLR()==GPIO_PIN_RESET)
+					  if(read_button_DRL()==GPIO_PIN_RESET)
 					  {
-						  press_DLR=SHORT_PRESS;
-						  time_elapsed_DLR=0;
+						  press_DRL=SHORT_PRESS;
+						  time_elapsed_DRL=0;
 					  }
 				  }
 				  else
 				  {
-						  press_DLR=UNDEFINED_PRESS;
+						  press_DRL=UNDEFINED_PRESS;
 				  }
-				  if(press_DLR==SHORT_PRESS)
+				  if(press_DRL==SHORT_PRESS)
 					  drl_toggle();
 	  /*Light sensor functionality*/
 	  dimmingIfHighLuminosity();
