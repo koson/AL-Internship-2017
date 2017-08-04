@@ -56,7 +56,7 @@ uint32_t last_value=0;
 
 volatile uint16_t datarx[6] ;
 uint8_t TransmitMailbox = 0;
-int IR_intTransmitCounter = 3;
+int IR_intTransmitCounter = 0;
 int IR_intWasIdle = 0;
 int IR_intWasIdle2 = 0;
 CanTxMsgTypeDef        TxMessage;
