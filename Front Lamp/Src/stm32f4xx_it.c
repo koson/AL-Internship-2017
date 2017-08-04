@@ -167,6 +167,10 @@ void TIM4_IRQHandler(void)
   }
 
 }
+
+/*
+ * Timer 5 used for reading the values that compound the IR message bit by bit
+ * */
 void TIM5_IRQHandler(void)
 {
 

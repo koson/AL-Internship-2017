@@ -230,6 +230,10 @@ void TIM4_IRQHandler(void)
 
 
 }
+
+/*
+ * TIM5 is used as an interruption that counts the number of bits transmitted in order to synchronize the transmitter with receiver
+ * */
 void TIM5_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM5_IRQn 0 */
