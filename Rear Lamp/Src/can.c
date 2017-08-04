@@ -97,18 +97,4 @@ void CAN_Rx(void)
 	verif_msg(hcan1.pRxMsg->StdId);
 	}
 }
-uint32_t CANdecode(IRMessage msg)
-{
-	if(msg == cryticalBrake)
-		return  IR_BRAKE;
-	else if(msg == obstacleOnTheRoad)
-		return  IR_OBSTACLE;
-	else if(msg == failed)
-		return  IR_FAILED;
-	else if(msg == goingToLeaveTheRoad)
-		return  IR_LEAVING;
-	else if(msg == goingToStop)
-		return  IR_STOP;
-	else
-		return  IR_IDLE;
-}
+

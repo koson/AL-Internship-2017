@@ -12,7 +12,6 @@ void CAN_Tx_Brake(uint8_t);
 void CAN_Tx(uint32_t);
 void verif_msg(volatile uint16_t);
 void CAN_Rx(void);
-uint32_t CANdecode(IRMessage);
 
 
 #endif /* CAN_H_ */

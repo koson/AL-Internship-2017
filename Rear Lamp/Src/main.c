@@ -61,8 +61,6 @@ int IR_intWasIdle = 0;
 int IR_intWasIdle2 = 0;
 CanTxMsgTypeDef        TxMessage;
 CanRxMsgTypeDef        RxMessage;
-
-uint32_t getBrakelevel(void);
 FLAG_STATE FLAG_TI=FLAG_OFF;
 FLAG_STATE EMERGENCY_BRAKE=FLAG_OFF;
 FLAG_STATE FLAG_GO_BACK=FLAG_OFF;
