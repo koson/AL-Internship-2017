@@ -44,7 +44,7 @@
 #include "stm32f4_discovery.h"
 #include "IR.h"
 #include "leds.h"
-
+#include "init.h"
 #define CLK_IN_Pin GPIO_PIN_10
 #define CLK_IN_GPIO_Port GPIOB
 #define CAN1_RX_Pin GPIO_PIN_0
