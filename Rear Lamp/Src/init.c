@@ -260,7 +260,7 @@ void MX_TIM4_Init(void)
 	htim4.Instance = TIM4;
 	htim4.Init.Prescaler = 16000;
 	htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim4.Init.Period = 200;
+	htim4.Init.Period = 300;
 	htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
 	{

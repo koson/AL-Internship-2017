@@ -28,6 +28,9 @@ void _Error_Handler(char * file, int line)
 
   }
 }
+/*
+ * System Clock configuration
+ * */
 void SystemClock_Config(void)
 {
 
@@ -81,6 +84,10 @@ void SystemClock_Config(void)
 	/* SysTick_IRQn interrupt configuration */
 	HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
+/*
+ * @brief ADC initialization
+ *
+ */
 void MX_ADC1_Init(void)
 {
 
@@ -116,6 +123,10 @@ void MX_ADC1_Init(void)
 	}
 
 }
+/*
+ * @brief Timer2 initialization
+ * @description from TIM2 are used 3 PWM channels that are used to dim the DRL LEDs
+ */
 void MX_TIM2_Init(void)
 {
 
@@ -161,6 +172,10 @@ void MX_TIM2_Init(void)
 	HAL_TIM_MspPostInit(&htim2);
 
 }
+/*
+ * @brief Timer3 initialization
+ * @description from TIM3 are used 4 PWM channels that are used to dim the DRL LEDs
+ */
 void MX_TIM3_Init(void)
 {
 
@@ -211,6 +226,10 @@ void MX_TIM3_Init(void)
 	HAL_TIM_MspPostInit(&htim3);
 
 }
+/*
+ * @brief Timer4 initialization
+ * @description TIM4 is used to generate an interrupt periodically that will be used to make the progressive turn indicator
+ */
 void MX_TIM4_Init(void)
 {
 
@@ -220,7 +239,7 @@ void MX_TIM4_Init(void)
 	htim4.Instance = TIM4;
 	htim4.Init.Prescaler = 16000;
 	htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim4.Init.Period = 200;
+	htim4.Init.Period = 300;
 	htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
 	{
@@ -263,6 +282,10 @@ void MX_TIM5_Init(void)
 	}
 
 }
+/*
+ * @brief Timer7 initialization
+ * @description TIM7 is used to generate an interrupt periodically that will be used to read switches and execute light sensor functionalities
+ */
 void MX_TIM7_Init(void)
 {
 
@@ -285,6 +308,9 @@ void MX_TIM7_Init(void)
 	}
 
 }
+/*
+ * @brief Initializes all LEDs used
+ */
 void led_init(void)
 {
 	BSP_LED_Init(LED3);
@@ -311,6 +337,9 @@ void led_init(void)
 	BSP_LED_Init(TRN4);
 
 }
+/*
+ * @brief GPIO init for switches
+ */
 void button_init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
@@ -323,6 +352,9 @@ void button_init(void)
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 }
+/*
+ * @brief pwm channels are initialized
+ */
 void pwm_init(void)
 {
 
@@ -334,6 +366,9 @@ void pwm_init(void)
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
 }
+/*
+ * @brief GPIO configuration
+ */
 void MX_GPIO_Init(void)
 {
 
@@ -392,7 +427,9 @@ void MX_GPIO_Init(void)
 	button_init();
 
 }
-
+/*
+ * @brief System configuration
+ */
 void systemInit()
 {
 	HAL_Init();

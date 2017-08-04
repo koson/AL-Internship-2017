@@ -62,7 +62,7 @@ FLAG_STATE FLAG_LO=FLAG_OFF;
 FLAG_LIGHT LIGHT_STATUS=DAY;
 FLAG_MODE USE_BUTTONS=MANUAL;
 uint32_t CLK_ui32PrescalerValue;
-uint32_t  IR_ui32DecodedMessage;
+uint32_t IR_ui32DecodedMessage;
 uint16_t TIM_PERIOD=200;
 
 int main(void)
@@ -92,6 +92,10 @@ int main(void)
 	  while(!read_button_TI()||!read_button_DLR())
 	  {
 		  demo();
+
+	  }
+	  while(read_button_TI()&&read_button_DLR())
+	  {
 
 	  }
   }

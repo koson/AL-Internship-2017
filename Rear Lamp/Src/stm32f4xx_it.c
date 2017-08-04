@@ -207,28 +207,19 @@ void TIM4_IRQHandler(void)
 		  case 5:
 		  {
 			  led_phase++;
+			  emb++;
 		  }break;
 		  case 6:
 		   {
-			  led_phase++;
+			   if(emb==5)
+			  			  {
+			  				  if(FLAG_TI==FLAG_OFF)
+			  					  HAL_TIM_Base_Stop_IT(&htim4);
+			  				  EMERGENCY_BRAKE=FLAG_OFF;
+			  				  emb=0;
+			  			  }
+			  			  led_phase=0;
 		   }break;
-
-		  case 7:
-		  {
-			  led_phase++;
-			  emb++;
-		  }break;
-		  case 8:
-		  {
-			  if(emb==5)
-			  {
-				  if(FLAG_TI==FLAG_OFF)
-					  HAL_TIM_Base_Stop_IT(&htim4);
-				  EMERGENCY_BRAKE=FLAG_OFF;
-				  emb=0;
-			  }
-			  led_phase=0;
-		  }break;
 		  default:
 			  led_phase=0;
 

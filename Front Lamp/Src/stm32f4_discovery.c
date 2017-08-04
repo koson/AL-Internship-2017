@@ -116,6 +116,20 @@ uint32_t BSP_GetVersion(void)
   *     @arg LED5
   *     @arg LED6
   *     @arg TRN0
+  *     @arg TRN1
+  *     @arg TRN2
+  *     @arg TRN3
+  *     @arg TRN4
+  *     @arg HBM0
+  *     @arg HBM1
+  *     @arg HBM2
+  *     @arg HBM3
+  *     @arg HBM4
+  *     @arg LBM0
+  *     @arg LBM1
+  *     @arg LBM2
+  *     @arg LBM3
+  *     @arg LBM4
   */
 void BSP_LED_Init(Led_TypeDef Led)
 {
@@ -142,7 +156,22 @@ void BSP_LED_Init(Led_TypeDef Led)
   *     @arg LED4
   *     @arg LED3
   *     @arg LED5
-  *     @arg LED6  
+  *     @arg LED6
+  *     @arg TRN0
+  *     @arg TRN1
+  *     @arg TRN2
+  *     @arg TRN3
+  *     @arg TRN4
+  *     @arg HBM0
+  *     @arg HBM1
+  *     @arg HBM2
+  *     @arg HBM3
+  *     @arg HBM4
+  *     @arg LBM0
+  *     @arg LBM1
+  *     @arg LBM2
+  *     @arg LBM3
+  *     @arg LBM4
   */
 void BSP_LED_On(Led_TypeDef Led)
 {
@@ -157,6 +186,21 @@ void BSP_LED_On(Led_TypeDef Led)
   *     @arg LED3
   *     @arg LED5
   *     @arg LED6 
+  *     @arg TRN0
+  *     @arg TRN1
+  *     @arg TRN2
+  *     @arg TRN3
+  *     @arg TRN4
+  *     @arg HBM0
+  *     @arg HBM1
+  *     @arg HBM2
+  *     @arg HBM3
+  *     @arg HBM4
+  *     @arg LBM0
+  *     @arg LBM1
+  *     @arg LBM2
+  *     @arg LBM3
+  *     @arg LBM4
   */
 void BSP_LED_Off(Led_TypeDef Led)
 {
@@ -171,6 +215,21 @@ void BSP_LED_Off(Led_TypeDef Led)
   *     @arg LED3
   *     @arg LED5
   *     @arg LED6  
+  *     @arg TRN0
+  *     @arg TRN1
+  *     @arg TRN2
+  *     @arg TRN3
+  *     @arg TRN4
+  *     @arg HBM0
+  *     @arg HBM1
+  *     @arg HBM2
+  *     @arg HBM3
+  *     @arg HBM4
+  *     @arg LBM0
+  *     @arg LBM1
+  *     @arg LBM2
+  *     @arg LBM3
+  *     @arg LBM4
   */
 void BSP_LED_Toggle(Led_TypeDef Led)
 {
