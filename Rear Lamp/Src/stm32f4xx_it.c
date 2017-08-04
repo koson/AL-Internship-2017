@@ -229,6 +229,9 @@ void TIM4_IRQHandler(void)
 			  }
 			  led_phase=0;
 		  }break;
+		  default:
+			  led_phase=0;
+
 	 }
 
 
