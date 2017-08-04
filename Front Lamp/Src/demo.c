@@ -28,6 +28,18 @@ void demo()
 	low_beam_off();
 	turn_indicator_off();
 	HAL_Delay(1000);
+
+	/*drl dimming */
+	for(uint32_t i=199;i>0;i--)
+	{
+		drl_set((uint32_t )i);
+		HAL_Delay(10);
+	}
+	for(uint32_t i=0;i<200;i++)
+	{
+		drl_set((uint32_t )i);
+		HAL_Delay(10);
+	}
 	drl_on();
 	HAL_Delay(1000);
 	turn_indicator_on();
@@ -37,8 +49,13 @@ void demo()
 	low_beam_on();
 	HAL_Delay(2000);
 	low_beam_off();
-	HAL_Delay(1000);
 	high_beam_on();
+	HAL_Delay(200);
+	for(uint8_t i=0;i<6;i++)
+	{
+	 high_beam_obstacle((uint8_t )i,0);
+	 HAL_Delay(200);
+	}
 	HAL_Delay(2000);
 	high_beam_off();
 

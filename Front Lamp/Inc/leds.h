@@ -28,5 +28,6 @@ void drl_on_turn_indicator(void);
 void drl_off(void);
 void drl_dimming(uint32_t pwm);
 void drl_toggle(void);
+void drl_set(uint32_t );
 
 #endif /* LEDS_H_ */
