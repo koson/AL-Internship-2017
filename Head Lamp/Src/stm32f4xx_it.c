@@ -314,7 +314,7 @@ void TIM7_IRQHandler(void)
 				  if(press_DRL==SHORT_PRESS)
 					  drl_toggle();
 	  /*Light sensor functionality*/
-	  dimmingIfHighLuminosity();
+	  dimming_if_high_luminosity();
 	  low_beam_on_dark();
 	  high_beam_blocked();
   }

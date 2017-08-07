@@ -81,7 +81,7 @@ int main(void)
 
 		  /*Receive commands from CAN*/
 		  CAN_Rx();
-		  setLightFlag();
+		  set_light_flag();
 
 		  /*Transmit the ridden message on CAN*/
 		  CAN_Tx(CANdecode(IR_tReceivedMessage));
