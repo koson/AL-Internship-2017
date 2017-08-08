@@ -13,8 +13,8 @@
 /*************************\
  * Light sensor functions
 \*************************/
-void dimmingIfHighLuminosity(void);
+void dimming_if_high_luminosity(void);
 void low_beam_on_dark(void);
 void high_beam_blocked(void);
-void setLightFlag(void);
+void set_light_flag(void);
 #endif /* LIGHT_SENSOR_H_ */

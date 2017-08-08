@@ -216,6 +216,16 @@ void drl_dimming(uint32_t div)
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,TIM_PERIOD/div);
 	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,TIM_PERIOD/div);
 }
+void drl_set(uint32_t set)
+{
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,set);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_2,set);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_3,set);
+	__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,set);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,set);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,set);
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_3,set);
+}
 /**
  *@brief toggle dlr
  */

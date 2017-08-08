@@ -56,13 +56,14 @@ IRMessage IR_tReceivedThirdMessage;
 IRMessage IR_tMessageToBeSent;
 
 FLAG_STATE FLAG_TI=FLAG_OFF;
+BUTTON_PRESS_Type press_TI=UNDEFINED_PRESS;
 FLAG_STATE FLAG_DRL=FLAG_OFF;
 FLAG_STATE FLAG_HI=FLAG_OFF;
 FLAG_STATE FLAG_LO=FLAG_OFF;
 FLAG_LIGHT LIGHT_STATUS=DAY;
 FLAG_MODE USE_BUTTONS=MANUAL;
 uint32_t CLK_ui32PrescalerValue;
-uint32_t  IR_ui32DecodedMessage;
+uint32_t IR_ui32DecodedMessage;
 uint16_t TIM_PERIOD=200;
 
 int main(void)
@@ -74,29 +75,20 @@ int main(void)
   /*Infinite loop*/
   while (1)
   {
-	  while(!read_button_TI()||!read_button_DLR())
+	  while(press_TI!=LONG_PRESS)
 	  {
 		  readIRMessage();
 
 		  /*Receive commands from CAN*/
 		  CAN_Rx();
-		  setLightFlag();
-		  /*Consider the intensity of light in order to dim the LEDs*/
-		  dimmingIfHighLuminosity();
-		  low_beam_on_dark();
-		  high_beam_blocked();
+		  set_light_flag();
 
 		  /*Transmit the ridden message on CAN*/
 		  CAN_Tx(CANdecode(IR_tReceivedMessage));
 	  }
-	  while(read_button_TI()&&read_button_DLR())
-	  {
-
-	  }
-	  while(!read_button_TI()||!read_button_DLR())
+	  while(press_TI!=LONG_PRESS)
 	  {
 		  demo();
-
 	  }
   }
 }

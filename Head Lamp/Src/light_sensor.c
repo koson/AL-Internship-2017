@@ -22,7 +22,7 @@ FLAG_STATE FLAG_SENSOR=FLAG_ON;
 /**
  * @brief Light sensor sets the light state
  */
-void setLightFlag(void)
+void set_light_flag(void)
 {
 	HAL_ADC_Start(&hadc1);
 	ADC_ui32LuminosityVal = HAL_ADC_GetValue(&hadc1);
@@ -39,7 +39,7 @@ void setLightFlag(void)
  * @brief DRL LEDs are dimmed on high luminosity
  *
  */
-void dimmingIfHighLuminosity(void)
+void dimming_if_high_luminosity(void)
 {
 	HAL_ADC_Start(&hadc1);
 	ADC_ui32LuminosityVal = HAL_ADC_GetValue(&hadc1);

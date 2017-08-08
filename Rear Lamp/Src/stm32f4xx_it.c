@@ -207,28 +207,22 @@ void TIM4_IRQHandler(void)
 		  case 5:
 		  {
 			  led_phase++;
+			  emb++;
 		  }break;
 		  case 6:
 		   {
-			  led_phase++;
+			   if(emb==5)
+			  			  {
+			  				  if(FLAG_TI==FLAG_OFF)
+			  					  HAL_TIM_Base_Stop_IT(&htim4);
+			  				  EMERGENCY_BRAKE=FLAG_OFF;
+			  				  emb=0;
+			  			  }
+			  			  led_phase=0;
 		   }break;
-
-		  case 7:
-		  {
-			  led_phase++;
-			  emb++;
-		  }break;
-		  case 8:
-		  {
-			  if(emb==5)
-			  {
-				  if(FLAG_TI==FLAG_OFF)
-					  HAL_TIM_Base_Stop_IT(&htim4);
-				  EMERGENCY_BRAKE=FLAG_OFF;
-				  emb=0;
-			  }
+		  default:
 			  led_phase=0;
-		  }break;
+
 	 }
 
 
@@ -236,6 +230,10 @@ void TIM4_IRQHandler(void)
 
 
 }
+
+/*
+ * TIM5 is used as an interruption that counts the number of bits transmitted in order to synchronize the transmitter with receiver
+ * */
 void TIM5_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM5_IRQn 0 */
