@@ -316,7 +316,7 @@ void TIM7_IRQHandler(void)
 	  /*Light sensor functionality*/
 	  dimming_if_high_luminosity();
 	  low_beam_on_dark();
-	  high_beam_blocked();
+	  //high_beam_blocked();
   }
 
 }

@@ -70,7 +70,7 @@ int main(void)
 {
   systemInit();
   back_light_on();
-  turn_indicator_on();
+  //turn_indicator_on();
   while (1)
   {
 
