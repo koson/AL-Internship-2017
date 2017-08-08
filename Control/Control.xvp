@@ -645,7 +645,7 @@
           <Property Name="Size">661, 406</Property>
           <Property Name="Location">3, 212</Property>
           <Property Name="BackColor">White</Property>
-          <Property Name="Text">Description</Property>
+          <Property Name="Text">DISPLAY</Property>
           <Property Name="TabIndex">22</Property>
         </Object>
         <Object Type="Vector.CANalyzer.Panels.Design.StartStopControl, Vector.CANalyzer.Panels.CommonControls, Version=9.0.65.0, Culture=neutral, PublicKeyToken=null" Name="StartStopControl2" Children="Controls" ControlName="Start Stop Control 2">
