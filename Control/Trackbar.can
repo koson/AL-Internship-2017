@@ -1,0 +1,14 @@
+/*@!Encoding:1252*/
+
+/*
+on sysvar Vector::track
+{
+ message 0x70 msg;
+ msg.dlc = 1;
+ msg.rtr = 0x00000000;
+ msg.can = 1;
+ msg.dir = tx;
+ msg.byte(0) = @this;
+ if(msg.byte(0) == 0x01)
+  output(trn);
+}*/

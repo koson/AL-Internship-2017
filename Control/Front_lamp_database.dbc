@@ -1,0 +1,117 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_:
+
+
+BO_ 112 HIB_OBSTACLE: 2 Vector__XXX
+
+BO_ 100 TOGGLE_MODE: 1 Vector__XXX
+
+BO_ 99 TOGGLE_DRL: 1 Vector__XXX
+
+BO_ 98 TOGGLE_TRN: 1 Vector__XXX
+
+BO_ 97 TOGGLE_LOB: 1 Vector__XXX
+
+BO_ 96 TOGGLE_HIB: 1 Vector__XXX
+
+BO_ 81 MODE_MANUAL: 1 Vector__XXX
+
+BO_ 80 MODE_AUTO: 1 Vector__XXX
+
+BO_ 51 IR_LEAVING_THE_ROAD: 1 Vector__XXX
+
+BO_ 53 IR_FAILED: 1 Vector__XXX
+
+BO_ 52 IR_STOP: 1 Vector__XXX
+
+BO_ 50 IR_IDLE: 1 Vector__XXX
+
+BO_ 49 IR_OBSTACLE: 1 Vector__XXX
+
+BO_ 48 IR_CRITICAL_BRAKE: 1 Vector__XXX
+
+BO_ 36 DLR_OFF: 1 Vector__XXX
+
+BO_ 20 DLR_ON: 1 Vector__XXX
+
+BO_ 33 LOW_BEAM_OFF: 1 Vector__XXX
+
+BO_ 35 TURN_SIGNAL_OFF: 1 Vector__XXX
+
+BO_ 32 HI_BEAM_OFF: 1 Vector__XXX
+
+BO_ 19 TURN_SIGNAL_ON: 1 Vector__XXX
+
+BO_ 18 BRAKE: 1 Vector__XXX
+
+BO_ 17 LOW_BEAM_ON: 1 Vector__XXX
+
+BO_ 16 HI_BEAM_ON: 1 Vector__XXX
+
+
+
+EV_ RESET_FRONT: 0 [0|0] "" 0 1 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ TOGGLE_DEMO_LED: 0 [0|0] "" 0 2 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ MODE_MANUAL: 0 [0|0] "" 0 3 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ TOGGLE_MODE: 0 [0|0] "" 0 4 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ TOGGLE_LOB: 0 [0|0] "" 0 5 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ TOGGLE_HIB: 0 [0|0] "" 0 6 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ TOGGLE_TRN: 0 [0|0] "" 0 7 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+EV_ TOGGLE_DRL: 0 [0|0] "" 0 8 DUMMY_NODE_VECTOR0 Vector__XXX;
+
+BA_DEF_  "BusType" STRING ;
+BA_DEF_ BU_  "NodeLayerModules" STRING ;
+BA_DEF_ BU_  "ECU" STRING ;
+BA_DEF_ BU_  "CANoeJitterMax" INT 0 0;
+BA_DEF_ BU_  "CANoeJitterMin" INT 0 0;
+BA_DEF_ BU_  "CANoeDrift" INT 0 0;
+BA_DEF_ BU_  "CANoeStartDelay" INT 0 0;
+BA_DEF_DEF_  "BusType" "";
+BA_DEF_DEF_  "NodeLayerModules" "";
+BA_DEF_DEF_  "ECU" "";
+BA_DEF_DEF_  "CANoeJitterMax" 0;
+BA_DEF_DEF_  "CANoeJitterMin" 0;
+BA_DEF_DEF_  "CANoeDrift" 0;
+BA_DEF_DEF_  "CANoeStartDelay" 0;
+
