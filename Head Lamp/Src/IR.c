@@ -13,6 +13,7 @@ uint16_t IR_ui16message = 0;
 
 IRMessage IR_tReceivedMessage;
 IRMessage toReturn;
+<<<<<<< HEAD:Head Lamp/Src/IR.c
 int IR_intcounter;
 
 /**
@@ -37,6 +38,28 @@ void readIRMessage() {
 		 }
 
 	 }
+=======
+extern IRMessage messageToBeSent;
+
+IRMessage CANDecode(uint16_t id) {
+	switch(id) {
+	case 48: messageToBeSent = cryticalBrake;
+			break;
+	case 49: messageToBeSent = obstacleOnTheRoad;
+			break;
+	case 50: messageToBeSent = idle;
+			break;
+	case 51: messageToBeSent = goingToLeaveTheRoad;
+			break;
+	case 52: messageToBeSent = goingToStop;
+			break;
+	case 53: messageToBeSent = failed;
+			break;
+	default: messageToBeSent = idle;
+			break;
+	}
+	return messageToBeSent;
+>>>>>>> master:IR/Src/IR.c
 }
 
 /**
